@@ -7,7 +7,7 @@ Command Line Folder and File creator
 
 ##### Install the cp.zip from the v1.0 release.
 ##### Extract it to a folder called cp.
-##### Add cp folder to your path. If you do not know how to do this you can follow this tutorial. *Applies only to windows* , [Path](path.md).
+##### Add cp folder to your path. If you do not know how to do this you can follow this tutorial. *Applies only to windows* , [Path](/path.md).
 ##### Open a new command line and run the command
     cp
 ##### Doing this will start up cp and show all options currently available.
