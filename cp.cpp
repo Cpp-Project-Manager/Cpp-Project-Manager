@@ -1,5 +1,12 @@
 #include <iostream>
 #include <windows.h>
+/*
+CP
+
+This is CP's main file.
+Although its not much, its responsible for the recursion between options 2, 3, and 4;
+
+*/
 
 int main(){
     int option;
