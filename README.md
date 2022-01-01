@@ -1,7 +1,7 @@
 # Creation-Project
 Command Line Folder and File creator
 
-### [Creation Project v1.0.1](https://github.com/Maou-Shimazu/Creation-Project/releases/tag/v1.0.1-minor-release)
+### [Creation Project v1.0.1](https://github.com/Maou-Shimazu/Creation-Project/releases/tag/v1.0.1)
 
 ## Installation
 
