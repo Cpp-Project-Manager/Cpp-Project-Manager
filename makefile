@@ -1,5 +1,5 @@
 all:
-	g++ src/cp.cpp -o cp 
-	g++ src/cpfc.cpp -o cpfc 
-	g++ src/cpfc.cpp -o cpfd 
-	g++ src/cpfile.cpp -o cpfile
+	gcc src/cp.cpp -o cp 
+	gcc src/cpfc.cpp -o cpfc 
+	gcc src/cpfc.cpp -o cpfd 
+	gcc src/cpfile.cpp -o cpfile
