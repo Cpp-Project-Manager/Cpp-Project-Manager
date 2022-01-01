@@ -1,6 +1,8 @@
 fn main() {
     cc::Build::new()
-        .file("foo.c")
+        .cpp(true)
+        .cpp_link_stdlib("stdc++")
+        .file("cp.cpp")
         .file("bar.c")
         .compile("foo");
 }
