@@ -8,9 +8,13 @@
 
 // using namespace conv;
 using std::filesystem::current_path;
+// file variable is global
 std::ofstream file;
+// Name variables for file and folder are global
 std::string filename, folderName;
 
+// boiler plate function, can be modified to accomodate anything you require boilerplate-wise
+// all boilers are derived from "header/conv.h"
 void boiler() {
   std::string ans;
   std::cout << "Type of template do you want?" << std::endl;
@@ -28,6 +32,8 @@ void boiler() {
   }
 }
 
+// code editor function, can be modified to accomodate any other text editors/IDE's that can be started from command line on your system
+// todo: check if notepad needs to be removed or not if not fixme: fix notepad opening files without boilers
 void codeEditor() {
   std::string ans;
   std::cout << "Which code editor would you like to use?" << std::endl;
