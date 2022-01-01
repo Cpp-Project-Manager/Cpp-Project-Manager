@@ -3,6 +3,11 @@ fn main() {
         .cpp(true)
         .cpp_link_stdlib("libstdc++")
         .file("cp.cpp")
-        .file("bar.c")
-        .compile("foo");
+        .compile("cp")
+        .file("cpfc.cpp")
+        .compile("cpfc")
+        .file("cpfd.cpp")
+        .compile("cpfd")
+        .file("cpfile.cpp"
+        .compile("cpfile"));
 }
