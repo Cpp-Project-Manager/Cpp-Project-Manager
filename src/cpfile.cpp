@@ -50,15 +50,15 @@ void codeEditor() {
   } else if (ans == "notepad" || ans == "Notepad" || ans == "note") {
     std::string cmd;
     cmd = "notepad " + filename;
-    std::system(cmd.c_str());
+    std::system(cmd.c_str()); // c_str() converts from string to const char*
   }
 };
 int main() {
+  // each question is asked and passed by input check
   std::string answer, secondAnswer, folderAnswer;
 
   std::cout << "----------------CP File----------------" << std::endl;
-
-  std::cout << "What file do you want to create?(File Name and Extention)"
+  std::cout << "What file do you want to create? (File Name and Extention)"
             << std::endl;
   std::cin >> filename;
 
@@ -76,6 +76,6 @@ int main() {
     codeEditor();
   }
   std::cout << "Thank you for using CP_File." << std::endl;
-  system("cp");
+  system("cp"); // calles cp at the end of file to enable a recurrsive effect
   return 0;
 }
