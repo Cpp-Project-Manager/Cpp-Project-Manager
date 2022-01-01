@@ -1,4 +1,3 @@
-CC=$(CXX)
 all:
 	g++ cp.cpp -o cp 
 	g++ cpfc.cpp -o cpfc 
