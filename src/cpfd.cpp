@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <iostream>
 
+// todo: add a system check and different commands for Mac and Linux
 int main() {
   std::string check, name, concat, cmd = "del ", scmd, nconcat;
   std::cout << "----------------CP Remover----------------" << std::endl;
