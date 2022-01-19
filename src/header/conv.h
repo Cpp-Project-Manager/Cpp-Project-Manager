@@ -2,7 +2,7 @@
 /*
         Maou Shimazu
         v1.0
-        Conv: Convenience library for quick testing systems.
+        Conv: Convenience library 
 */
 
 #ifndef CONV
