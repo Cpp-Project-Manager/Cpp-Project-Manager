@@ -6,12 +6,36 @@
 #include <iostream>
 #include "../headers/conv.h"
 
-// using namespace conv;
+
 using std::filesystem::current_path;
 // file variable is global
 std::ofstream file;
 // Name variables for file and folder are global
 std::string filename, folderName;
+
+
+/**
+ * note: cppproject fixme: refractor code to fit function
+ * */
+
+void cpproject(){
+  std::string ans;
+    std::cout << "----------------CP Project Creator----------------" << std::endl;
+    std::cout << "What Project would you like to configure? (C++, Rust)" << std::endl;
+    std::cin >> ans;
+    if (ans == "C++" || ans == "cpp" || ans == "c plus plus" || ans == "c++"){
+        // cppproject();
+    }
+    else if(ans == "Rust" || ans == "rs" || ans == "rust" || ans == "Rs"){
+        std::cout << "What is the name of your project?" << std::endl;
+        std::string projectName;
+        std::cin >> projectName;
+        std::string cargo = "cargo new ";
+        std::string cmd = cargo + projectName;
+        system(cmd.c_str());
+    }
+    system("cp");
+}
 
 // boiler plate function, can be modified to accomodate anything you require boilerplate-wise
 // all boilers are derived from "header/conv.h"
@@ -53,7 +77,7 @@ void codeEditor() {
     std::system(cmd.c_str()); // c_str() converts from string to const char*
   }
 };
-int main() {
+void mainFunction() {
   // each question is asked and passed by input check
   std::string answer, secondAnswer, folderAnswer;
 
@@ -77,5 +101,4 @@ int main() {
   }
   std::cout << "Thank you for using CP_File." << std::endl;
   system("cp"); // calles cp at the end of file to enable a recurrsive effect
-  return 0;
 }

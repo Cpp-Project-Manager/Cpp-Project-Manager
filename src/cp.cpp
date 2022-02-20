@@ -1,9 +1,8 @@
 #include <iostream>
 #include <windows.h>
 
-
 #include "../headers/misc.h"
-#include "../headers/cpfile.h"
+#include "../headers/projectManager.h"
 #include "../headers/conv.h"
 /*
 CP
@@ -24,12 +23,11 @@ int main(){
     // todo: remove executables and turn comand line calls into functions
     // todo: create something similar to cargo's `cargo new` function
     switch(option){
-        case 1: system("cpfc"); break;
+        case 1: createFolder(); break;
         case 2: system("tree /f"); system("cp"); break;
-        case 3: system("cpfd"); break; 
-        case 4: system("cpfile"); break;
-        case 5: system("cpproject"); break;
-        case 6: system("wiki"); break;
-        case 7: std::cout << "Thank you for using CP File." << std::endl; return 0; break; // no default case
+        case 3: removeFolder(); break; 
+        case 4: mainFunction(); break;
+        case 5: cpproject(); break;
+        case 6: std::cout << "Thank you for using CP File." << std::endl; return 0; break; // no default case
     }
 }
