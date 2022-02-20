@@ -1,6 +1,10 @@
 #include <iostream>
 #include <windows.h>
+
+
 #include "../headers/misc.h"
+#include "../headers/cpfile.h"
+#include "../headers/conv.h"
 /*
 CP
 
@@ -9,20 +13,6 @@ Although its not much, its responsible for the recursion between options 2, 3, a
 If any new files are created, you want to add a new option and also add it to the switch.
 */
 
-/**
- * CPFC
- * */
-
-void cpfc(){ 
-    std::string folderName, answer, folderCreate = "md ", folder; // string variables
-	std::cout << "----------------CP Folder----------------" << std::endl;
-	std::cout << "What is the name of your folder?" << std::endl;
-	std::cin >> folderName; // input
-	folder = folderCreate + folderName;
-	std::system(folder.c_str()); // requires c_str() function to turn the string into a const char * for the system function
-	std::cout << "Run the command, cd {folder name} and cpfile to create file. " << std::endl;
-	std::cout << "Thank you for using CP Folder." << std::endl;
-}
 
 int main(){
     int option; // switch option
