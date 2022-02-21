@@ -2,17 +2,30 @@
 #include <iostream>
 /**
  * misc.h is a file meant for miscelaneous declarations/definitions needed. It can be migrated to main but code will be congested.
- * */    
-  
-const char *menu = R""""( 
-> 1 CP Folder Creation
-> 2 CP Folder/File List
-> 3 CP Folder Removal
-> 4 CP File Creation
-> 5 CP Project Creation
-> 6 Help
-> 7 Exit)"""";
+ * 
+ * */
 
+/**
+ * @brief  All functions and 
+ * @note   
+ * @retval None
+ */
+namespace cmdInformation {
+    // todo: change menu
+  const char *menu = R""""(  
+  > 1 CP Create
+  > 2 CP Projects
+  > 3 CP Add
+  > 4 help
+  > 5 exit
+  )"""";
+
+  const char *help = R""""(
+    All cp arguments can be called manually or called by using `cp`'s menu.
+  )"""";
+
+
+}
 
 /**
  * note: CPFC fixme: refractor code to fit function
