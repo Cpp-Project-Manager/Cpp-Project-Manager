@@ -1,10 +1,12 @@
+#pragma once
+
 #include <bits/stdc++.h>
 #include <unistd.h>
 #include <windows.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include "../headers/conv.h"
+#include "../headers/conv.hpp"
 
 
 using std::filesystem::current_path;

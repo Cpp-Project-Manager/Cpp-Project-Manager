@@ -1,9 +1,9 @@
 #include <iostream>
 #include <windows.h>
 
-#include "../headers/misc.h"
-#include "../headers/projectManager.h"
-#include "../headers/conv.h"
+#include "../headers/misc.hpp"
+#include "../headers/projectManager.hpp"
+#include "../headers/conv.hpp"
 /*
 CP
 
