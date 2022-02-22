@@ -6,50 +6,31 @@
 #include "../headers/conv.hpp"
 #include "../headers/argCheck.hpp"
 
-#include "create.cpp"
-#include "projects.cpp"
-#include "add.cpp"
+#include "../headers/add.hpp"
+#include "../headers/create.hpp"
+#include "../headers/projects.hpp"
 using namespace arguments;
 
-/**
- * @brief  
- * @note   
- * @param  argc: 
- * @param  *argv[]: 
- * @retval 
- */
+
 int main(int argc, char *argv[]){
-    if(argCheck("cp", argc, argv, 1, 0)){
+    Create project;
+
+    if(argCheck("cp", argc, argv, 1, 0)){ // note: Implimented
+        std::cout << "Welcome to Creation Project. What would you like to do?: " << std::endl;
         std::cout << cmdInformation::help << std::endl;
     }
-    if(argCheck("create", argc, argv)){
-        std::cout << "CP Create Called" << std::endl;
+    if(argCheck("create", argc, argv)){ //! Unimplimented
+        project.NewProject();
     }
-    if(argCheck("projects", argc, argv)){
+    if(argCheck("projects", argc, argv)){ //! Unimplimented
         std::cout << "CP Projects Called" << std::endl;
     }
-    if(argCheck("add", argc, argv)){
+    if(argCheck("add", argc, argv)){ //! Unimplimented
         std::cout << "CP Add Called" << std::endl;
     }
-    if(argCheck("help", argc, argv)){
+    if(argCheck("help", argc, argv)){ // note: Implimented
         std::cout << cmdInformation::help << std::endl;
     }
 
-    // int option; // switch option
-    // std::cout << "Welcome to Creation Project. What would you like to do?: " << std::endl;
-    // while(true){
-    //     std::cout << cmdInformation::menu << std::endl;
-    //     std::cin >> option; // input check. can be changed to only accept numbers and recursively run if a valid number is not given. 
-    //     // todo: migrate all files here to main file
-    //     // todo: create something similar to cargo's `cargo new` function
-    //     switch(option){
-    //         // case 1: createFolder(); break;
-    //         // case 2: system("tree /f"); system("cp"); break;
-    //         // case 3: removeFolder(); break; 
-    //         // case 4: mainFunction(); break;
-    //         // case 5: cpproject(); break;
-    //         // case 6: std::cout << "Thank you for using CP File." << std::endl; return 0; break; // no default case
-    //     }
-    // }
     
 }
