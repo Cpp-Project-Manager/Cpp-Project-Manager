@@ -16,12 +16,16 @@ namespace cmdInformation {
   > 1 CP Create
   > 2 CP Projects
   > 3 CP Add
-  > 4 help
+  > 4 cp help
   > 5 exit
   )"""";
 
   const char *help = R""""(
-    All cp arguments can be called manually or called by using `cp`'s menu.
+All cp arguments can be called manually or called by using `cp`'s menu.
+  > CP Create - Creates a new CP project.
+  > CP Projects - Shows all Projects made with CP
+  > CP Add - Adds new Files and Folders to existing CP Project.
+  > cp help - Displays this help message.
   )"""";
 
 

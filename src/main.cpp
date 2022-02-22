@@ -19,6 +19,9 @@ using namespace arguments;
  * If any new files are created, you want to add a new option and also add it to the switch.
  */
 int main(int argc, char *argv[]){
+    if(argCheck("cp", argc, argv, 1, 0)){
+        std::cout << cmdInformation::help << std::endl;
+    }
     if(argCheck("create", argc, argv)){
         std::cout << "CP Create Called" << std::endl;
     }
@@ -29,7 +32,7 @@ int main(int argc, char *argv[]){
         std::cout << "CP Add Called" << std::endl;
     }
     if(argCheck("help", argc, argv)){
-        std::cout << "CP help Called" << std::endl;
+        std::cout << cmdInformation::help << std::endl;
     }
 
     // int option; // switch option
