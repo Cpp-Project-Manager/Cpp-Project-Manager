@@ -6,6 +6,9 @@
 #include "../headers/conv.hpp"
 #include "../headers/argCheck.hpp"
 
+#include "create.cpp"
+#include "projects.cpp"
+#include "add.cpp"
 using namespace arguments;
 
 /*
@@ -16,14 +19,17 @@ using namespace arguments;
  * If any new files are created, you want to add a new option and also add it to the switch.
  */
 int main(int argc, char *argv[]){
-    if(argCheck("Create", argc, argv)){
+    if(argCheck("create", argc, argv)){
         std::cout << "CP Create Called" << std::endl;
     }
-    if(argCheck("Projects", argc, argv)){
+    if(argCheck("projects", argc, argv)){
         std::cout << "CP Projects Called" << std::endl;
     }
-    if(argCheck("Add", argc, argv)){
+    if(argCheck("add", argc, argv)){
         std::cout << "CP Add Called" << std::endl;
+    }
+    if(argCheck("help", argc, argv)){
+        std::cout << "CP help Called" << std::endl;
     }
 
     // int option; // switch option
