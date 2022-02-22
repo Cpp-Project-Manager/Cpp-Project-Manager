@@ -11,12 +11,12 @@
 #include "add.cpp"
 using namespace arguments;
 
-/*
- * CP
- *
- * This is CP's main file.
- * Although its not much, its responsible for the recursion between options 2, 3, and 4;
- * If any new files are created, you want to add a new option and also add it to the switch.
+/**
+ * @brief  
+ * @note   
+ * @param  argc: 
+ * @param  *argv[]: 
+ * @retval 
  */
 int main(int argc, char *argv[]){
     if(argCheck("cp", argc, argv, 1, 0)){
