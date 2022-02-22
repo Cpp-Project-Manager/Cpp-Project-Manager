@@ -1,9 +1,5 @@
 #pragma once
 #include <iostream>
-/**
- * misc.h is a file meant for miscelaneous declarations/definitions needed. It can be migrated to main but code will be congested.
- * 
- * */
 
 /**
  * @brief  All functions and 
@@ -19,6 +15,8 @@ namespace cmdInformation {
   > 4 cp help
   > 5 exit
   )"""";
+
+  int menuAnswer;
 
   const char *help = R""""(
 All cp arguments can be called manually or called by using `cp`'s menu.
