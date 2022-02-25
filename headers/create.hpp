@@ -19,14 +19,29 @@
 
 /**
  * @brief  Create Class: Relevant to Cp Create.
- * @note   
- * @retval None
+ * @param projectName: std::string
+ * @param createFolder(): void
+ * @param NewProject(): void
  */
 class Create {
+    std::string projectName;
 
     public:
     Create(){};
+    // Create(std::string pn) : projectName(pn){};
+
+    void createFolder(std::string projectName){ 
+        std::string folderCreate = "md ", folder; // can be mkdir
+        folder = folderCreate + projectName;
+        std::system(folder.c_str()); // requires c_str() function to turn the string into a const char * for the system function
+        std::cout << "Run the command, cd {folder name} and cpfile to create file. " << std::endl;
+        std::cout << "Thank you for using CP Folder." << std::endl;
+        system("cp");
+    }
+    
     void NewProject(){
         std::cout << "> New Project! <" << std::endl;
-    };
+        std::cout << "Project name: "; std::cin >> projectName; std::cout << std::endl;
+        createFolder(projectName);
+    }
 };

@@ -14,7 +14,8 @@ using namespace conv;
 
 
 int main(int argc, char *argv[]){
-    Create project;
+    // Create's Class Object
+    Create* project;
 
     if(argCheck("cp", argc, argv, 1, 0)){ // note: Implimented
         print("Welcome to Creation Project. What would you like to do?: ");
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]){
         }
     }
     if(argCheck("create", argc, argv)){ //! Unimplimented
-        project.NewProject();
+        project->NewProject();
     }
     if(argCheck("projects", argc, argv)){ //! Unimplimented
         print("CP Projects Called");

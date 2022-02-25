@@ -2,8 +2,10 @@
 #include <iostream>
 
 /**
- * @brief  All functions and 
- * @note   
+ * @brief  All functions and input for the command line.
+ * @param menu: const char* - Main Menu 
+ * @param menuAnswer: int
+ * @param help: const char*
  * @retval None
  */
 namespace cmdInformation {
@@ -20,6 +22,7 @@ namespace cmdInformation {
 
   const char *help = R""""(
 All cp arguments can be called manually or called by using `cp`'s menu.
+
   > CP Create - Creates a new CP project.
   > CP Projects - Shows all Projects made with CP
   > CP Add - Adds new Files and Folders to existing CP Project.
@@ -29,21 +32,6 @@ All cp arguments can be called manually or called by using `cp`'s menu.
 
 }
 
-/**
- * note: CPFC fixme: refractor code to fit function
- * */
-
-void createFolder(){ 
-    std::string folderName, answer, folderCreate = "md ", folder; // string variables
-	std::cout << "----------------CP Folder----------------" << std::endl;
-	std::cout << "What is the name of your folder?" << std::endl;
-	std::cin >> folderName; // input
-	folder = folderCreate + folderName;
-	std::system(folder.c_str()); // requires c_str() function to turn the string into a const char * for the system function
-	std::cout << "Run the command, cd {folder name} and cpfile to create file. " << std::endl;
-	std::cout << "Thank you for using CP Folder." << std::endl;
-  system("cp");
-}
 
 /**
  * note: cpfd fixme: refractor code to fit function
