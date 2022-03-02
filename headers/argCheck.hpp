@@ -15,8 +15,8 @@ namespace arguments {
  * @param  word: sting, word that should be compared with argv
  * @retval true: if arguments are compared false: otherwise
  */
-bool argCheck(const char* word="", int argc={NULL}, char* argv[]=nullptr, int arguments = 2, int argvParameter = 1){
-    if ( (argc == arguments) && _stricmp( argv[argvParameter], word) == 0)
+bool argCheck(std::string word, int argc={NULL}, char* argv[]=nullptr, int arguments = 2, int argvParameter = 1){
+    if ( (argc == arguments) && (argv[argvParameter] == word) == 0)
         return true;
     else return false;
 }

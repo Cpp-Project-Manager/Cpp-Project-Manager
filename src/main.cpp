@@ -20,7 +20,7 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[]){
     // Create's Class Object
-    Create* project;
+    Create project;
 
     // Create configuration file.
     if(!fs::exists("cpconfig.json")){
@@ -50,11 +50,7 @@ int main(int argc, char *argv[]){
         }
     }
     if(argCheck("create", argc, argv)){ //! Unimplimented
-<<<<<<< HEAD
         project.CreationOptions();
-=======
-        project->NewProject();
->>>>>>> 922e56b77430ab269bf424895b0571c68c31b737
     }
     if(argCheck("projects", argc, argv)){ //! Unimplimented
         fmt::print("CP Projects Called");

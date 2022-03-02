@@ -26,7 +26,6 @@
  * @param NewProject(): void
  */
 class Create {
-<<<<<<< HEAD
     int ans;
     std::string folderName, answer, folderCreate = "md ", folder;
     const char* create = R""""(
@@ -61,26 +60,25 @@ class Create {
 // 	std::cout << "Thank you for using CP Folder." << std::endl;
 //   system("cp");
 // }
-=======
-    std::string projectName;
 
-    public:
-    Create(){};
-    // Create(std::string pn) : projectName(pn){};
+//     std::string projectName;
 
-    void createFolder(std::string projectName){ 
-        std::string folderCreate = "md ", folder; // can be mkdir
-        folder = folderCreate + projectName;
-        std::system(folder.c_str()); // requires c_str() function to turn the string into a const char * for the system function
-        std::cout << "Run the command, cd {folder name} and cpfile to create file. " << std::endl;
-        std::cout << "Thank you for using CP Folder." << std::endl;
-        system("cp");
-    }
+//     public:
+//     Create(){};
+//     // Create(std::string pn) : projectName(pn){};
+
+//     void createFolder(std::string projectName){ 
+//         std::string folderCreate = "md ", folder; // can be mkdir
+//         folder = folderCreate + projectName;
+//         std::system(folder.c_str()); // requires c_str() function to turn the string into a const char * for the system function
+//         std::cout << "Run the command, cd {folder name} and cpfile to create file. " << std::endl;
+//         std::cout << "Thank you for using CP Folder." << std::endl;
+//         system("cp");
+//     }
     
-    void NewProject(){
-        std::cout << "> New Project! <" << std::endl;
-        std::cout << "Project name: "; std::cin >> projectName; std::cout << std::endl;
-        createFolder(projectName);
-    }
-};
->>>>>>> 922e56b77430ab269bf424895b0571c68c31b737
+//     void NewProject(){
+//         std::cout << "> New Project! <" << std::endl;
+//         std::cout << "Project name: "; std::cin >> projectName; std::cout << std::endl;
+//         createFolder(projectName);
+//     }
+// };

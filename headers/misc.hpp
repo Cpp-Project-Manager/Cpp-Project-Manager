@@ -23,25 +23,19 @@ namespace cmdInformation {
 
   const char *help = R""""(
 All cp arguments can be called manually or called by using `cp`'s menu.
-<<<<<<< HEAD
 [X] CP Create - Creates a new CP project.
 [X] CP Projects - Shows all Projects made with CP
 [X] CP Add - Adds new Files and Folders to existing CP Project.
 [X] cp help - Displays this help message.
 )"""";
 }
-=======
 
-  > CP Create - Creates a new CP project.
-  > CP Projects - Shows all Projects made with CP
-  > CP Add - Adds new Files and Folders to existing CP Project.
-  > cp help - Displays this help message.
-  )"""";
-
-
-}
-
->>>>>>> 922e56b77430ab269bf424895b0571c68c31b737
+//   > CP Create - Creates a new CP project.
+//   > CP Projects - Shows all Projects made with CP
+//   > CP Add - Adds new Files and Folders to existing CP Project.
+//   > cp help - Displays this help message.
+//   )"""";
+// }
 
 /**
  * note: cpfd fixme: refractor code to fit function
