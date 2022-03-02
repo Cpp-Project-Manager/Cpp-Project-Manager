@@ -36,8 +36,5 @@ namespace conv {
 	// python boiler
 	void pyHWBoiler() { std::cout << pyboiler; }
 
-	void print(std::string word){
-    	std::cout << word << std::endl;
-	}
 } 
 #endif
