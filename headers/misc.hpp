@@ -29,14 +29,6 @@ All cp arguments can be called manually or called by using `cp`'s menu.
 [X] cp help - Displays this help message.
 )"""";
 }
-
-//   > CP Create - Creates a new CP project.
-//   > CP Projects - Shows all Projects made with CP
-//   > CP Add - Adds new Files and Folders to existing CP Project.
-//   > cp help - Displays this help message.
-//   )"""";
-// }
-
 /**
  * note: cpfd fixme: refractor code to fit function
  * */

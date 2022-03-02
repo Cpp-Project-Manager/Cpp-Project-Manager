@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
     // Create configuration file.
     if(!fs::exists("cpconfig.json")){
         #ifdef _WIN32
-            system("md cpconfig.json"); 
+            system("type NUL > cpconfig.json"); 
         #endif
        #if __APPLE__ || __linux__
             system("touch cpconfig.json")
