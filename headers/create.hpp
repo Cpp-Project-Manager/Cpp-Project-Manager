@@ -49,8 +49,7 @@ public:
             case 3: fmt::print("NewFileDir()"); break;
             case 5: goto br; break;
             default: fmt::print("command: {} is unknown", ans); break;
-            br:
-                break;
+            br: break;
         }
     };
 

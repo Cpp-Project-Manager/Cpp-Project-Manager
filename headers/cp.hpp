@@ -23,8 +23,7 @@ namespace cp {
                 case 5: goto br; break;
                 default: fmt::print("command: {} not found.", cmdInformation::menuAnswer);
             }
-            br:
-                break;
+            br: break;
         }
     }
 }
