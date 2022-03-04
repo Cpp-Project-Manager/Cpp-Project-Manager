@@ -45,7 +45,7 @@ public:
         switch(ans){ 
             case 0: system("cp"); break;
             case 1: NewProject(); break;
-            case 2: RemoveProject(); break;
+            case 2: /*RemoveProject();*/ break;
             case 3: fmt::print("NewFileDir()"); break;
             case 5: break;
             default: fmt::print("command: {} is unknown", ans); break;
@@ -91,22 +91,31 @@ public:
             system("cp");
         
     };
-
-    void RemoveProject(){};
+    // templates
     void SrcTemp(std::string path){
         std::string projectPath = path + "\\" + projectName;
         std::string mainCpp = projectPath + "\\src\\main.cpp";
-        std::string command = "cd " + projectPath + " && mkdir src && mkdir include && cd src && type NUL > main.cpp && cd ../ && cd include && type NUL > main.hpp";
+        std::string command = "cd " + projectPath + " && mkdir src && mkdir include && cd src && type NUL > main.cpp"; // && cd ../ && cd include && type NUL > main.hpp";
         system(command.c_str());
         std::ofstream main_cpp(mainCpp);
         main_cpp << conv::cppboiler;
         
     }
+    
     void ClassTemp(std::string path){
-        std::string projectPath = path + "\\" + projectName;
-        std::string mainHpp = projectPath + "\\include\\main.hpp";
+        std::string projectPath = path + "\\" + projectName, className;
+
+        fmt::print("Name of main class: ");
+        std::cin >> className;
+        std::string command = "cd " + projectPath + " && mkdir src && mkdir include && cd src && type NUL > main.cpp && type NUL >" + className + ".cpp && cd ../ && cd include && type NUL > " + className + ".hpp";
+        std::system(command.c_str());
+
+        std::string mainHpp = projectPath + "\\include\\"+ className + ".hpp";
         std::ofstream main_hpp(mainHpp);
+        main_hpp << conv::headerBoiler;
     }
+
+    void RemoveProject(std::string path){};
     
 };
 
