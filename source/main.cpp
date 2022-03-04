@@ -9,9 +9,9 @@
 #endif
 
 #ifndef FMT_CORE_H_
-#include "../fmt/core.h"
-#include "../fmt/color.h"
-#include "../src/format.cc"
+#include "../fmt/fmt/core.h"
+#include "../fmt/fmt/color.h"
+#include "../fmt/src/format.cc"
 #endif
 
 #include "../headers/misc.hpp"
