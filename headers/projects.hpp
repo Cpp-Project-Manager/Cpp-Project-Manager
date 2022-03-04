@@ -12,7 +12,7 @@ private:
 
 
 public:
-    Projects(){};
+    Projects() = default;
     void ProjectsOptions(){
         fmt::print("Projects!!!");
         system("cp");
