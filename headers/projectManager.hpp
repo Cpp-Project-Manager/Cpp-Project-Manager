@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include "../headers/conv.hpp"
 
 
 using std::filesystem::current_path;
@@ -58,9 +57,6 @@ void boiler() {
   }
 }
 
-// code editor function, can be modified to accomodate any other text editors/IDE's that can be started from command line on your system
-// todo: check if notepad needs to be removed or not if not 
-// fixme: fix notepad opening files without boilers
 void codeEditor() {
   std::string ans;
   std::cout << "Which code editor would you like to use?" << std::endl;

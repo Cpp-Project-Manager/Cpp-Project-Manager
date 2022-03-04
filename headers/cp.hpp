@@ -5,21 +5,27 @@
 #include "create.hpp"
 #include "misc.hpp"
 
-Create project;
+Create create;
+Projects projects;
 
 namespace cp {
     void cp(){
-        fmt::print(fmt::emphasis::underline | fg(fmt::color::cyan), "\nWelcome to Creation Project. What would you like to do?: ");
+        fmt::print(fmt::emphasis::underline | fg(fmt::color::cyan), "\nWelcome to Creation Project.\n");
         fmt::print(fg(fmt::color::golden_rod), cmdInformation::menu);
         for(;;){
+            fmt::print(fg(fmt::color::sky_blue), "\nYour Option: ");
             std::cin >> cmdInformation::menuAnswer;
             switch(cmdInformation::menuAnswer){
-                case 1: project.CreationOptions(); break;
-                case 2: fmt::print("Cp Projects"); break;
+                case 1: create.CreationOptions(); break;
+                case 2: projects.ProjectsOptions(); break;
                 case 3: fmt::print("Cp Add"); break;
                 case 4:
-                fmt::print(fg(fmt::color::cyan), "All cp arguments can be called manually or called by using `cp`'s menu.");
-                fmt::print(fg(fmt::color::golden_rod),cmdInformation::help); break;
+
+                fmt::print(fg(fmt::color::cyan), "\nAll cp arguments can be called manually or called by using `cp`'s menu.");
+                fmt::print(fg(fmt::color::golden_rod),cmdInformation::help);
+                system("cp");
+                break;
+
                 case 5: goto br; break;
                 default: fmt::print("command: {} not found.", cmdInformation::menuAnswer);
             }

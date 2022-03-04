@@ -8,15 +8,13 @@
 #include <src/format.cc>
 #endif
 
-#ifndef FMT_CORE_H_
-#include "../fmt/fmt/core.h"
-#include "../fmt/fmt/color.h"
+#ifndef FMT_CORE_H_ // Use this and comment the one above out.
+#include "../fmt/include/fmt/core.h"
+#include "../fmt/include/fmt/color.h"
 #include "../fmt/src/format.cc"
 #endif
 
 #include "../headers/misc.hpp"
-#include "../headers/projectManager.hpp"
-#include "../headers/conv.hpp"
 #include "../headers/argCheck.hpp"
 #include "../headers/add.hpp"
 #include "../headers/create.hpp"
@@ -34,7 +32,8 @@ const ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
 int main(int argc, char *argv[]){
     // Create's Class Object
-    Create project;
+    Create create;
+    Projects projects;
 
     // Create configuration file.
     if(!fs::exists("cpconfig.json")){
@@ -46,20 +45,18 @@ int main(int argc, char *argv[]){
        #endif
     }
 
-    if(argCheck("cp", argc, argv, 1, 0)) // note: Implimented
+    if(argCheck("cp", argc, argv, 1, 0)) //info: Implimented
         cp::cp();
         
-    if(argCheck("create", argc, argv)) //note: Being implimented
-        project.CreationOptions();
+    if(argCheck("create", argc, argv)) //note: 1/2 implimented
+        create.CreationOptions();
     
-    if(argCheck("projects", argc, argv)) //! Unimplimented
-        fmt::print("CP Projects Called");
+    if(argCheck("projects", argc, argv)) //? Began implimentation
+        projects.ProjectsOptions();
     
     if(argCheck("add", argc, argv)) //! Unimplimented
         fmt::print("CP Add Called");
 
-    if(argCheck("help", argc, argv)) // note: Implimented
-        std::cout << cmdInformation::help << std::endl;
-    
-    
+    if(argCheck("help", argc, argv)) // info: Implimented
+        fmt::print(fg(fmt::color::sky_blue), cmdInformation::help);
 }
