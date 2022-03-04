@@ -2,4 +2,4 @@
 .vscode
 *.json
 test/
-headers/projectManager.hpp
+projectManager.hpp

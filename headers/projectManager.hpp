@@ -47,13 +47,13 @@ void boiler() {
             << std::endl;
   std::cin >> ans;
   if (ans == "rust" || ans == "Rust" || ans == "rs" || ans == "Rs") {
-    file << conv::rustboiler;
+ //   file << conv::rustboiler;
   } else if (ans == "cpp" || ans == "C++" || ans == "c plus plus" ||
              ans == "c++") {
-    file << conv::cppboiler;
+ //   file << conv::cppboiler;
   } else if (ans == "py" || ans == "python" || ans == "Python" || ans == "Py" ||
              ans == "Lua" || ans == "lua") {
-    file << conv::pyboiler;
+  //  file << conv::pyboiler;
   }
 }
 
