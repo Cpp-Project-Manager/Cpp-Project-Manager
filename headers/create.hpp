@@ -45,10 +45,10 @@ public:
         switch(ans){ 
             case 0: system("cp"); break;
             case 1: NewProject(); break;
-            case 2: /*RemoveProject();*/ break;
+            case 2: RemoveProject(); break;
             case 3: fmt::print("NewFileDir()"); break;
             case 5: break;
-            default: fmt::print("command: {} is unknown", ans); break;
+            default: fmt::print("command: {} is unknown", ans); system("cp"); break;
         }
     };
 
@@ -61,9 +61,9 @@ public:
         fmt::print(fg(fmt::color::cyan), "> New Project! <\n");
         fmt::print(fg(fmt::color::golden_rod), "Project name: ");
         std::cin >> projectName;
-        cpconfig["path"] = std::filesystem::current_path();
-        cpconfig["lang"] = "cpp";
-        cpconfig["project"] = projectName;
+        cpconfig["project"]["project"] = projectName;
+        cpconfig["project"]["path"] = std::filesystem::current_path();
+        cpconfig["project"]["lang"] = "cpp";
         folder = folderCreate + projectName;
         system(folder.c_str());
 
@@ -71,7 +71,7 @@ public:
 
         fmt::print(fg(fmt::color::golden_rod), "Editor: ");
         std::cin >> editor;
-        cpconfig["editor"] = editor;
+        cpconfig["project"]["editor"] = editor;
 
         fmt::print(fg(fmt::color::cyan), "\nProject Template: ");
         fmt::print(fg(fmt::color::golden_rod), cmdInformation::projectTemplates);
@@ -115,7 +115,7 @@ public:
         main_hpp << conv::headerBoiler;
     }
 
-    void RemoveProject(std::string path){};
+    void RemoveProject(){};
     
 };
 
