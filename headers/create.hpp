@@ -36,7 +36,7 @@ private:
 )";
 
 public:
-    Create(){};
+    Create() = default;
     void CreationOptions(){
         fmt::print(fmt::emphasis::underline | fg(fmt::color::cyan), "\nWhat do you want to create?\n");
         fmt::print(fg(fmt::color::golden_rod), create);
@@ -47,9 +47,8 @@ public:
             case 1: NewProject(); break;
             case 2: RemoveProject(); break;
             case 3: fmt::print("NewFileDir()"); break;
-            case 5: goto br; break;
+            case 5: break;
             default: fmt::print("command: {} is unknown", ans); break;
-            br: break;
         }
     };
 
