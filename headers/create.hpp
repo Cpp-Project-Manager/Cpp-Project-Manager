@@ -26,45 +26,55 @@
  */
 class Create {
     int ans;
-    std::string folderName, answer, folderCreate = "md ", folder;
+    std::string folderName, answer, folderCreate = "md ", folder, projectName;
+    nlohmann::json cpconfig;
+
     const char* create = R"(
 [0] Back to main menu.
 [1] New Project
-[2] New File in current directory.
-[3] New File in specified directory.
+[2] Remove Project
+[5] Exit
 )";
-    public:
+
+public:
     Create(){};
     void CreationOptions(){
-        fmt::print(fg(fmt::terminal_color::cyan), "What do you want to create?");
-        fmt::print(fg(fmt::color::dark_golden_rod), create);
+        fmt::print(fg(fmt::color::cyan), "\nWhat do you want to create?");
+        fmt::print(fg(fmt::color::golden_rod), create);
         std::cin >> ans;
         switch(ans){ 
-            case 0: fmt::print("Go back to main menu."); break;
+            case 0: system("cp"); break;
             case 1: NewProject(); break;
             case 2: fmt::print("NewFile()"); break;
             case 3: fmt::print("NewFileDir()"); break;
+            case 5: goto br; break;
             default: fmt::print("command: {} is unknown", ans); break;
-            
+            br:
+                break;
         }
     };
+
+    void config_write(){
+        std::ofstream cpc("cpconfig.json");
+        cpc << std::setw(4) << cpconfig << std::endl;
+    };
+
     void NewProject(){
-        std::cout << "> New Project! <" << std::endl;
-        nlohmann::json cpconfig = {
-            {"project_name"},
-            {"path"},
-            {"editors",{}},
-        };
+        fmt::print(fg(fmt::color::cyan), "> New Project! <\n");
+        fmt::print(fg(fmt::color::golden_rod), "Project name: ");
+        std::cin >> projectName;
+        cpconfig["project"] = projectName;
+        cpconfig["lang"] = "c++/cpp";
+        cpconfig["path"] = std::filesystem::current_path();
+        folder = folderCreate + projectName;
+        std::system(folder.c_str());
+
+        config_write();
+        if(std::filesystem::exists("cpconfig.json")){
+            fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
+        }
+        system("cp");
     };
 
     
 };
-
-// 	std::cout << "What is the name of your folder?" << std::endl;
-// 	std::cin >> folderName; // input
-// 	folder = folderCreate + folderName;
-// 	std::system(folder.c_str()); // requires c_str() function to turn the string into a const char * for the system function
-// 	std::cout << "Run the command, cd {folder name} and cpfile to create file. " << std::endl;
-// 	std::cout << "Thank you for using CP Folder." << std::endl;
-//   system("cp");
-// }

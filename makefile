@@ -1,2 +1,2 @@
 all:
-	g++ src/main.cpp -o cp -static-libgcc -static-libstdc++
+	g++ source/main.cpp -o test/cp -static-libgcc -static-libstdc++
