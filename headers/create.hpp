@@ -122,6 +122,8 @@ public:
 
     void New(char *argv[]){
         char *word = argv[2];
+        std::string newWord(word), command = "mkdir " + newWord;
+        system(command.c_str());
         SrcTemp(std::filesystem::current_path().string() + "\\" + word);
     };
 
