@@ -2,11 +2,9 @@
 #include <windows.h>
 #include <filesystem>
 
-#ifndef FMT_CORE_H_
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <src/format.cc>
-#endif
 
 #ifndef FMT_CORE_H_ // Use this and comment the one above out.
 #include "../fmt/include/fmt/core.h"
@@ -20,8 +18,6 @@
 #include "../headers/create.hpp"
 #include "../headers/projects.hpp"
 #include "../headers/cp.hpp"
-
-using namespace arguments;
 using namespace conv;
 
 namespace fs = std::filesystem;
@@ -45,7 +41,7 @@ int main(int argc, char *argv[]){
        #endif
     }
 
-    if(argCheck("cp", argc, argv, 1, 0)) //info: Implimented
+    if(argCheck("cp", argc, argv, 1, 0)) // note: Implimented
         cp::cp();
         
     if(argCheck("create", argc, argv)) //note: 1/2 implimented
@@ -60,8 +56,8 @@ int main(int argc, char *argv[]){
     if(argCheck("help", argc, argv)) // info: Implimented
         fmt::print(fg(fmt::color::sky_blue), cmdInformation::help);
 
-    if(_stricmp(argv[1], "new") == 0 && argc >= 2){
-        create.New(argv);
+    if( _stricmp(argv[1], "new") == 0 && argc >= 2){
+        create.New(argv); // note: Implimented
     }
         
 }

@@ -51,6 +51,8 @@ int main(){
 R"(#pragma once
 
 #include <iostream>
-)";
+)", 
+
+      makeBoiler = R"()";
 
 }

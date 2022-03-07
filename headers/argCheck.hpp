@@ -3,8 +3,6 @@
 #include <string.h>
 #include <iostream>
 
-
-namespace arguments {
   /**
  * @brief  Argument Check Function
  * @note   
@@ -19,5 +17,4 @@ bool argCheck(const char* word="", int argc={NULL}, char* argv[]=nullptr, int ar
     if ( (argc == arguments) && _stricmp( argv[argvParameter], word) == 0)
         return true;
     else return false;
-}
 }

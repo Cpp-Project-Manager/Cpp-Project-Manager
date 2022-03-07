@@ -11,7 +11,6 @@
 /**
  *  keypoints:
  * ? Can be opened in specified code editor from any command line
- * ! above needs to impliment a path handler
  * */
 
 /**
@@ -85,6 +84,7 @@ public:
                     {"lang", "cpp"},
                     {"editor", editor},
             };
+            
             config_write();
             if(std::filesystem::exists("cpconfig.json")){
                 fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
@@ -112,8 +112,7 @@ public:
     void ClassTemp(std::string path){
         fmt::print("Name of main class: ");
         std::cin >> className;
-        std::string command = "cd " + path + " && mkdir src && mkdir include && cd src && type NUL > main.cpp && type NUL >" + className + ".cpp && cd ../ && cd include && type NUL > " + className + ".hpp";
-        std::system(command.c_str());
+        std::system(fmt::format("cd {0} && mkdir src && mkdir include && cd src && type NUL > main.cpp && type NUL > {1}.cpp && cd ../ && cd include && type NUL > {1}.hpp", path, className).c_str());
         write_to_hpp(path);
         write_to_cpp(path);
     }
@@ -122,9 +121,19 @@ public:
 
     void New(char *argv[]){
         char *word = argv[2];
-        std::string newWord(word), command = "mkdir " + newWord;
-        system(command.c_str());
+        char *editor = argv[3];
+        system(fmt::format("mkdir {}", word).c_str());
         SrcTemp(std::filesystem::current_path().string() + "\\" + word);
+
+        if (editor != NULL)
+            Open(fmt::format("{}\\{}", std::filesystem::current_path().string(), word), editor);
+
+        fmt::print(fg(fmt::color::sky_blue), "Created binary application `{}`.", word);
+
+    };
+
+    void Open(std::string path, const char *editor){
+        system(fmt::format("cd {} && {} .", path, editor).c_str());
     };
 
 };
