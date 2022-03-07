@@ -40,7 +40,6 @@ const char* projectTemplates = R"(
 namespace conv {
   auto cppboiler = 
 R"(#include <iostream>
-#include "../include/main.hpp"
 
 int main(){
 
@@ -48,6 +47,10 @@ int main(){
 	return 0;
 
 })",
-      headerBoiler = R"()";
+      headerBoiler = 
+R"(#pragma once
+
+#include <iostream>
+)";
 
 }

@@ -24,7 +24,7 @@ class Create {
 private:
     int ans, projectTemplateAns;
 
-    std::string folderName, answer, folderCreate = "md ", folderRemove = "rmdir", folder, projectName, editor;
+    std::string folderName, answer, folderCreate = "md ", folderRemove = "rmdir", folder, projectName, editor, className;
 
     nlohmann::json cpconfig;
 
@@ -48,7 +48,7 @@ public:
             case 2: RemoveProject(); break;
             case 3: fmt::print("NewFileDir()"); break;
             case 5: break;
-            default: fmt::print("command: {} is unknown", ans); system("cp"); break;
+            default: fmt::print("command: {} is unknown", ans); CreationOptions(); break;
         }
     };
 
@@ -61,17 +61,12 @@ public:
         fmt::print(fg(fmt::color::cyan), "> New Project! <\n");
         fmt::print(fg(fmt::color::golden_rod), "Project name: ");
         std::cin >> projectName;
-        cpconfig["project"]["project"] = projectName;
-        cpconfig["project"]["path"] = std::filesystem::current_path();
-        cpconfig["project"]["lang"] = "cpp";
+        std::string path = std::filesystem::current_path().string() + "\\" + projectName;
         folder = folderCreate + projectName;
         system(folder.c_str());
 
-        std::string path = cpconfig["path"].get<std::string>();
-
         fmt::print(fg(fmt::color::golden_rod), "Editor: ");
         std::cin >> editor;
-        cpconfig["project"]["editor"] = editor;
 
         fmt::print(fg(fmt::color::cyan), "\nProject Template: ");
         fmt::print(fg(fmt::color::golden_rod), cmdInformation::projectTemplates);
@@ -84,6 +79,12 @@ public:
             case 5: break;
         }
         cont:
+            cpconfig = {
+                projectName,
+                    {"path", path},
+                    {"lang", "cpp"},
+                    {"editor", editor},
+            };
             config_write();
             if(std::filesystem::exists("cpconfig.json")){
                 fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
@@ -91,32 +92,39 @@ public:
             system("cp");
         
     };
+    void write_to_cpp(std::string path){
+        std::string cpp = path + "\\src\\main.cpp";
+        std::ofstream main_cpp(cpp);
+        main_cpp << conv::cppboiler;
+    }
+    void write_to_hpp(std::string path){
+        std::string hpp = path + "\\include\\"+ className + ".hpp";
+        std::ofstream main_hpp(hpp);
+        main_hpp << conv::headerBoiler;
+    }
     // templates
     void SrcTemp(std::string path){
-        std::string projectPath = path + "\\" + projectName;
-        std::string mainCpp = projectPath + "\\src\\main.cpp";
-        std::string command = "cd " + projectPath + " && mkdir src && mkdir include && cd src && type NUL > main.cpp"; // && cd ../ && cd include && type NUL > main.hpp";
+        std::string command = "cd " + path + " && mkdir src && mkdir include && cd src && type NUL > main.cpp"; // && cd ../ && cd include && type NUL > main.hpp";
         system(command.c_str());
-        std::ofstream main_cpp(mainCpp);
-        main_cpp << conv::cppboiler;
-        
+        write_to_cpp(path);
     }
     
     void ClassTemp(std::string path){
-        std::string projectPath = path + "\\" + projectName, className;
-
         fmt::print("Name of main class: ");
         std::cin >> className;
-        std::string command = "cd " + projectPath + " && mkdir src && mkdir include && cd src && type NUL > main.cpp && type NUL >" + className + ".cpp && cd ../ && cd include && type NUL > " + className + ".hpp";
+        std::string command = "cd " + path + " && mkdir src && mkdir include && cd src && type NUL > main.cpp && type NUL >" + className + ".cpp && cd ../ && cd include && type NUL > " + className + ".hpp";
         std::system(command.c_str());
-
-        std::string mainHpp = projectPath + "\\include\\"+ className + ".hpp";
-        std::ofstream main_hpp(mainHpp);
-        main_hpp << conv::headerBoiler;
+        write_to_hpp(path);
+        write_to_cpp(path);
     }
 
     void RemoveProject(){};
-    
+
+    void New(char *argv[]){
+        char *word = argv[2];
+        SrcTemp(std::filesystem::current_path().string() + "\\" + word);
+    };
+
 };
 
 // void removeFolder(){

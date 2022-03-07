@@ -59,4 +59,9 @@ int main(int argc, char *argv[]){
 
     if(argCheck("help", argc, argv)) // info: Implimented
         fmt::print(fg(fmt::color::sky_blue), cmdInformation::help);
+
+    if(_stricmp(argv[1], "new") == 0 && argc >= 2){
+        create.New(argv);
+    }
+        
 }
