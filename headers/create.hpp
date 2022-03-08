@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iostream>
 
-#include "json.hpp"
 
 /**
  *  keypoints:
@@ -72,7 +71,7 @@ public:
             case 5: fmt::print(fg(fmt::color::medium_violet_red), "Configuration Failed!\n"); exit(0); break;
         }
         cont:
-            config_write();
+            // config_write();
             fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
             system("cp");
         
