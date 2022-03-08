@@ -5,11 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-
-/**
- *  keypoints:
- * ? Can be opened in specified code editor from any command line
- * */
+#include <config4cpp/Configuration.h>
 
 /**
  * @brief  Create Class: Relevant to Cp Create.

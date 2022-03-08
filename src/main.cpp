@@ -1,11 +1,11 @@
 #include <iostream>
 #include <windows.h>
 #include <filesystem>
+#include <config4cpp/Configuration.h>
 
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <src/format.cc>
-#include <config4cpp/Configuration.h>
 
 #ifndef FMT_CORE_H_ // Use this and comment the one above out.
 #include "../fmt/include/fmt/core.h"
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
             #endif
         }
     } 
-    
+
     if(argCheck("cp", argc, argv, 1, 0)) // note: Implimented
         cp::cp();
         
