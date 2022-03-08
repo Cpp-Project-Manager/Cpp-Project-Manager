@@ -25,8 +25,7 @@ private:
     const char* create = R"(
 [0] Main Menu.
 [1] New Project
-[2] Remove Project
-[5] Exit
+[2] Exit
 )";
 
 public:
@@ -39,9 +38,7 @@ public:
         switch(ans){ 
             case 0: system("cp"); break;
             case 1: NewProject(); break;
-            case 2: RemoveProject(); break;
-            case 3: fmt::print("NewFileDir()"); break;
-            case 5: break;
+            case 2: exit(0); break;
             default: fmt::print("command: {} is unknown", ans); CreationOptions(); break;
         }
     };
@@ -74,8 +71,6 @@ public:
             case 5: fmt::print(fg(fmt::color::medium_violet_red), "Configuration Failed!\n"); exit(0); break;
         }
         cont:
-            path_write();
-            project_write();
             fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
             system("cp");
         
@@ -104,8 +99,6 @@ public:
         write_to_hpp(path);
         write_to_cpp(path);
     }
-
-    void RemoveProject(){};
 
     void New(char *argv[]){
         char *word = argv[2];
