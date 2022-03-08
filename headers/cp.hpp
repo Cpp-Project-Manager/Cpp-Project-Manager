@@ -6,7 +6,6 @@
 #include "misc.hpp"
 
 Create create;
-Projects projects;
 
 namespace cp {
     void cp(){
@@ -17,7 +16,7 @@ namespace cp {
             std::cin >> cmdInformation::menuAnswer;
             switch(cmdInformation::menuAnswer){
                 case 1: create.CreationOptions(); break;
-                case 2: projects.ProjectsOptions(); break;
+                case 2: break;
                 case 3: fmt::print("Cp Add"); break;
                 case 4:
 

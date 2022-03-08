@@ -14,13 +14,9 @@
 
 #include "../headers/misc.hpp"
 #include "../headers/argCheck.hpp"
-#include "../headers/add.hpp"
 #include "../headers/create.hpp"
-#include "../headers/projects.hpp"
 #include "../headers/cp.hpp"
 using namespace conv;
-
-namespace fs = std::filesystem;
 
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 const ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -29,28 +25,12 @@ const ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 int main(int argc, char *argv[]){
     // Create's Class Object
     Create create;
-    Projects projects;
-
-    // Create configuration file.
-    if(fs::exists("cp.exe")){
-        if(!fs::exists("cpconfig.cfg")){
-            #ifdef _WIN32
-                system("type NUL > cpconfig.cfg"); 
-            #endif
-            #if __APPLE__ || __linux__
-                    system("touch cpconfig.cfg")
-            #endif
-        }
-    } 
 
     if(argCheck("cp", argc, argv, 1, 0)) // note: Implimented
         cp::cp();
         
     if(argCheck("create", argc, argv)) //note: 1/2 implimented
         create.CreationOptions();
-    
-    if(argCheck("projects", argc, argv)) //? Began implimentation
-        projects.ProjectsOptions();
 
     if(argCheck("help", argc, argv)) // info: Implimented
         fmt::print(fg(fmt::color::sky_blue), cmdInformation::help);
@@ -58,5 +38,4 @@ int main(int argc, char *argv[]){
     if( _stricmp(argv[1], "new") == 0 && argc >= 2){
         create.New(argv); // note: Implimented
     }
-        
 }

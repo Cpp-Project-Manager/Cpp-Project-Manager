@@ -4,8 +4,11 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
-#include "parse.hpp"
+/**
+ * ? get exe path, write to $path/projects each file name.
+ */
 
 /**
  * @brief  Create Class: Relevant to Cp Create.
@@ -17,7 +20,7 @@ class Create {
 private:
     int ans, projectTemplateAns;
 
-    std::string folderName, answer, folderCreate = "md ", folderRemove = "rmdir", folder, projectName, editor, className;
+    std::string folderName, answer, folderCreate = "md ", folderRemove = "rmdir", folder, projectName, editor, className, path;
 
     const char* create = R"(
 [0] Main Menu.
@@ -43,16 +46,20 @@ public:
         }
     };
 
-    void config_write(){
-        std::ofstream cpc("cpconfig.cfg", std::ios::trunc);
-        //cpc << std::setw(4) << cpconfig << std::endl;
+    void path_write(){
+        std::ofstream cpc("path.txt", std::ios::app);
+        cpc << path << std::endl;
     };
+    void project_write(){
+        std::ofstream cpc("project.txt", std::ios::app);
+        cpc << projectName << std::endl;
+    }
 
     void NewProject(){
         fmt::print(fg(fmt::color::cyan), "> New Project! <\n");
         fmt::print(fg(fmt::color::golden_rod), "Project name: ");
         std::cin >> projectName;
-        std::string path = std::filesystem::current_path().string() + "\\" + projectName;
+        path = std::filesystem::current_path().string() + "\\" + projectName;
         folder = folderCreate + projectName;
         system(folder.c_str());
 
@@ -67,7 +74,8 @@ public:
             case 5: fmt::print(fg(fmt::color::medium_violet_red), "Configuration Failed!\n"); exit(0); break;
         }
         cont:
-            // config_write();
+            path_write();
+            project_write();
             fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
             system("cp");
         
@@ -117,23 +125,3 @@ public:
     };
 
 };
-
-// void removeFolder(){
-//   std::string check, name, concat, cmd = "del ", scmd, nconcat;
-//   std::cout << "----------------CP Remover----------------" << std::endl;
-//   std::cout << "What do you want to delete? Options: File or Folder."
-//             << std::endl;
-//   std::cin >> check;
-//   if (check == "File" || check == "file") {
-//     std::cout << "What file do you want to delete?" << std::endl;
-//     std::cin >> name;
-//     concat = cmd + name;
-//     system(concat.c_str());
-//   } else if (check == "Folder" || check == "folder") {
-//     std::cout << "What folder do you want to delete?" << std::endl;
-//     std::cin >> name;
-//     scmd = "rmdir /s ";
-//     nconcat = scmd + name;
-//     system(nconcat.c_str());
-//   }
-// }
