@@ -24,8 +24,6 @@ private:
 
     std::string folderName, answer, folderCreate = "md ", folderRemove = "rmdir", folder, projectName, editor, className;
 
-    nlohmann::json cpconfig;
-
     const char* create = R"(
 [0] Main Menu.
 [1] New Project
@@ -50,10 +48,10 @@ public:
         }
     };
 
-    void config_write(){
-        std::ofstream cpc("cpconfig.json");
-        cpc << std::setw(4) << cpconfig << std::endl;
-    };
+    // void config_write(){
+    //     std::ofstream cpc("cpconfig.cfg");
+    //     cpc << std::setw(4) << cpconfig << std::endl;
+    // };
 
     void NewProject(){
         fmt::print(fg(fmt::color::cyan), "> New Project! <\n");
@@ -74,10 +72,6 @@ public:
             case 5: fmt::print(fg(fmt::color::medium_violet_red), "Configuration Failed!\n"); exit(0); break;
         }
         cont:
-            cpconfig = {
-                projectName, path
-            };
-            
             config_write();
             fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
             system("cp");

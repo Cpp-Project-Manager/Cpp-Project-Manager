@@ -36,10 +36,10 @@ int main(int argc, char *argv[]){
     if(fs::exists("cp.exe")){
         if(!fs::exists("cpconfig.cfg")){
             #ifdef _WIN32
-                system("type NUL > cpconfig.json"); 
+                system("type NUL > cpconfig.cfg"); 
             #endif
             #if __APPLE__ || __linux__
-                    system("touch cpconfig.json")
+                    system("touch cpconfig.cfg")
             #endif
         }
     } 
