@@ -5,6 +5,7 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <src/format.cc>
+#include <config4cpp/Configuration.h>
 
 #ifndef FMT_CORE_H_ // Use this and comment the one above out.
 #include "../fmt/include/fmt/core.h"
@@ -32,15 +33,17 @@ int main(int argc, char *argv[]){
     Projects projects;
 
     // Create configuration file.
-    if(!fs::exists("cpconfig.json")){
-        #ifdef _WIN32
-            system("type NUL > cpconfig.json"); 
-        #endif
-       #if __APPLE__ || __linux__
-            system("touch cpconfig.json")
-       #endif
-    }
-
+    if(fs::exists("cp.exe")){
+        if(!fs::exists("cpconfig.cfg")){
+            #ifdef _WIN32
+                system("type NUL > cpconfig.json"); 
+            #endif
+            #if __APPLE__ || __linux__
+                    system("touch cpconfig.json")
+            #endif
+        }
+    } 
+    
     if(argCheck("cp", argc, argv, 1, 0)) // note: Implimented
         cp::cp();
         

@@ -7,7 +7,6 @@
 
 #include "json.hpp"
 
-// Info: So what create needs to do, is to create, ofc, c++ projects that can be opened stright from the command line anywhere. It also needs to list dependencies used in that project. Information can and will be stored in either a json file or NBT file and retrieved using either Nlohmann Json [https://github.com/nlohmann/json] or nbt-cpp [https://github.com/handtruth/nbt-cpp].
 /**
  *  keypoints:
  * ? Can be opened in specified code editor from any command line
@@ -64,9 +63,6 @@ public:
         folder = folderCreate + projectName;
         system(folder.c_str());
 
-        fmt::print(fg(fmt::color::golden_rod), "Editor: ");
-        std::cin >> editor;
-
         fmt::print(fg(fmt::color::cyan), "\nProject Template: ");
         fmt::print(fg(fmt::color::golden_rod), cmdInformation::projectTemplates);
         std::cin >> projectTemplateAns;
@@ -75,20 +71,15 @@ public:
             case 2: SrcTemp(path); break;
             case 3: ClassTemp(path); break;
             case 4: break;
-            case 5: break;
+            case 5: fmt::print(fg(fmt::color::medium_violet_red), "Configuration Failed!\n"); exit(0); break;
         }
         cont:
             cpconfig = {
-                projectName,
-                    {"path", path},
-                    {"lang", "cpp"},
-                    {"editor", editor},
+                projectName, path
             };
             
             config_write();
-            if(std::filesystem::exists("cpconfig.json")){
-                fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
-            }
+            fmt::print(fg(fmt::color::aquamarine), "Configuration Updated!\n");
             system("cp");
         
     };
