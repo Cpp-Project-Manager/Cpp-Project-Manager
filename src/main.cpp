@@ -1,7 +1,6 @@
 #include <iostream>
 #include <windows.h>
 #include <filesystem>
-#include <config4cpp/Configuration.h>
 
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -52,9 +51,6 @@ int main(int argc, char *argv[]){
     
     if(argCheck("projects", argc, argv)) //? Began implimentation
         projects.ProjectsOptions();
-    
-    if(argCheck("add", argc, argv)) //! Unimplimented
-        fmt::print("CP Add Called");
 
     if(argCheck("help", argc, argv)) // info: Implimented
         fmt::print(fg(fmt::color::sky_blue), cmdInformation::help);

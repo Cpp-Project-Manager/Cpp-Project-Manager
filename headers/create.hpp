@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <config4cpp/Configuration.h>
+#include "parse.hpp"
 
 /**
  * @brief  Create Class: Relevant to Cp Create.
@@ -43,10 +43,10 @@ public:
         }
     };
 
-    // void config_write(){
-    //     std::ofstream cpc("cpconfig.cfg");
-    //     cpc << std::setw(4) << cpconfig << std::endl;
-    // };
+    void config_write(){
+        std::ofstream cpc("cpconfig.cfg", std::ios::trunc);
+        //cpc << std::setw(4) << cpconfig << std::endl;
+    };
 
     void NewProject(){
         fmt::print(fg(fmt::color::cyan), "> New Project! <\n");
