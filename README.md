@@ -3,6 +3,8 @@
 
 ##### As the name suggests, Creation Project otherwise known as CP, is a minimalist project template generator for C++ and soon C. It currently has support for basic templates but more will be added in the near future.
 
+#### Installation. 
+
 ### Usage
 ```sh
 cp create
