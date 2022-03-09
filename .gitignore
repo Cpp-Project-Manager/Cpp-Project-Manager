@@ -1,4 +1,3 @@
 *.exe
 .vscode
 *.json
-test/
