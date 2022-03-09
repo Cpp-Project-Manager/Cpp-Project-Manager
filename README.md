@@ -8,7 +8,7 @@
 ###### Coming soon: Installation for those who use cmd.
 
 #### Serach for environment variables: Edit System Environment Variables -> Environment Variables -> System Variables -> Path -> New and add the path of the folder you installed cp in.
-
+#
 ### Usage
 ```sh
 cp create
