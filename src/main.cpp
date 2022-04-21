@@ -5,39 +5,37 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <src/format.cc>
+#include <parse_args.h>
 
-//if using make, you can remove "../fmt/"
 #ifndef FMT_CORE_H_ // Use this and comment the one above out.
 #include "../fmt/include/fmt/core.h"
 #include "../fmt/include/fmt/color.h"
 #include "../fmt/src/format.cc"
 #endif
 
-//if not using make, add "../headers/"
-#include "misc.hpp"
-#include "argCheck.hpp"
-#include "create.hpp"
+#include "include/misc.hpp"
+#include "include/create.hpp"
 using namespace conv;
 
-#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
-const ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
-#endif
-
-//todo: impliment cmd style.
 //todo: impliment a faulty command reply
-//note: to compile to dist folder, run `make -f dist.make` in root dir
 
 int main(int argc, char *argv[]){
-    // Create's Class Object
+    ParseArgs args = ParseArgs(argc, argv);
     Create create;
 
-    if(argCheck("create", argc, argv))
+    if(args.DefaultParse("create"))
         create.NewProject();
 
-    if(argCheck("help", argc, argv))
+    if(args.DefaultParse("help"))
         fmt::print(fg(fmt::color::sky_blue),"{}", cmdInformation::help);
 
-    if( _stricmp(argv[1], "new") == 0 && argc >= 2){
+    if(args.Parse("new", 1)){
         create.New(argv);
     }
+    /*todo:
+    Open anywhere from terminal using toml++ and (if need be, create)dirs.
+    Impliment a Run, Build, Clean and Release using makefile.
+    Remove cppm create.
+    Crossplatform code.
+    */
 }
