@@ -6,7 +6,6 @@
 #include <iostream>
 #include <vector>
 #include "parse_args.h"
-#include "misc.hpp"
 
 /**
  * ? get exe path, write to $path/projects each file name.
@@ -149,4 +148,9 @@ public:
   void Open(std::string path, const char *editor) {
     system(fmt::format("cd {} && {} .", path, editor).c_str());
   };
+
+  void Run() {}
+  void Build() {}
+  void Release() {}
+  void clean() {}
 };

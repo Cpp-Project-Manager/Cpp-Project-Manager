@@ -3,3 +3,7 @@
 *.json
 dist
 test
+
+# Added by cargo
+
+/target
