@@ -6,27 +6,23 @@ use std::io::prelude::*;
 use std::path::Path;
 
 pub mod misc {
-    #[allow(dead_code)]
     pub const HELP: &str = r#"
 [X] cp create - Creates new project with your specifications.
 [X] cp new    - {project} Creates a boiler plate project.
 [X] cp help   - Displays this help message.
 "#;
-    #[allow(dead_code)]
-    pub const CPPBOILER: &str = r#"
-#include <iostream>
+    pub const CPPBOILER: &str = 
+r#"#include <iostream>
 
 int main(){
-        
-std::cout << "Hello World" << std::endl;
-return 0;            
-})   
+
+    std::cout << "Hello World" << std::endl;
+    return 0;            
+} 
 "#;
-    #[allow(dead_code)]
     pub fn header_boiler(header_name: &str) -> String {
         format!(
-            r#"
-#pragma once
+r#"#pragma once
 
 #ifndef {0}
 #define {0}
@@ -34,9 +30,7 @@ return 0;
 #include <iostream>
 
 
-#endif
-
-"#,
+#endif"#,
             header_name.to_uppercase().replace(".", "_")
         )
     }
@@ -82,10 +76,10 @@ impl Cppm {
         }
     }
 
-
     pub fn new(_arg: String, editor: String) {
         let mut s = Cppm::init();
         s.project_name = _arg;
+        let pn = s.project_name.clone();
         s.editor = editor;
         println!("Editor: {}", s.editor); //note: Outputs editor
         fs::create_dir_all(s.project_name.clone()).expect("folder creation failed.");
@@ -112,21 +106,23 @@ impl Cppm {
         let (main, header) = path(s);
         let main_path = Path::new(main.as_str());
         let header_path = Path::new(header.as_str());
+
         println!("{}, {}", main_path.display(), header_path.display()); //note: outputs files
-        File::create(&main_path).expect("file creation failed");
-        File::create(&header_path).expect("file creation failed");
+
+        File::create(&main_path).expect("file creation failed").write_all(misc::CPPBOILER.as_bytes()).expect("failed to write to main file.");
+        File::create(&header_path).expect("file creation failed").write_all(misc::header_boiler(pn.as_str()).as_bytes()).expect("failed to write to main file.");
     }
 } // Cppm
 
     #[cfg(windows)]
     fn path(s: Cppm) -> (String, String){
-        let main = format!("{}\\src\\main.cpp", s.project_name);
-        let header = format!("{}\\include\\header.hpp", s.project_name);
+        let main: String = format!("{}\\src\\main.cpp", s.project_name);
+        let header: String = format!("{0}\\include\\{0}.hpp", s.project_name);
         (main, header)
     }
     #[cfg(unix)]
     fn path(s: Cppm) -> (String, String){
         let main = format!("{}/src/main.cpp", s.project_name);
-        let header = format!("{}/include/header.hpp", s.project_name);
+        let header = format!("{0}/include/{0}.hpp", s.project_name);
         (main, header)
     }
