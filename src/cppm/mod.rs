@@ -1,6 +1,9 @@
 //use std::env;
 use std::fs;
 use std::process::Command;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
 
 pub struct Cppm {
     #[allow(dead_code)]
@@ -42,24 +45,51 @@ impl Cppm {
         }
     }
 
+
     pub fn new(_arg: String, editor: String) {
         let mut s = Cppm::init();
         s.project_name = _arg;
         s.editor = editor;
-        println!("Editor: {}", s.editor);
+        println!("Editor: {}", s.editor); //note: Outputs editor
         fs::create_dir_all(s.project_name.clone()).expect("folder creation failed.");
+
+        #[cfg(windows)]
+        fs::create_dir_all(format!("{}\\src", s.project_name.clone())).expect("folder creation failed.");
+        #[cfg(windows)]
+        fs::create_dir_all(format!("{}\\include", s.project_name.clone())).expect("folder creation failed.");
+
+        #[cfg(unix)]
+        fs::create_dir_all(format!("{}/src", s.project_name.clone())).expect("folder creation failed.");
+        #[cfg(unix)]
+        fs::create_dir_all(format!("{}/include", s.project_name.clone())).expect("folder creation failed.");
+
         if !s.editor.contains("null") {
             let mut _process = if cfg!(target_os = "windows") {
                 Command::new("powershell")
-                    .args(["/c", format!("cd {}", s.project_name).as_str(), ";", format!("{}", s.editor).as_str(), "."])
-                    .output()
-                    .expect("failed to execute process")
+                    .args(["/c", format!("cd {};", s.project_name.clone()).as_str(), format!("{} .", s.editor).as_str()]).output().expect("failed to execute process")
             } else {
                 Command::new("sh")
-                    .args(["-c", format!("{}", s.editor).as_str(), "."])
-                    .output()
-                    .expect("failed to execute process")
+                    .args(["-c", format!("cd {} && ", s.project_name.clone()).as_str(), format!("{} .", s.editor).as_str()]).output().expect("failed to execute process")
             };
-        } 
+        }
+        let (main, header) = path(s);
+        let main_path = Path::new(main.as_str());
+        let header_path = Path::new(header.as_str());
+        println!("{}, {}", main_path.display(), header_path.display()); //note: outputs files
+        File::create(&main_path).expect("file creation failed");
+        File::create(&header_path).expect("file creation failed");
     }
-}
+} // Cppm
+
+    #[cfg(windows)]
+    fn path(s: Cppm) -> (String, String){
+        let main = format!("{}\\src\\main.cpp", s.project_name);
+        let header = format!("{}\\include\\header.hpp", s.project_name);
+        (main, header)
+    }
+    #[cfg(unix)]
+    fn path(s: Cppm) -> (String, String){
+        let main = format!("{}/src/main.cpp", s.project_name);
+        let header = format!("{}/include/header.hpp", s.project_name);
+        (main, header)
+    }
