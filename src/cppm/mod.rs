@@ -47,19 +47,19 @@ impl Cppm {
         s.project_name = _arg;
         s.editor = editor;
         println!("Editor: {}", s.editor);
-        fs::create_dir_all(s.project_name).expect("folder creation failed.");
+        fs::create_dir_all(s.project_name.clone()).expect("folder creation failed.");
         if !s.editor.contains("null") {
             let mut _process = if cfg!(target_os = "windows") {
                 Command::new("powershell")
-                    .args(["/c", format!("{}", s.editor).as_str(), "."])
+                    .args(["/c", format!("cd {}", s.project_name).as_str(), ";", format!("{}", s.editor).as_str(), "."])
                     .output()
-                    .expect("failed to execute process");
+                    .expect("failed to execute process")
             } else {
                 Command::new("sh")
                     .args(["-c", format!("{}", s.editor).as_str(), "."])
                     .output()
-                    .expect("failed to execute process");
+                    .expect("failed to execute process")
             };
-        }
+        } 
     }
 }
