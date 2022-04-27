@@ -5,6 +5,43 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
+pub mod misc {
+    #[allow(dead_code)]
+    pub const HELP: &str = r#"
+[X] cp create - Creates new project with your specifications.
+[X] cp new    - {project} Creates a boiler plate project.
+[X] cp help   - Displays this help message.
+"#;
+    #[allow(dead_code)]
+    pub const CPPBOILER: &str = r#"
+#include <iostream>
+
+int main(){
+        
+std::cout << "Hello World" << std::endl;
+return 0;            
+})   
+"#;
+    #[allow(dead_code)]
+    pub fn header_boiler(header_name: &str) -> String {
+        format!(
+            r#"
+#pragma once
+
+#ifndef {0}
+#define {0}
+
+#include <iostream>
+
+
+#endif
+
+"#,
+            header_name.to_uppercase().replace(".", "_")
+        )
+    }
+}
+
 pub struct Cppm {
     #[allow(dead_code)]
     ans: i16,
