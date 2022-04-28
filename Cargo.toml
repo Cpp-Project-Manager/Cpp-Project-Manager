@@ -8,4 +8,7 @@ edition = "2021"
 [dependencies]
 colored = "2"
 dirs = "4.0.0"
-clap = "3.1.12"
+argparse = "0.2.2"
+envmnt = "^0.10.0"
+fsio = "0.3.0"
+configparser = "3.0.0"
