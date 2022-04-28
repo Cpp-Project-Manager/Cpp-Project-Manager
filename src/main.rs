@@ -1,5 +1,6 @@
 mod cppm;
 use std::env;
+use colored::Colorize;
 
 fn main() {
 
@@ -16,38 +17,29 @@ fn main() {
         },
         2 | 3 | 4 => {
             match _args[1].as_str() {
-                "new" => {
-                    println!("Creating new project: {}" , _args[2]);
+                "new" => { // possibly add minimal support for C
                     if _args.len() > 3 {
                         cppm::Cppm::new(_args[2].clone(), _args[3].clone());
                     }
                     else {
                        cppm::Cppm::new(_args[2].clone(), "null".to_string()); 
                     }
+                    println!("    {} {} `{}`", "Created".bright_green(), "C++ project" , _args[2]);
                 },
-                "run" => {
-
-                },
-                "build" => {
-
-                },
-                "clean" => {
-
-                }
-                "release" => {
-
-                }
+                "init" => (),
+                "run" => (),
+                "build" => (),
+                "clean" => (),
+                "release" => (),
                 "open" => {
                     if _args.len() > 3 {
                         cppm::Cppm::open(_args[2].clone(), _args[3].clone());
                     }
                     else {
-                        cppm::Cppm::open(_args[2].clone(), "some_default_editor_i_havent_added_implimentation_for".to_string());
+                        println!("   {}", "Please provide a text editor.".bright_red())
                     }
                 }
-                "config" => {
-                    
-                }
+                "config" => (),
                 "help" | _ => println!("{}", cppm::misc::HELP),
             }
         }

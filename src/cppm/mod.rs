@@ -1,6 +1,5 @@
-//use std::env;
+use colored::Colorize;
 use configparser::ini::Ini;
-use fsio::{directory, file, path};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -8,6 +7,7 @@ use std::path::Path;
 use std::process::Command;
 
 pub mod misc {
+    use configparser::ini::Ini;
     use fsio::file;
 
     pub const HELP: &str = r#"
@@ -27,14 +27,14 @@ int main(){
         format!(
             r#"#pragma once
 
-#ifndef {0}
-#define {0}
+#ifndef {0}_HPP
+#define {0}_HPP
 
 #include <iostream>
 
 
 #endif"#,
-            header_name.to_uppercase().replace(".", "_")
+            header_name.to_uppercase()
         )
     }
 
@@ -49,49 +49,38 @@ int main(){
     }
 
     pub fn write(_project_name_section: &str, _location: &str) {
-        let mut conf: String = configfile(); 
+        let mut conf: String = configfile();
         if !file::ensure_exists(conf.as_str()).is_ok() {
             std::fs::File::create(&mut conf).expect("Failed to create config file.");
         }
-        println!("{}", conf.replace("\\", "/")); //note: output config directory
-        let sec: String = format!("[project.{}]\n", _project_name_section);
-        file::append_file(conf.as_str(), sec.as_bytes()).expect("section not written");
-        let loc: String = format!("location = {}\n", _location);
-        file::append_file(conf.as_str(), loc.replace("\\", "/").as_bytes()).expect("location not written");
+        let mut ini = Ini::new();
+        let mut temp_ini = Ini::new();
+        let sec: String = format!("project.{}", _project_name_section);
+        let check = temp_ini.load(conf.clone()).unwrap();
+            ini.set(
+                sec.as_str(),
+                "location",
+                Some(_location.replace("\\", "/").to_owned()),
+            );        
+        if check.contains_key(sec.as_str()) {
+            temp_ini.write(conf).expect("config not written to");
+        } else {
+            file::append_file(conf.as_str(), ini.writes().as_bytes())
+                .expect("config not written to.");
+        }
     }
 }
 
 pub struct Cppm {
-    #[allow(dead_code)]
-    folder_name: String,
     project_name: String,
-    #[allow(dead_code)]
-    answer: String,
-    #[allow(dead_code)]
-    folder_create: String,
-    #[allow(dead_code)]
-    folder_remove: String,
-    #[allow(dead_code)]
-    folder: String,
     editor: String,
-    #[allow(dead_code)]
-    class_name: String,
-    #[allow(dead_code)]
-    path: String,
 }
 
 impl Cppm {
     fn init() -> Cppm {
         Cppm {
-            folder_name: String::new(),
             project_name: String::new(),
-            answer: String::new(),
-            folder_create: String::new(),
-            folder_remove: String::new(),
-            folder: String::new(),
             editor: String::new(),
-            class_name: String::new(),
-            path: String::new(),
         }
     }
 
@@ -108,25 +97,24 @@ impl Cppm {
             .expect("folder creation failed.");
 
         if !s.editor.contains("null") {
-            let mut _process = if cfg!(target_os = "windows") {
-                Command::new("powershell")
-                    .args([
-                        "/c",
-                        format!("cd {};", s.project_name.clone()).as_str(),
-                        format!("{} .", s.editor).as_str(),
-                    ])
-                    .output()
-                    .expect("failed to execute process")
-            } else {
-                Command::new("sh")
-                    .args([
-                        "-c",
-                        format!("cd {} && ", s.project_name.clone()).as_str(),
-                        format!("{} .", s.editor).as_str(),
-                    ])
-                    .output()
-                    .expect("failed to execute process")
-            };
+            #[cfg(windows)]
+            Command::new("powershell")
+                .args([
+                    "/c",
+                    format!("cd {};", s.project_name.clone()).as_str(),
+                    format!("{} .", s.editor).as_str(),
+                ])
+                .output()
+                .expect("failed to execute process");
+            #[cfg(unix)]
+            Command::new("sh")
+                .args([
+                    "-c",
+                    format!("cd {} && ", s.project_name.clone()).as_str(),
+                    format!("{} .", s.editor).as_str(),
+                ])
+                .output()
+                .expect("failed to execute process");
         }
         let (main, header) = path(s);
         let main_path = Path::new(main.as_str());
@@ -143,15 +131,49 @@ impl Cppm {
             .write_all(misc::header_boiler(pn.as_str()).as_bytes())
             .expect("failed to write to header file.");
 
-        misc::write(pn.clone().as_str(), format!("{}/{}", std::env::current_dir().unwrap().display(), pn.clone()).as_str());
+        misc::write(
+            pn.clone().as_str(),
+            format!(
+                "{}/{}",
+                std::env::current_dir().unwrap().display(),
+                pn.clone()
+            )
+            .as_str(),
+        );
     }
-
     #[allow(unused_variables)]
     pub fn open(_project_name: String, editor: String) {
-        let config = misc::configfile();
-        // collect the project name
-        // check ini file for project name
-        // if project name is found, open the project in specified editor
+        let config_loc = misc::configfile();
+        let mut config = Ini::new();
+        let ini = config.load(config_loc.clone()).unwrap();
+        let key = format!("project.{}", _project_name.clone());
+        if ini.contains_key(key.as_str()) {
+            let project_location = config.get(key.as_str(), "location").unwrap();
+            println!(
+                "   Opening Project{}`: {}",
+                key.replace("project.", " `").green(),
+                project_location
+            );
+
+            #[cfg(windows)]
+            Command::new("powershell")
+                .args([
+                    "/c",
+                    format!("cd {}; {} .", project_location, editor).as_str(),
+                ])
+                .output()
+                .expect("couldnt spawn command");
+            #[cfg(unix)]
+            Command::new("sh")
+                .args([
+                    "-c",
+                    format!("cd {} && {} .", project_location, editor).as_str(),
+                ])
+                .output()
+                .expect("couldnt spawn command");
+        } else {
+            println!("Project does not exist or was not created with cppm!!");
+        }
     }
 }
 fn path(s: Cppm) -> (String, String) {

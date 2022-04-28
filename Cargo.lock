@@ -55,8 +55,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06821ea598337a8412cf47c5b71c3bc694a7f0aed188ac28b836fab164a2c202"
 
 [[package]]
-name = "cpp-project-manager"
-version = "0.1.0"
+name = "cppm"
+version = "0.2.1"
 dependencies = [
  "argparse",
  "colored",
