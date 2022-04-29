@@ -1,9 +1,8 @@
 mod cppm;
-use std::env;
 use colored::Colorize;
+use std::env;
 
-const OPTIONS: &str = 
-r#"OPTIONS:
+const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
     -v, --version   Displays the version of this program.
     -l, --list      Lists all configured projects.
@@ -20,7 +19,7 @@ COMMANDS:
 Note: Many commands have not been implemented yet. This is a minor release, more features will be added in the future. commands with * are not yet implemented.
 "#;
 
-fn man(){
+fn man() {
     println!("C++ Project Manager\n");
     println!("USAGE:\n     cppm [COMMANDS] [+SUBCOMMANDS] [+NESTED-SC]\n");
     println!("{}", OPTIONS);
@@ -29,27 +28,34 @@ fn man(){
 fn main() {
     let _args: Vec<String> = env::args().collect();
 
-    
     //note: `cppm list projects` is also a possible implimentation.
 
-    match _args.len(){
+    match _args.len() {
         1 => {
             man();
-        },
+        }
         2 | 3 | 4 => {
             match _args[1].as_str() {
                 "-v" | "--version" => {
                     println!("{}", cppm::misc::version());
-                },
-                "new" => { // possibly add minimal support for C
+                }
+                "new" => {
+                    // possibly add minimal support for C
                     if _args.len() > 3 {
                         cppm::Cppm::new(_args[2].clone(), _args[3].clone());
+                    } else if _args.len() > 2 {
+                        cppm::Cppm::new(_args[2].clone(), "null".to_string());
+                    } else {
+                        println!("{}", "Error: You must provide a project name.".red());
+                        return;
                     }
-                    else {
-                       cppm::Cppm::new(_args[2].clone(), "null".to_string()); 
-                    }
-                    println!("    {} {} `{}`", "Created".bright_green(), "C++ project" , _args[2]);
-                },
+                    println!(
+                        "    {} {} `{}`",
+                        "Created".bright_green(),
+                        "C++ project",
+                        _args[2]
+                    );
+                }
                 "init" => (),
                 "run" => (),
                 "build" => (),
@@ -59,8 +65,7 @@ fn main() {
                 "open" => {
                     if _args.len() > 3 {
                         cppm::Cppm::open(_args[2].clone(), _args[3].clone());
-                    }
-                    else {
+                    } else {
                         println!("   {}", "Please provide a text editor.".bright_red())
                     }
                 }
@@ -69,7 +74,10 @@ fn main() {
             }
         }
         _ => {
-            println!("   {}", "Argument not supported, please use `cppm --help` for more info.".bright_red());
+            println!(
+                "   {}",
+                "Argument not supported, please use `cppm --help` for more info.".bright_red()
+            );
         }
     }
 }
