@@ -1,13 +1,9 @@
 name: Rust
-
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-
-
+    push:
+        tags:
+            - "v*"
+            
 jobs:
   build:
     name: build for all platforms
