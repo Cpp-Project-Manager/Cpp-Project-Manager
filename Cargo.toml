@@ -1,6 +1,6 @@
 [package]
 name = "cppm"
-version = "2.2.2"
+version = "2.2.3"
 edition = "2021"
 authors = ["Maou Shimazu <maoushimazu@protonmail.com>"]
 description = "A C++ Project Manager"
