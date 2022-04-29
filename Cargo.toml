@@ -7,7 +7,6 @@ description = "A C++ Project Manager"
 readme = "README.md"
 repository = "https://github.com/Maou-Shimazu/Cpp-Project-Manager"
 license = "MIT"
-license-file = "LICENSE"
 keywords = ["cli", "terminal", "tui"]
 
 [dependencies]
@@ -16,4 +15,3 @@ dirs = "4.0.0"
 envmnt = "^0.10.0"
 fsio = "0.3.0"
 configparser = "3.0.0"
-clap = "3.1.12"
