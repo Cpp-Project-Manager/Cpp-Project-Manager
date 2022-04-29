@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/actions">
-    <img src="https://img.shields.io/github/workflow/status/Maou-Shimazu/Cpp-Project-Manager/Rust?style=for-the-badge"
+    <img src="https://img.shields.io/github/workflow/status/Maou-Shimazu/Cpp-Project-Manager/Rust/v2.2.1?style=for-the-badge"
          alt="WorkFlow">
   </a>
   <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1"><img src="https://img.shields.io/github/v/release/Maou-Shimazu/Cpp-Project-Manager?style=for-the-badge"></a>
