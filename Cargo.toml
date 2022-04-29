@@ -2,8 +2,13 @@
 name = "cppm"
 version = "2.2.2"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Maou Shimazu <maoushimazu@protonmail.com>"]
+description = "A C++ Project Manager"
+readme = "README.md"
+repository = "https://github.com/Maou-Shimazu/Cpp-Project-Manager"
+license = "MIT"
+license-file = "LICENSE"
+keywords = ["cli", "terminal", "tui"]
 
 [dependencies]
 colored = "2"

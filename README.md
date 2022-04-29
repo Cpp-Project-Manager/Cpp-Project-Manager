@@ -1,26 +1,56 @@
-# Creation-Project
-#### Create C++ projects, straight from the command line.
+<h1 align="center"> C++ Project Manager </h1>
 
-##### As the name suggests, Creation Project otherwise known as CP, is a minimalist project template generator for C++ and soon C. It currently has support for basic templates but more will be added in the near future.
-#
-### Installation. 
-##### Install release for those who have terminal emulators: [Terminal Emulator install.](https://github.com/Maou-Shimazu/Creation-Project/releases/tag/v2) There is also a release here that comes with Alacritty terminal emulator for those who wish to use that.
-###### Coming soon: Installation for those who use cmd.
+<h4 align="center"> The C++ alternative to cargo. </h4>
 
-#### Serach for environment variables: Edit System Environment Variables -> Environment Variables -> System Variables -> Path -> New and add the path of the folder you installed cp in.
-#
-### Usage
-```sh
-cp create
+<p align="center">
+  <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/actions">
+    <img src="https://img.shields.io/github/workflow/status/Maou-Shimazu/Cpp-Project-Manager/Rust?style=for-the-badge"
+         alt="WorkFlow">
+  </a>
+  <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1"><img src="https://img.shields.io/github/v/release/Maou-Shimazu/Cpp-Project-Manager?style=for-the-badge"></a>
+  <a href="https://crates.io/crates/cppm">
+      <img src="https://img.shields.io/crates/d/cppm?style=for-the-badge">
+  </a>
+</p>
+
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="#download">Download</a> •
+  <a href="#license">License</a>
+</p>
+
+## Key Features
+* Create a C++ project with a single command.
+* Manage Project Locations.
+* Opening Projects from any command line
+
+## How To Use
+Note: * means a required entity, and + means an optional entity.
+```powershell
+# Download cppm and have it in your PATH so its available on all terminals
+cppm --help/-h # Will display the help menu
+cppm --version/-v # Will display the current version of cppm
+
+# Currently available commands
+
+# Creates a new project in the current directory and opens it in the
+# specified editor if specified. No default editor available. 
+cppm new <*project_name> <+editor> 
+
+# Opens the project the specified editor if specified. 
+# No default editor available.
+# Supports editors that have the `{editor} .` functionality
+# in the terminal. eg: Vscode, Atom, Sublime, etc.
+cppm open <*project_name> <*editor> 
+
 ```
-Displays promps to create a new project with or without a template.
-#
-```sh
-cp new {project name: required} {editor: not required}
-```
-Creates a simple template project with the project name and opens it in editor if section is filled.
-#
-```sh
-cp help
-```
-Displays a simple help message similar to this Usage instructions.
+
+
+## Download. 
+You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1) the build for windows or build it for your os with cargo.
+
+## License
+[MIT](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/LICENSE)
+
+---
