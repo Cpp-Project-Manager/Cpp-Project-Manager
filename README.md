@@ -11,6 +11,9 @@
   <a href="https://crates.io/crates/cppm">
       <img src="https://img.shields.io/crates/d/cppm?style=for-the-badge">
   </a>
+  <a href="https://crates.io/crates/cppm">
+      <img src="https://img.shields.io/crates/l/cppm?style=for-the-badge">
+  </a>
 </p>
 
 <p align="center">
@@ -48,7 +51,9 @@ cppm open <*project_name> <*editor>
 
 
 ## Download. 
-You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1) the build for windows or build it for your os with cargo.
+You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1) the build for windows.
+Or Download with cargo.
+```cargo install cppm```
 
 ## License
 [MIT](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/LICENSE)
