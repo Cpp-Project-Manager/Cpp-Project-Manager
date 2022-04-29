@@ -10,11 +10,6 @@ pub mod misc {
     use configparser::ini::Ini;
     use fsio::file;
 
-    pub const HELP: &str = r#"
-[X] cp create - Creates new project with your specifications.
-[X] cp new    - {project} Creates a boiler plate project.
-[X] cp help   - Displays this help message.
-"#;
     pub const CPPBOILER: &str = r#"#include <iostream>
 
 int main(){
@@ -69,6 +64,9 @@ int main(){
                 .expect("config not written to.");
         }
     }
+    pub fn version() -> String{
+        "cppm 0.2.1 (22-04-28)".to_string()
+    }
 }
 
 pub struct Cppm {
@@ -89,7 +87,6 @@ impl Cppm {
         s.project_name = _project_name;
         let pn = s.project_name.clone();
         s.editor = editor;
-        println!("Editor: {}", s.editor); //note: Outputs editor
         fs::create_dir_all(s.project_name.clone()).expect("folder creation failed.");
         fs::create_dir_all(format!("{}/src", s.project_name.clone()))
             .expect("folder creation failed.");
@@ -120,7 +117,6 @@ impl Cppm {
         let main_path = Path::new(main.as_str());
         let header_path = Path::new(header.as_str());
 
-        println!("{}, {}", main_path.display(), header_path.display()); //note: outputs files
 
         File::create(&main_path)
             .expect("file creation failed")
@@ -141,7 +137,7 @@ impl Cppm {
             .as_str(),
         );
     }
-    #[allow(unused_variables)]
+    // note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
         let config_loc = misc::configfile();
         let mut config = Ini::new();
