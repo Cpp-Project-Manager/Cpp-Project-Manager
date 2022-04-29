@@ -16,8 +16,18 @@ jobs:
     - name: Build-musl macOS x86
       uses: Shogan/rust-musl-action@master
       with:
-        args: cargo build --target x86_64-apple-darwin --release
+        args: cargo build --target x86_64-apple-darwin --release && strip target/release/PROJECT_NAME && mv target/release/$PROJECT_NAME target/release/PROJECT_NAME_amd64
+
     - name: Build-musl Linux x86
       uses: Shogan/rust-musl-action@v1.0.2
       with:
-        args: cargo build --target x86_64-unknown-linux-musl --release
+        args: cargo build --target x86_64-unknown-linux-musl --release && strip target/release/PROJECT_NAME && mv target/release/$PROJECT_NAME target/release/PROJECT_NAME_amd64
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            target/release/PROJECT_NAME_amd64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
