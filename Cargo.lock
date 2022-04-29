@@ -74,7 +74,7 @@ checksum = "06821ea598337a8412cf47c5b71c3bc694a7f0aed188ac28b836fab164a2c202"
 
 [[package]]
 name = "cppm"
-version = "0.2.1"
+version = "2.2.1"
 dependencies = [
  "clap",
  "colored",
