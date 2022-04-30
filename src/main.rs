@@ -63,10 +63,19 @@ fn main() {
                 "release" => (),
                 "remove" => (),
                 "open" => {
+                    let editor = env::var("EDITOR").unwrap_or("".to_string());
                     if _args.len() > 3 {
                         cppm::Cppm::open(_args[2].clone(), _args[3].clone());
                     } else {
-                        println!("   {}", "Please provide a text editor.".bright_red())
+                        if _args.len() == 2 {
+                            println!("{}", "Error: You need to provide a project name.".red());
+                            return;
+                        }
+                        if editor.is_empty() {
+                            println!("   {}", "Please provide a text editor.".bright_red());
+                            return;
+                        }
+                        cppm::Cppm::open(_args[2].clone(), editor.clone());
                     }
                 }
                 "config" => (),
