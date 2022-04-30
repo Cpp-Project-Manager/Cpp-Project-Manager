@@ -15,8 +15,8 @@ pub mod misc {
 int main(){
 
     std::cout << "Hello World" << std::endl;
-    return 0;            
-} 
+    return 0;
+}
 "#;
     pub fn header_boiler(header_name: &str) -> String {
         format!(
@@ -52,11 +52,11 @@ int main(){
         let mut temp_ini = Ini::new();
         let sec: String = format!("project.{}", _project_name_section);
         let check = temp_ini.load(conf.clone()).unwrap();
-            ini.set(
-                sec.as_str(),
-                "location",
-                Some(_location.replace("\\", "/").to_owned()),
-            );        
+        ini.set(
+            sec.as_str(),
+            "location",
+            Some(_location.replace("\\", "/").to_owned()),
+        );
         if check.contains_key(sec.as_str()) {
             temp_ini.write(conf).expect("config not written to");
         } else {
@@ -64,7 +64,7 @@ int main(){
                 .expect("config not written to.");
         }
     }
-    pub fn version() -> String{
+    pub fn version() -> String {
         "cppm 0.2.1 (22-04-28)".to_string()
     }
 }
@@ -94,29 +94,28 @@ impl Cppm {
             .expect("folder creation failed.");
 
         if !s.editor.contains("null") {
-            #[cfg(windows)]
-            Command::new("powershell")
-                .args([
-                    "/c",
-                    format!("cd {};", s.project_name.clone()).as_str(),
-                    format!("{} .", s.editor).as_str(),
-                ])
-                .output()
-                .expect("failed to execute process");
-            #[cfg(unix)]
-            Command::new("sh")
-                .args([
-                    "-c",
-                    format!("cd {} && ", s.project_name.clone()).as_str(),
-                    format!("{} .", s.editor).as_str(),
-                ])
-                .output()
-                .expect("failed to execute process");
+            let mut child = if cfg!(target_os = "windows") {
+                Command::new("powershell")
+                    .args(["/c", &format!("{} {}", s.editor.clone(), pn)])
+                    .spawn()
+                    .expect("failed to open editor")
+            } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
+                Command::new("sh")
+                    .args(["-c", &format!("{} {}", s.editor.clone(), pn)])
+                    .spawn()
+                    .expect("failed to open editor")
+            } else {
+                println!(
+                    "{}",
+                    "Your OS is not supported, Please make an issue to get it implemented.".red()
+                );
+                return;
+            };
+            child.wait().expect("failed to wait on process");
         }
         let (main, header) = path(s);
         let main_path = Path::new(main.as_str());
         let header_path = Path::new(header.as_str());
-
 
         File::create(&main_path)
             .expect("file creation failed")
@@ -151,22 +150,24 @@ impl Cppm {
                 project_location
             );
 
-            #[cfg(windows)]
-            Command::new("powershell")
-                .args([
-                    "/c",
-                    format!("cd {}; {} .", project_location, editor).as_str(),
-                ])
-                .output()
-                .expect("couldnt spawn command");
-            #[cfg(unix)]
-            Command::new("sh")
-                .args([
-                    "-c",
-                    format!("cd {} && {} .", project_location, editor).as_str(),
-                ])
-                .output()
-                .expect("couldnt spawn command");
+            let mut editor = if cfg!(target_os = "windows") {
+                Command::new("powershell")
+                    .args(["/c", &format!("{} {}", editor, project_location)])
+                    .spawn()
+                    .expect("failed to open editor")
+            } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
+                Command::new("sh")
+                    .args(["-c", &format!("{} {}", editor, project_location)])
+                    .spawn()
+                    .expect("failed to open editor")
+            } else {
+                println!(
+                    "{}",
+                    "Your OS is not supported, Please make an issue to get it implemented.".red()
+                );
+                return;
+            };
+            editor.wait().expect("failed to wait on process");
         } else {
             println!("Project does not exist or was not created with cppm!!");
         }
