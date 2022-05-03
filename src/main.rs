@@ -10,6 +10,7 @@ const OPTIONS: &str = r#"OPTIONS:
 COMMANDS:
     *config         Configures cppm.
     new             Creates a new project.
+    init            initializes a project in the current directory.
     open            Opens a project that was created with cppm.
     *build          Builds the project to a dist directory.
     *run            Build and Runs the project.
@@ -80,7 +81,7 @@ fn main() {
                         cppm::Cppm::open(_args[2].clone(), editor.clone());
                     }
                 }
-                "config" => (),
+                "config" => (), // todo: urgent
                 "ini" => println!("{}", cppm::misc::configfile()),
                 "test" => {
                 }
