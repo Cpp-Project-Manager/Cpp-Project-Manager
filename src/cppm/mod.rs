@@ -39,7 +39,8 @@ int main(){
             .into_os_string()
             .into_string()
             .unwrap()
-            .replace('"', "");
+            .replace('"', "")
+            .replace("\\", "/");
         format!("{}/cppm/config.ini", configdir)
     }
 
@@ -65,7 +66,7 @@ int main(){
         }
     }
     pub fn version() -> String {
-        "cppm 0.2.1 (22-04-28)".to_string()
+        "cppm 2.3.0 (22-04-28)".to_string() //warning: update date
     }
 }
 
@@ -75,7 +76,7 @@ pub struct Cppm {
 }
 
 impl Cppm {
-    fn init() -> Cppm {
+    fn __init__() -> Cppm {
         Cppm {
             project_name: String::new(),
             editor: String::new(),
@@ -83,7 +84,7 @@ impl Cppm {
     }
 
     pub fn new(_project_name: String, editor: String) {
-        let mut s = Cppm::init();
+        let mut s = Cppm::__init__();
         s.project_name = _project_name;
         let pn = s.project_name.clone();
         s.editor = editor;
@@ -128,12 +129,11 @@ impl Cppm {
 
         misc::write(
             pn.clone().as_str(),
-            format!(
+            &format!(
                 "{}/{}",
                 std::env::current_dir().unwrap().display(),
                 pn.clone()
-            )
-            .as_str(),
+            ),
         );
     }
     // note: add aliases for known editors
@@ -171,6 +171,35 @@ impl Cppm {
         } else {
             println!("Project does not exist or was not created with cppm!!");
         }
+    }
+
+    pub fn init() -> std::io::Result<()> {
+        fs::create_dir_all("src").expect("folder creation failed or already exists.");
+        fs::create_dir_all("include").expect("folder creation failed or already exists.");
+        File::create("include/main.hpp")
+            .expect("Unable to create file or already exists.")
+            .write_all(misc::header_boiler("main").as_bytes())
+            .expect("unable to write to file.");
+        File::create("src/main.cpp")
+            .expect("Unable to create file  or already exists.")
+            .write_all(misc::CPPBOILER.as_bytes())
+            .expect("unable to write to file.");
+
+        misc::write(
+            std::path::Path::new(&std::env::current_dir()?)
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap(),
+            &std::env::current_dir()?.as_os_str().to_str().unwrap(),
+        );
+
+        File::create("Cppm.ini")
+            .expect("Unable to create file  or already exists.")
+            .write_all(misc::CPPBOILER.as_bytes())
+            .expect("unable to write to file.");
+
+        Ok(())
     }
 }
 fn path(s: Cppm) -> (String, String) {

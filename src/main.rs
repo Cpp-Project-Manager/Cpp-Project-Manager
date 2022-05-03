@@ -28,8 +28,8 @@ fn man() {
 fn main() {
     let _args: Vec<String> = env::args().collect();
 
-    //note: `cppm list projects` is also a possible implimentation.
-
+    // note: `cppm list projects` is also a possible implimentation.
+    // note: human panic
     match _args.len() {
         1 => {
             man();
@@ -56,7 +56,9 @@ fn main() {
                         _args[2]
                     );
                 }
-                "init" => (),
+                "init" => {
+                    cppm::Cppm::init().ok();
+                }
                 "run" => (),
                 "build" => (),
                 "clean" => (),
@@ -79,6 +81,9 @@ fn main() {
                     }
                 }
                 "config" => (),
+                "ini" => println!("{}", cppm::misc::configfile()),
+                "test" => {
+                }
                 "--help" | "-h" | _ => man(),
             }
         }
