@@ -68,6 +68,15 @@ int main(){
     pub fn version() -> String {
         "cppm 2.3.0 (22-04-28)".to_string() //warning: update date
     }
+
+    pub fn dir_name() -> String {
+        std::path::Path::new(&std::env::current_dir().unwrap())
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string()
+    }
 }
 
 pub struct Cppm {
@@ -126,6 +135,15 @@ impl Cppm {
             .expect("file creation failed")
             .write_all(misc::header_boiler(pn.as_str()).as_bytes())
             .expect("failed to write to header file.");
+
+        Cppm::cppm_ini(
+            &format!(
+                "{}/{}",
+                std::env::current_dir().unwrap().display(),
+                pn.clone()
+            )
+            .replace("\\", "/"),
+        );
 
         misc::write(
             pn.clone().as_str(),
@@ -186,20 +204,28 @@ impl Cppm {
             .expect("unable to write to file.");
 
         misc::write(
-            std::path::Path::new(&std::env::current_dir()?)
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap(),
+            misc::dir_name().as_str(),
             &std::env::current_dir()?.as_os_str().to_str().unwrap(),
         );
-
-        File::create("Cppm.ini")
-            .expect("Unable to create file  or already exists.")
-            .write_all(misc::CPPBOILER.as_bytes())
-            .expect("unable to write to file.");
-
+        Cppm::cppm_ini(&std::env::current_dir()?.as_os_str().to_str().unwrap());
         Ok(())
+    }
+    pub fn cppm_ini(loc: &str) {
+        let mut config = Ini::new();
+        println!("{}", loc);
+        let __loc__ = Some(
+            std::path::Path::new(loc)
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string(),
+        );
+        //File::create(format!("{}/Cppm.ini", loc)).expect("Unable to create file  or already exists.");
+        config.set("project", "name", __loc__);
+        config.set("project", "version", Some("0.1.0".to_string()));
+        config.set("project", "edition", Some("2022".to_string()));
+        config.write(format!("{}/Cppm.ini", loc)).ok();
     }
 }
 fn path(s: Cppm) -> (String, String) {

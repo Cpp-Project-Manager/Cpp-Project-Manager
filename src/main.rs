@@ -1,6 +1,7 @@
 mod cppm;
 use colored::Colorize;
 use std::env;
+use std::process::Command;
 
 const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
@@ -82,9 +83,14 @@ fn main() {
                     }
                 }
                 "config" => (), // todo: urgent
-                "ini" => println!("{}", cppm::misc::configfile()),
-                "test" => {
+                "ini" => {
+                    #[cfg(windows)]
+                    Command::new("notepad").arg(cppm::misc::configfile()).spawn().expect("Couldnt start notepad.");
+                    #[cfg(unix)]
+                    Command::new("nvim").arg(cppm::misc::configfile()).spawn().expect("Couldnt start nvim.");
+                    println!("location: {}", cppm::misc::configfile())
                 }
+                "test" => {}
                 "--help" | "-h" | _ => man(),
             }
         }
