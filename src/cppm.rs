@@ -77,6 +77,18 @@ int main(){
             .unwrap()
             .to_string()
     }
+
+    pub fn list_projects() {
+        let mut config = Ini::new();
+        let map = config.load(configfile()).unwrap();
+        print!("\nProjects configured with cppm: \n");
+        map.iter().for_each(|(x, y)| {
+            print!("{}: ", x.replace("project.", ""));
+            y.iter().for_each(|(_, b)| {
+                println!("{}", b.clone().unwrap());
+            });
+        });
+    }
 }
 
 pub struct Cppm {

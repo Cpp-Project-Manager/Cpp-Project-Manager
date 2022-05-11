@@ -13,6 +13,7 @@ COMMANDS:
     new             Creates a new project.
     init            initializes a project in the current directory.
     open            Opens a project that was created with cppm.
+    lp              Lists all projects configured with cppm.
     *build          Builds the project to a dist directory.
     *run            Build and Runs the project.
     *clean          Cleans the project dist.
@@ -60,6 +61,9 @@ fn main() {
                 }
                 "init" => {
                     cppm::Cppm::init().ok();
+                }
+                "lp" => {
+                    cppm::misc::list_projects();
                 }
                 "run" => (),
                 "build" => (),
