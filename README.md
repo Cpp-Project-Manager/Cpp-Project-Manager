@@ -9,10 +9,12 @@
   </a>
   <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1"><img src="https://img.shields.io/github/v/release/Maou-Shimazu/Cpp-Project-Manager?style=for-the-badge"></a>
   <a href="https://crates.io/crates/cppm">
-      <img src="https://img.shields.io/crates/d/cppm?style=for-the-badge">
+      <img src="https://img.shields.io/crates/d/cppm?label=Crate%20Downloads&logo=Rust&style=for-the-badge">
+  </a>
+  <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1">
+    <img src="https://img.shields.io/github/downloads/Maou-Shimazu/Cpp-Project-Manager/total?logo=Github&style=for-the-badge">
   </a>
   <a href="https://crates.io/crates/cppm">
-      <img src="https://img.shields.io/crates/l/cppm?style=for-the-badge">
   </a>
 </p>
 
