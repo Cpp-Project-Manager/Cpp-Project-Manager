@@ -2,7 +2,7 @@ mod cppm;
 use colored::Colorize;
 use std::env;
 use std::process::Command;
-
+use cppm::*;
 const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
     -v, --version   Displays the version of this program.
@@ -33,6 +33,7 @@ fn main() {
 
     // note: `cppm list projects` is also a possible implimentation.
     // note: human panic
+    // note: use config to configure defaults as well
     match _args.len() {
         1 => {
             man();
@@ -40,14 +41,14 @@ fn main() {
         2 | 3 | 4 => {
             match _args[1].as_str() {
                 "-v" | "--version" => {
-                    println!("{}", cppm::misc::version());
+                    println!("{}", misc::version());
                 }
                 "new" => {
                     // possibly add minimal support for C
                     if _args.len() > 3 {
-                        cppm::Cppm::new(_args[2].clone(), _args[3].clone());
+                        Cppm::new(_args[2].clone(), _args[3].clone());
                     } else if _args.len() > 2 {
-                        cppm::Cppm::new(_args[2].clone(), "null".to_string());
+                        Cppm::new(_args[2].clone(), "null".to_string());
                     } else {
                         println!("{}", "Error: You must provide a project name.".red());
                         return;
@@ -60,20 +61,20 @@ fn main() {
                     );
                 }
                 "init" => {
-                    cppm::Cppm::init().ok();
+                    Cppm::init().ok();
                 }
                 "lp" => {
-                    cppm::misc::list_projects();
+                    misc::list_projects();
                 }
                 "run" => (),
                 "build" => (),
                 "clean" => (),
                 "release" => (),
-                "remove" => (),
+                "remove" => (), //todo:
                 "open" => {
                     let editor = env::var("EDITOR").unwrap_or("".to_string());
                     if _args.len() > 3 {
-                        cppm::Cppm::open(_args[2].clone(), _args[3].clone());
+                        Cppm::open(_args[2].clone(), _args[3].clone());
                     } else {
                         if _args.len() == 2 {
                             println!("{}", "Error: You need to provide a project name.".red());
@@ -83,16 +84,19 @@ fn main() {
                             println!("   {}", "Please provide a text editor.".bright_red());
                             return;
                         }
-                        cppm::Cppm::open(_args[2].clone(), editor.clone());
+                        Cppm::open(_args[2].clone(), editor.clone());
                     }
                 }
-                "config" => (), // todo: urgent
+                "config" => {
+                    defaults::defaults()
+                    //compiler();
+                }, // todo: urgent
                 "ini" => {
                     #[cfg(windows)]
-                    Command::new("notepad").arg(cppm::misc::configfile()).spawn().expect("Couldnt start notepad.");
+                    Command::new("notepad").arg(misc::configfile()).spawn().expect("Couldnt start notepad.");
                     #[cfg(unix)]
-                    Command::new("nvim").arg(cppm::misc::configfile()).spawn().expect("Couldnt start nvim.");
-                    println!("location: {}", cppm::misc::configfile())
+                    Command::new("nvim").arg(misc::configfile()).spawn().expect("Couldnt start nvim.");
+                    println!("location: {}", misc::configfile())
                 }
                 "test" => {}
                 "--help" | "-h" | _ => man(),

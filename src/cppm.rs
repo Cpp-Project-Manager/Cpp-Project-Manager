@@ -18,6 +18,7 @@ int main(){
     return 0;
 }
 "#;
+    /// C++ header file boilerplate.
     pub fn header_boiler(header_name: &str) -> String {
         format!(
             r#"#pragma once
@@ -43,12 +44,15 @@ int main(){
             .replace("\\", "/");
         format!("{}/cppm/config.ini", configdir)
     }
-
+    
+    /// Writes to config.ini
     pub fn write(_project_name_section: &str, _location: &str) {
+        #[allow(unused_mut)]
         let mut conf: String = configfile();
-        if !file::ensure_exists(conf.as_str()).is_ok() {
-            std::fs::File::create(&mut conf).expect("Failed to create config file.");
-        }
+        // if !file::ensure_exists(conf.as_str()).is_ok() {
+        //     std::fs::File::create(&mut conf).expect("Failed to create config file.");
+        // }
+        file::ensure_exists(&configfile()).ok();
         let mut ini = Ini::new();
         let mut temp_ini = Ini::new();
         let sec: String = format!("project.{}", _project_name_section);
@@ -66,7 +70,7 @@ int main(){
         }
     }
     pub fn version() -> String {
-        "cppm 2.3.0 (22-04-28)".to_string() //warning: update date
+        "cppm 3.0.0 (5-11-2022)".to_string() //warning: update date
     }
 
     pub fn dir_name() -> String {
@@ -77,7 +81,8 @@ int main(){
             .unwrap()
             .to_string()
     }
-
+    // note: put on gists
+    /// Shows all the projects in config.ini
     pub fn list_projects() {
         let map = Ini::new().load(configfile()).unwrap();
         print!("\nProjects configured with cppm: \n");
@@ -165,7 +170,7 @@ impl Cppm {
             ),
         );
     }
-    // note: add aliases for known editors
+    /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
         let config_loc = misc::configfile();
         let mut config = Ini::new();
@@ -201,7 +206,7 @@ impl Cppm {
             println!("Project does not exist or was not created with cppm!!");
         }
     }
-
+    /// initializes a project in the current directory.
     pub fn init() -> std::io::Result<()> {
         fs::create_dir_all("src").expect("folder creation failed or already exists.");
         fs::create_dir_all("include").expect("folder creation failed or already exists.");
@@ -243,4 +248,32 @@ fn path(s: Cppm) -> (String, String) {
     let main: String = format!("{}/src/main.cpp", s.project_name);
     let header: String = format!("{0}/include/{0}.hpp", s.project_name);
     (main, header)
+}
+
+#[allow(dead_code)]
+pub mod defaults {
+use fsio::file;
+use configparser::ini::Ini;
+use std::io::{stdout, Write};
+    pub fn defaults_file() -> String {
+        let defaultsdir = dirs::config_dir()
+            .unwrap()
+            .into_os_string()
+            .into_string()
+            .unwrap()
+            .replace('"', "")
+            .replace("\\", "/");
+        format!("{}/cppm/defaults.ini", defaultsdir)
+    }
+    pub fn defaults() {
+        file::ensure_exists(&defaults_file()).ok();
+        let mut ini = Ini::new();
+        let mut ans: String = String::new();
+        print!("Default editor: ");
+        stdout().flush().ok();
+        std::io::stdin().read_line(&mut ans).ok();
+        ini.set("defaults", "editor", Some(ans.clone()));
+        ini.write(defaults_file()).expect("Could not write to default configuration file.");
+    }
+
 }
