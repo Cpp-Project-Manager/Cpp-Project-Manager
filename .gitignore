@@ -3,7 +3,7 @@
 *.json
 dist
 test
-
+*.pdb
 # Added by cargo
 
 /target

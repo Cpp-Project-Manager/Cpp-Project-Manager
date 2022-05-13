@@ -81,7 +81,6 @@ int main(){
             .unwrap()
             .to_string()
     }
-    // note: put on gists
     /// Shows all the projects in config.ini
     pub fn list_projects() {
         let map = Ini::new().load(configfile()).unwrap();

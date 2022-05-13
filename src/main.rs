@@ -3,6 +3,7 @@ use colored::Colorize;
 use std::env;
 use std::process::Command;
 use cppm::*;
+mod compiler;
 const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
     -v, --version   Displays the version of this program.
@@ -88,9 +89,9 @@ fn main() {
                     }
                 }
                 "config" => {
-                    defaults::defaults()
-                    //compiler();
-                }, // todo: urgent
+                    defaults::defaults();
+                    compiler::compiler_check();
+                }, 
                 "ini" => {
                     #[cfg(windows)]
                     Command::new("notepad").arg(misc::configfile()).spawn().expect("Couldnt start notepad.");
