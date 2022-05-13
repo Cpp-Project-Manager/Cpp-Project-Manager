@@ -240,6 +240,8 @@ impl Cppm {
         config.set("project", "name", __loc__);
         config.set("project", "version", Some("0.1.0".to_string()));
         config.set("project", "edition", Some("2022".to_string()));
+        config.set("project", "src", Some("".to_string()));
+        config.set("project", "include", Some("".to_string()));
         config.write(format!("{}/Cppm.ini", loc)).ok();
     }
 }
