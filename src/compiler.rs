@@ -1,12 +1,11 @@
+#![allow(dead_code)]
 use std::process::*;
-#[allow(dead_code)]
 pub enum Compilers {
-    GCC,
-    CLANG,
-    MSVC,
-    GPP,
-    CLANGPP,
-    MAKE,
+    Gcc,
+    Clang,
+    Msvc,
+    Gpp,
+    Clangpp
 }
 
 fn subprocess(process: &str, arg: &str)-> std::io::Result<ExitStatus> {
@@ -16,20 +15,20 @@ fn subprocess(process: &str, arg: &str)-> std::io::Result<ExitStatus> {
 pub fn compiler_check()-> Vec<Compilers>{
     let mut _e: Vec<Compilers> = Vec::new();
     if subprocess("gcc", "-v").is_ok() {
-        println!("{}", "GCC is installed.");
-        _e.push(Compilers::GCC);
+        println!("GCC is installed.");
+        _e.push(Compilers::Gcc);
     }
     if subprocess("g++", "-v").is_ok() {
-        println!("{}", "G++ is installed.");
-        _e.push(Compilers::GPP);
+        println!("G++ is installed.");
+        _e.push(Compilers::Gpp);
     }
     if subprocess("clang", "-v").is_ok() {
-        println!("{}", "Clang is installed.");
-        _e.push(Compilers::CLANG);
+        println!("Clang is installed.");
+        _e.push(Compilers::Clang);
     }
     if subprocess("clangpp", "-v").is_ok() {
-        println!("{}", "Clang++ is installed.");
-        _e.push(Compilers::CLANG);
+        println!("Clang++ is installed.");
+        _e.push(Compilers::Clang);
     }
     // if subprocess("msvc", "-v").is_ok() {
     //     println!("{}", "Microsoft vs comiler is installed.");

@@ -1,3 +1,4 @@
+#![allow(clippy::new_ret_no_self, clippy::single_char_pattern)]
 use colored::Colorize;
 use configparser::ini::Ini;
 use std::fs;
@@ -60,7 +61,7 @@ int main(){
         ini.set(
             sec.as_str(),
             "location",
-            Some(_location.replace("\\", "/").to_owned()),
+            Some(_location.replace("\\", "/")),
         );
         if check.contains_key(sec.as_str()) {
             temp_ini.write(conf).expect("config not written to");
@@ -113,20 +114,20 @@ impl Cppm {
         let pn = s.project_name.clone();
         s.editor = editor;
         fs::create_dir_all(s.project_name.clone()).expect("folder creation failed.");
-        fs::create_dir_all(format!("{}/src", s.project_name.clone()))
+        fs::create_dir_all(format!("{}/src", s.project_name))
             .expect("folder creation failed.");
-        fs::create_dir_all(format!("{}/include", s.project_name.clone()))
+        fs::create_dir_all(format!("{}/include", s.project_name))
             .expect("folder creation failed.");
 
         if !s.editor.contains("null") {
             let mut child = if cfg!(target_os = "windows") {
                 Command::new("powershell")
-                    .args(["/c", &format!("{} {}", s.editor.clone(), pn)])
+                    .args(["/c", &format!("{} {}", s.editor, pn)])
                     .spawn()
                     .expect("failed to open editor")
             } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
                 Command::new("sh")
-                    .args(["-c", &format!("{} {}", s.editor.clone(), pn)])
+                    .args(["-c", &format!("{} {}", s.editor, pn)])
                     .spawn()
                     .expect("failed to open editor")
             } else {
@@ -155,17 +156,17 @@ impl Cppm {
             &format!(
                 "{}/{}",
                 std::env::current_dir().unwrap().display(),
-                pn.clone()
+                pn
             )
             .replace("\\", "/"),
         );
 
         misc::write(
-            pn.clone().as_str(),
+            pn.as_str(),
             &format!(
                 "{}/{}",
                 std::env::current_dir().unwrap().display(),
-                pn.clone()
+                pn
             ),
         );
     }
@@ -173,8 +174,8 @@ impl Cppm {
     pub fn open(_project_name: String, editor: String) {
         let config_loc = misc::configfile();
         let mut config = Ini::new();
-        let ini = config.load(config_loc.clone()).unwrap();
-        let key = format!("project.{}", _project_name.clone());
+        let ini = config.load(config_loc).unwrap();
+        let key = format!("project.{}", _project_name);
         if ini.contains_key(key.as_str()) {
             let project_location = config.get(key.as_str(), "location").unwrap();
             println!(
@@ -220,9 +221,9 @@ impl Cppm {
 
         misc::write(
             misc::dir_name().as_str(),
-            &std::env::current_dir()?.as_os_str().to_str().unwrap(),
+            std::env::current_dir()?.as_os_str().to_str().unwrap(),
         );
-        Cppm::cppm_ini(&std::env::current_dir()?.as_os_str().to_str().unwrap());
+        Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
         Ok(())
     }
     pub fn cppm_ini(loc: &str) {

@@ -35,6 +35,7 @@ fn main() {
     // note: `cppm list projects` is also a possible implimentation.
     // note: human panic
     // note: use config to configure defaults as well
+    // note: MN: Clint
     match _args.len() {
         1 => {
             man();
@@ -55,9 +56,8 @@ fn main() {
                         return;
                     }
                     println!(
-                        "    {} {} `{}`",
+                        "    {} C++ project `{}`",
                         "Created".bright_green(),
-                        "C++ project",
                         _args[2]
                     );
                 }
@@ -73,7 +73,7 @@ fn main() {
                 "release" => (),
                 "remove" => (), //todo:
                 "open" => {
-                    let editor = env::var("EDITOR").unwrap_or("".to_string());
+                    let editor = env::var("EDITOR").unwrap_or_else(|_| "".to_string());
                     if _args.len() > 3 {
                         Cppm::open(_args[2].clone(), _args[3].clone());
                     } else {
@@ -85,7 +85,7 @@ fn main() {
                             println!("   {}", "Please provide a text editor.".bright_red());
                             return;
                         }
-                        Cppm::open(_args[2].clone(), editor.clone());
+                        Cppm::open(_args[2].clone(), editor);
                     }
                 }
                 "config" => {
@@ -100,7 +100,8 @@ fn main() {
                     println!("location: {}", misc::configfile())
                 }
                 "test" => {}
-                "--help" | "-h" | _ => man(),
+                "--help" | "-h" => man(),
+                _ => man()
             }
         }
         _ => {
