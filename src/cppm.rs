@@ -101,7 +101,7 @@ pub struct Cppm {
 }
 
 impl Cppm {
-    fn __init__() -> Cppm {
+    fn init() -> Cppm {
         Cppm {
             project_name: String::new(),
             editor: String::new(),
@@ -207,7 +207,7 @@ impl Cppm {
         }
     }
     /// initializes a project in the current directory.
-    pub fn init() -> std::io::Result<()> {
+    pub fn initialize() -> std::io::Result<()> {
         fs::create_dir_all("src").expect("folder creation failed or already exists.");
         fs::create_dir_all("include").expect("folder creation failed or already exists.");
         File::create("include/main.hpp")

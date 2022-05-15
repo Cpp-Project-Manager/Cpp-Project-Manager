@@ -30,9 +30,7 @@ pub fn compiler_check()-> Vec<Compilers>{
         println!("Clang++ is installed.");
         _e.push(Compilers::Clang);
     }
-    // if subprocess("msvc", "-v").is_ok() {
-    //     println!("{}", "Microsoft vs comiler is installed.");
-    //     _e.push(Compilers::CLANG);
-    // }
     _e
 }
+
+

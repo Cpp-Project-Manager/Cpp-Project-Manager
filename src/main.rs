@@ -3,7 +3,7 @@ use colored::Colorize;
 use std::env;
 use std::process::Command;
 use cppm::*;
-mod compiler;
+mod builder;
 const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
     -v, --version   Displays the version of this program.
@@ -62,7 +62,7 @@ fn main() {
                     );
                 }
                 "init" => {
-                    Cppm::init().ok();
+                    Cppm::initialize().ok();
                 }
                 "lp" => {
                     misc::list_projects();
@@ -90,7 +90,7 @@ fn main() {
                 }
                 "config" => {
                     defaults::defaults();
-                    compiler::compiler_check();
+                    builder::compiler_check();
                 }, 
                 "ini" => {
                     #[cfg(windows)]
