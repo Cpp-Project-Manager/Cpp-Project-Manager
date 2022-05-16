@@ -89,7 +89,7 @@ fn main() {
                     }
                 }
                 "config" => {
-                    defaults::defaults();
+                    //defaults::defaults(); warning:
                     builder::compiler_check();
                 }
                 "ini" => {

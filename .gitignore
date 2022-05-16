@@ -5,5 +5,5 @@ dist
 test
 *.pdb
 # Added by cargo
-
+/.idea
 /target

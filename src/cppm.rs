@@ -26,16 +26,23 @@ struct LocalConfig {
     description: String,
 }
 
-pub fn write(project_name: &str, location: &str, config: &Config) {
-    let mut conf: String = misc::configfile();
+pub fn write(project_name: &str, location: &str) {
     file::ensure_exists(&misc::configfile()).ok();
-    let mut ini = Config::new(project_name.to_string(), location.to_string());
-    let sec: String = format!("project.{}", project_name);
-    file::append_file(conf.as_str(), toml::to_string_pretty(config).unwrap().as_bytes())
-        .expect("config not written to.");
+    let config = Config {
+        name: project_name.to_string(),
+        location: location.to_string(),
+    };
+    let mut conf: String = misc::configfile();
+    file::append_file(
+        conf.as_str(),
+        toml::to_string_pretty(&config).unwrap().as_bytes(),
+    )
+    .expect("config not written to.");
 }
 
 pub mod misc {
+    use crate::cppm::Config;
+
     pub const CPPBOILER: &str = r#"#include <iostream>
 
 int main(){
@@ -83,16 +90,12 @@ int main(){
             .unwrap()
             .to_string()
     }
-    
+
     pub fn list_projects() {
-        let map = Ini::new().load(configfile()).unwrap();
+        let config: Config =
+            toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
         print!("\nProjects configured with cppm: \n");
-        map.iter().for_each(|(x, y)| {
-            print!("{}: ", x.replace("project.", ""));
-            y.iter().for_each(|(_, b)| {
-                println!("{}", b.clone().unwrap());
-            });
-        });
+        println!("{}", config.name);
     }
 }
 
@@ -154,8 +157,7 @@ impl Cppm {
         Cppm::cppm_ini(
             &format!("{}/{}", std::env::current_dir().unwrap().display(), pn).replace("\\", "/"),
         );
-
-        misc::write(
+        write(
             pn.as_str(),
             &format!("{}/{}", std::env::current_dir().unwrap().display(), pn),
         );
@@ -163,11 +165,11 @@ impl Cppm {
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
         let config_loc = misc::configfile();
-        let mut config = Ini::new();
-        let ini = config.load(config_loc).unwrap();
+        let mut t: Config =
+            toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
         let key = format!("project.{}", _project_name);
-        if ini.contains_key(key.as_str()) {
-            let project_location = config.get(key.as_str(), "location").unwrap();
+        if t.name == key {
+            let project_location = t.location;
             println!(
                 "   Opening Project{}`: {}",
                 key.replace("project.", " `").green(),
@@ -209,7 +211,7 @@ impl Cppm {
             .write_all(misc::CPPBOILER.as_bytes())
             .expect("unable to write to file.");
 
-        misc::write(
+        write(
             misc::dir_name().as_str(),
             std::env::current_dir()?.as_os_str().to_str().unwrap(),
         );
@@ -217,23 +219,30 @@ impl Cppm {
         Ok(())
     }
     pub fn cppm_ini(loc: &str) {
-        let mut config = Ini::new();
-        println!("{}", loc);
-        let __loc__ = Some(
+        let __loc__ =
             std::path::Path::new(loc)
                 .file_name()
                 .unwrap()
                 .to_str()
                 .unwrap()
-                .to_string(),
-        );
+                .to_string();
+
+        let mut config: LocalConfig = toml::from_str(&format!(
+            "[project]\n{}{}version = 0.1.0\n edition = 2022\n src = \n include = \n",
+            "name = ",
+            __loc__
+        ))
+        .unwrap();
+        println!("{}", loc);
+        file::write_file(&format!("{}/Cppm.ini", loc), toml::to_string(&config).unwrap().as_bytes());
+
         //File::create(format!("{}/Cppm.ini", loc)).expect("Unable to create file  or already exists.");
-        config.set("project", "name", __loc__);
-        config.set("project", "version", Some("0.1.0".to_string()));
-        config.set("project", "edition", Some("2022".to_string()));
-        config.set("project", "src", Some("".to_string()));
-        config.set("project", "include", Some("".to_string()));
-        config.write(format!("{}/Cppm.ini", loc)).ok();
+        // config.set("project", "name", __loc__);
+        // config.set("project", "version", Some("0.1.0".to_string()));
+        // config.set("project", "edition", Some("2022".to_string()));
+        // config.set("project", "src", Some("".to_string()));
+        // config.set("project", "include", Some("".to_string()));
+        // config.write(format!("{}/Cppm.ini", loc)).ok();
     }
 }
 fn path(s: Cppm) -> (String, String) {
@@ -255,15 +264,15 @@ pub mod defaults {
             .replace("\\", "/");
         format!("{}/cppm/defaults.toml", defaultsdir)
     }
-    pub fn defaults() {
-        file::ensure_exists(&defaults_file()).ok();
-        let mut ini = Ini::new();
-        let mut ans: String = String::new();
-        print!("Default editor: ");
-        stdout().flush().ok();
-        std::io::stdin().read_line(&mut ans).ok();
-        ini.set("defaults", "editor", Some(ans.clone()));
-        ini.write(defaults_file())
-            .expect("Could not write to default configuration file.");
-    }
+    // pub fn defaults() { warning: fix 
+    //     file::ensure_exists(&defaults_file()).ok();
+    //     let mut ini = Ini::new();
+    //     let mut ans: String = String::new();
+    //     print!("Default editor: ");
+    //     stdout().flush().ok();
+    //     std::io::stdin().read_line(&mut ans).ok();
+    //     ini.set("defaults", "editor", Some(ans.clone()));
+    //     ini.write(defaults_file())
+    //         .expect("Could not write to default configuration file.");
+    // }
 }
