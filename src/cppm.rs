@@ -18,12 +18,17 @@ impl Config {
         Config { name, location }
     }
 }
+#[derive(Serialize, Deserialize, Debug)]
+struct Project {
+    name: String,
+    version: String,
+    edition: String,
+    include: String,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct LocalConfig {
-    name: String,
-    version: String,
-    description: String,
+    project: Project,
 }
 
 pub fn write(project_name: &str, location: &str) {
@@ -32,7 +37,9 @@ pub fn write(project_name: &str, location: &str) {
         name: project_name.to_string(),
         location: location.to_string(),
     };
-    let mut conf: String = misc::configfile();
+    fsio::file::ensure_exists(&misc::configfile()).ok();
+    let conf: String = misc::configfile();
+    println!("{}", conf);
     file::append_file(
         conf.as_str(),
         toml::to_string_pretty(&config).unwrap().as_bytes(),
@@ -164,8 +171,8 @@ impl Cppm {
     }
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
-        let config_loc = misc::configfile();
-        let mut t: Config =
+        //let config_loc = misc::configfile();
+        let t: Config =
             toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
         let key = format!("project.{}", _project_name);
         if t.name == key {
@@ -219,22 +226,29 @@ impl Cppm {
         Ok(())
     }
     pub fn cppm_ini(loc: &str) {
-        let __loc__ =
-            std::path::Path::new(loc)
-                .file_name()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string();
+        let __loc__ = std::path::Path::new(loc)
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_string();
 
-        let mut config: LocalConfig = toml::from_str(&format!(
-            "[project]\n{}{}version = 0.1.0\n edition = 2022\n src = \n include = \n",
-            "name = ",
-            __loc__
+        let project: Project = toml::from_str(&format!(
+            r#"
+                name='x'
+                version='-1.0.1'
+                edition='2021'
+                include='include'
+            "#
         ))
         .unwrap();
+        let config: LocalConfig = LocalConfig { project };
         println!("{}", loc);
-        file::write_file(&format!("{}/Cppm.ini", loc), toml::to_string(&config).unwrap().as_bytes());
+        file::write_file(
+            &format!("{}/Cppm.toml", loc),
+            toml::to_string(&config).unwrap().as_bytes(),
+        )
+        .expect("Unable to write to file.");
 
         //File::create(format!("{}/Cppm.ini", loc)).expect("Unable to create file  or already exists.");
         // config.set("project", "name", __loc__);
@@ -264,7 +278,7 @@ pub mod defaults {
             .replace("\\", "/");
         format!("{}/cppm/defaults.toml", defaultsdir)
     }
-    // pub fn defaults() { warning: fix 
+    // pub fn defaults() { warning: fix
     //     file::ensure_exists(&defaults_file()).ok();
     //     let mut ini = Ini::new();
     //     let mut ans: String = String::new();
