@@ -1,8 +1,8 @@
 mod cppm;
 use colored::Colorize;
+use cppm::*;
 use std::env;
 use std::process::Command;
-use cppm::*;
 mod builder;
 const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
@@ -48,9 +48,9 @@ fn main() {
                 "new" => {
                     // possibly add minimal support for C
                     if _args.len() > 3 {
-                        Cppm::new(_args[2].clone(), _args[3].clone());
+                        Cppm::spawn(_args[2].clone(), _args[3].clone());
                     } else if _args.len() > 2 {
-                        Cppm::new(_args[2].clone(), "null".to_string());
+                        Cppm::spawn(_args[2].clone(), "null".to_string());
                     } else {
                         println!("{}", "Error: You must provide a project name.".red());
                         return;
@@ -91,17 +91,23 @@ fn main() {
                 "config" => {
                     defaults::defaults();
                     builder::compiler_check();
-                }, 
+                }
                 "ini" => {
                     #[cfg(windows)]
-                    Command::new("notepad").arg(misc::configfile()).spawn().expect("Couldnt start notepad.");
+                    Command::new("notepad")
+                        .arg(misc::configfile())
+                        .spawn()
+                        .expect("Couldnt start notepad.");
                     #[cfg(unix)]
-                    Command::new("nvim").arg(misc::configfile()).spawn().expect("Couldnt start nvim.");
+                    Command::new("nvim")
+                        .arg(misc::configfile())
+                        .spawn()
+                        .expect("Couldnt start nvim.");
                     println!("location: {}", misc::configfile())
                 }
                 "test" => {}
                 "--help" | "-h" => man(),
-                _ => man()
+                _ => man(),
             }
         }
         _ => {

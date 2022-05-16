@@ -1,16 +1,41 @@
-#![allow(clippy::new_ret_no_self, clippy::single_char_pattern)]
 use colored::Colorize;
-use configparser::ini::Ini;
+use fsio::file;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
-pub mod misc {
-    use configparser::ini::Ini;
-    use fsio::file;
+#[derive(Serialize, Deserialize, Debug)]
+struct Config {
+    name: String,
+    location: String,
+}
 
+impl Config {
+    fn new(name: String, location: String) -> Config {
+        Config { name, location }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct LocalConfig {
+    name: String,
+    version: String,
+    description: String,
+}
+
+pub fn write(project_name: &str, location: &str, config: &Config) {
+    let mut conf: String = misc::configfile();
+    file::ensure_exists(&misc::configfile()).ok();
+    let mut ini = Config::new(project_name.to_string(), location.to_string());
+    let sec: String = format!("project.{}", project_name);
+    file::append_file(conf.as_str(), toml::to_string_pretty(config).unwrap().as_bytes())
+        .expect("config not written to.");
+}
+
+pub mod misc {
     pub const CPPBOILER: &str = r#"#include <iostream>
 
 int main(){
@@ -43,33 +68,9 @@ int main(){
             .unwrap()
             .replace('"', "")
             .replace("\\", "/");
-        format!("{}/cppm/config.ini", configdir)
+        format!("{}/cppm/config.toml", configdir)
     }
-    
-    /// Writes to config.ini
-    pub fn write(_project_name_section: &str, _location: &str) {
-        #[allow(unused_mut)]
-        let mut conf: String = configfile();
-        // if !file::ensure_exists(conf.as_str()).is_ok() {
-        //     std::fs::File::create(&mut conf).expect("Failed to create config file.");
-        // }
-        file::ensure_exists(&configfile()).ok();
-        let mut ini = Ini::new();
-        let mut temp_ini = Ini::new();
-        let sec: String = format!("project.{}", _project_name_section);
-        let check = temp_ini.load(conf.clone()).unwrap();
-        ini.set(
-            sec.as_str(),
-            "location",
-            Some(_location.replace("\\", "/")),
-        );
-        if check.contains_key(sec.as_str()) {
-            temp_ini.write(conf).expect("config not written to");
-        } else {
-            file::append_file(conf.as_str(), ini.writes().as_bytes())
-                .expect("config not written to.");
-        }
-    }
+
     pub fn version() -> String {
         "cppm 3.0.0 (5-11-2022)".to_string() //warning: update date
     }
@@ -82,7 +83,7 @@ int main(){
             .unwrap()
             .to_string()
     }
-    /// Shows all the projects in config.ini
+    
     pub fn list_projects() {
         let map = Ini::new().load(configfile()).unwrap();
         print!("\nProjects configured with cppm: \n");
@@ -108,26 +109,24 @@ impl Cppm {
         }
     }
 
-    pub fn new(_project_name: String, editor: String) {
-        let mut s = Cppm::__init__();
+    pub fn spawn(_project_name: String, editor: String) {
+        let mut s = Cppm::init();
         s.project_name = _project_name;
         let pn = s.project_name.clone();
         s.editor = editor;
         fs::create_dir_all(s.project_name.clone()).expect("folder creation failed.");
-        fs::create_dir_all(format!("{}/src", s.project_name))
-            .expect("folder creation failed.");
-        fs::create_dir_all(format!("{}/include", s.project_name))
-            .expect("folder creation failed.");
+        fs::create_dir_all(format!("{}/src", s.project_name)).expect("folder creation failed.");
+        fs::create_dir_all(format!("{}/include", s.project_name)).expect("folder creation failed.");
 
         if !s.editor.contains("null") {
             let mut child = if cfg!(target_os = "windows") {
                 Command::new("powershell")
-                    .args(["/c", &format!("{} {}", s.editor, pn)])
+                    .arg(&format!("{} {}", s.editor, pn))
                     .spawn()
                     .expect("failed to open editor")
             } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
                 Command::new("sh")
-                    .args(["-c", &format!("{} {}", s.editor, pn)])
+                    .arg(&format!("{} {}", s.editor, pn))
                     .spawn()
                     .expect("failed to open editor")
             } else {
@@ -153,21 +152,12 @@ impl Cppm {
             .expect("failed to write to header file.");
 
         Cppm::cppm_ini(
-            &format!(
-                "{}/{}",
-                std::env::current_dir().unwrap().display(),
-                pn
-            )
-            .replace("\\", "/"),
+            &format!("{}/{}", std::env::current_dir().unwrap().display(), pn).replace("\\", "/"),
         );
 
         misc::write(
             pn.as_str(),
-            &format!(
-                "{}/{}",
-                std::env::current_dir().unwrap().display(),
-                pn
-            ),
+            &format!("{}/{}", std::env::current_dir().unwrap().display(), pn),
         );
     }
     /// note: add aliases for known editors
@@ -252,11 +242,9 @@ fn path(s: Cppm) -> (String, String) {
     (main, header)
 }
 
-#[allow(dead_code)]
 pub mod defaults {
-use fsio::file;
-use configparser::ini::Ini;
-use std::io::{stdout, Write};
+    use fsio::file;
+    use std::io::{stdout, Write};
     pub fn defaults_file() -> String {
         let defaultsdir = dirs::config_dir()
             .unwrap()
@@ -265,7 +253,7 @@ use std::io::{stdout, Write};
             .unwrap()
             .replace('"', "")
             .replace("\\", "/");
-        format!("{}/cppm/defaults.ini", defaultsdir)
+        format!("{}/cppm/defaults.toml", defaultsdir)
     }
     pub fn defaults() {
         file::ensure_exists(&defaults_file()).ok();
@@ -275,7 +263,7 @@ use std::io::{stdout, Write};
         stdout().flush().ok();
         std::io::stdin().read_line(&mut ans).ok();
         ini.set("defaults", "editor", Some(ans.clone()));
-        ini.write(defaults_file()).expect("Could not write to default configuration file.");
+        ini.write(defaults_file())
+            .expect("Could not write to default configuration file.");
     }
-
 }

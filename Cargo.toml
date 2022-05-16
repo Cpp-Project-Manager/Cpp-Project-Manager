@@ -14,4 +14,5 @@ colored = "2"
 dirs = "4.0.0"
 envmnt = "^0.10.0"
 fsio = "0.3.0"
-configparser = "3.0.0"
+serde = { version = "1.0.137", features = ["derive"] }
+toml = "0.5.9"

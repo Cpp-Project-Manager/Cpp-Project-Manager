@@ -5,14 +5,18 @@ pub enum Compilers {
     Clang,
     Msvc,
     Gpp,
-    Clangpp
+    Clangpp,
 }
 
-fn subprocess(process: &str, arg: &str)-> std::io::Result<ExitStatus> {
-    Command::new(process).arg(arg).stdout(Stdio::null()).stderr(Stdio::null()).status()
+fn subprocess(process: &str, arg: &str) -> std::io::Result<ExitStatus> {
+    Command::new(process)
+        .arg(arg)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
 }
 
-pub fn compiler_check()-> Vec<Compilers>{
+pub fn compiler_check() -> Vec<Compilers> {
     let mut _e: Vec<Compilers> = Vec::new();
     if subprocess("gcc", "-v").is_ok() {
         println!("GCC is installed.");
@@ -32,5 +36,3 @@ pub fn compiler_check()-> Vec<Compilers>{
     }
     _e
 }
-
-
