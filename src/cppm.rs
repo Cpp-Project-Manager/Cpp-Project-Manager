@@ -93,7 +93,7 @@ int main(){
     }
 
     pub fn version() -> String {
-        "cppm 3.0.0 (5-11-2022)".to_string() //warning: update date
+        "cppm 3.0.0 (5-11-2022)".to_string() // Warning: update date
     }
 
     pub fn dir_name() -> String {
@@ -131,40 +131,40 @@ impl Cppm {
         s.project_name = _project_name;
         let pn = s.project_name.clone();
         s.editor = editor;
-        fs::create_dir_all(s.project_name.clone()).expect("folder creation failed.");
-        fs::create_dir_all(format!("{}/src", s.project_name)).expect("folder creation failed.");
-        fs::create_dir_all(format!("{}/include", s.project_name)).expect("folder creation failed.");
+        fs::create_dir_all(s.project_name.clone()).expect("Folder creation failed.");
+        fs::create_dir_all(format!("{}/src", s.project_name)).expect("Folder creation failed.");
+        fs::create_dir_all(format!("{}/include", s.project_name)).expect("Folder creation failed.");
 
         if !s.editor.contains("null") {
             let mut child = if cfg!(target_os = "windows") {
                 Command::new("powershell")
                     .arg(&format!("{} {}", s.editor, pn))
                     .spawn()
-                    .expect("failed to open editor")
+                    .expect("Failed to open editor.")
             } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
                 Command::new("sh")
                     .arg(&format!("{} {}", s.editor, pn))
                     .spawn()
-                    .expect("failed to open editor")
+                    .expect("Failed to open editor.")
             } else {
                 println!(
                     "{}",
-                    "Your OS is not supported, Please make an issue to get it implemented.".red()
+                    "Your OS is not supported, please open an issue to get it implemented.".red()
                 );
                 return;
             };
-            child.wait().expect("failed to wait on process");
+            child.wait().expect("Failed to wait on process.");
         }
         let (main, header) = path(s);
         let main_path = Path::new(main.as_str());
         let header_path = Path::new(header.as_str());
 
         File::create(&main_path)
-            .expect("file creation failed")
+            .expect("File creation failed.")
             .write_all(misc::CPPBOILER.as_bytes())
-            .expect("failed to write to main file.");
+            .expect("Failed to write to main file.");
         File::create(&header_path)
-            .expect("file creation failed")
+            .expect("File creation failed.")
             .write_all(misc::header_boiler(pn.as_str()).as_bytes())
             .expect("failed to write to header file.");
 
@@ -194,36 +194,36 @@ impl Cppm {
                 Command::new("powershell")
                     .args(["/c", &format!("{} {}", editor, project_location)])
                     .spawn()
-                    .expect("failed to open editor")
+                    .expect("Failed to open editor.")
             } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
                 Command::new("sh")
                     .args(["-c", &format!("{} {}", editor, project_location)])
                     .spawn()
-                    .expect("failed to open editor")
+                    .expect("Failed to open editor.")
             } else {
                 println!(
                     "{}",
-                    "Your OS is not supported, Please make an issue to get it implemented.".red()
+                    "Your OS is not supported, please open an issue to get it implemented.".red()
                 );
                 return;
             };
-            editor.wait().expect("failed to wait on process");
+            editor.wait().expect("Failed to wait on process.");
         } else {
-            println!("Project does not exist or was not created with cppm!!");
+            println!("Project does not exist or was not created with cppm!");
         }
     }
     /// initializes a project in the current directory.
     pub fn initialize() -> std::io::Result<()> {
-        fs::create_dir_all("src").expect("folder creation failed or already exists.");
-        fs::create_dir_all("include").expect("folder creation failed or already exists.");
+        fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
+        fs::create_dir_all("include").expect("Folder creation failed or folder already exists.");
         File::create("include/main.hpp")
-            .expect("Unable to create file or already exists.")
+            .expect("Unable to create file or file already exists.")
             .write_all(misc::header_boiler("main").as_bytes())
-            .expect("unable to write to file.");
+            .expect("Unable to write to file.");
         File::create("src/main.cpp")
-            .expect("Unable to create file  or already exists.")
+            .expect("Folder creation failed or folder already exists.")
             .write_all(misc::CPPBOILER.as_bytes())
-            .expect("unable to write to file.");
+            .expect("Unable to write to file.");
 
         write(
             misc::dir_name().as_str(),

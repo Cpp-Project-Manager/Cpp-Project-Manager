@@ -12,7 +12,7 @@ const OPTIONS: &str = r#"OPTIONS:
 COMMANDS:
     *config         Configures cppm.
     new             Creates a new project.
-    init            initializes a project in the current directory.
+    init            Initializes a project in the current directory.
     open            Opens a project that was created with cppm.
     lp              Lists all projects configured with cppm.
     *build          Builds the project to a dist directory.
@@ -20,7 +20,7 @@ COMMANDS:
     *clean          Cleans the project dist.
     *remove         Removes a project from configuration.
 
-Note: Many commands have not been implemented yet. This is a minor release, more features will be added in the future. commands with * are not yet implemented.
+Note: Many commands have not been implemented yet. This is a minor release, more features will be added in the future. Commands with * are not yet implemented.
 "#;
 
 fn man() {
@@ -97,12 +97,12 @@ fn main() {
                     Command::new("notepad")
                         .arg(misc::configfile())
                         .spawn()
-                        .expect("Couldnt start notepad.");
+                        .expect("Couldn't start notepad.");
                     #[cfg(unix)]
                     Command::new("nvim")
                         .arg(misc::configfile())
                         .spawn()
-                        .expect("Couldnt start nvim.");
+                        .expect("Couldnt start Nvim.");
                     println!("location: {}", misc::configfile())
                 }
                 "test" => {}
