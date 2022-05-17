@@ -24,6 +24,7 @@ struct Project {
     version: String,
     edition: String,
     include: String,
+    src: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -39,12 +40,18 @@ pub fn write(project_name: &str, location: &str) {
     };
     fsio::file::ensure_exists(&misc::configfile()).ok();
     let conf: String = misc::configfile();
-    println!("{}", conf);
-    file::append_file(
-        conf.as_str(),
-        toml::to_string_pretty(&config).unwrap().as_bytes(),
-    )
-    .expect("config not written to.");
+    // println!("{}", conf); note: ouytputs the config file
+    let file = std::fs::read_to_string(misc::configfile()).unwrap();
+    if file.contains(&config.name) {
+        println!("{}", "Project already exists".red());
+        std::process::exit(0);
+    } else {
+        file::append_file(
+            conf.as_str(),
+            toml::to_string_pretty(&config).unwrap().as_bytes(),
+        )
+        .expect("config not written to.");
+    }
 }
 
 pub mod misc {
@@ -234,12 +241,8 @@ impl Cppm {
             .to_string();
 
         let project: Project = toml::from_str(&format!(
-            r#"
-                name='x'
-                version='-1.0.1'
-                edition='2021'
-                include='include'
-            "#
+            "name='{}'\n version='1.0.1'\n edition='2021' \ninclude=''\nsrc=''\n",
+            __loc__,
         ))
         .unwrap();
         let config: LocalConfig = LocalConfig { project };
@@ -249,14 +252,6 @@ impl Cppm {
             toml::to_string(&config).unwrap().as_bytes(),
         )
         .expect("Unable to write to file.");
-
-        //File::create(format!("{}/Cppm.ini", loc)).expect("Unable to create file  or already exists.");
-        // config.set("project", "name", __loc__);
-        // config.set("project", "version", Some("0.1.0".to_string()));
-        // config.set("project", "edition", Some("2022".to_string()));
-        // config.set("project", "src", Some("".to_string()));
-        // config.set("project", "include", Some("".to_string()));
-        // config.write(format!("{}/Cppm.ini", loc)).ok();
     }
 }
 fn path(s: Cppm) -> (String, String) {
@@ -264,6 +259,8 @@ fn path(s: Cppm) -> (String, String) {
     let header: String = format!("{0}/include/{0}.hpp", s.project_name);
     (main, header)
 }
+
+static HELLO: &str = "";
 
 pub mod defaults {
     use fsio::file;
