@@ -6,6 +6,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::process::Command;
+use std::process;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -179,6 +180,10 @@ impl Cppm {
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
         //let config_loc = misc::configfile();
+        if Path::new(&misc::configfile()).exists() == false {
+            println!("{}", "You have not created any projects yet!".red());
+            process::exit(0);
+        }
         let t: Config =
             toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
         let key = format!("project.{}", _project_name);
