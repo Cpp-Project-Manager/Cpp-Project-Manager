@@ -49,6 +49,9 @@ cppm new <*project_name> <+editor>
 # in the terminal. eg: Vscode, Atom, Sublime, etc.
 cppm open <*project_name> <*editor> 
 
+# Removes all files and directories inside of a project
+cppm clean <*project_name>
+
 ```
 
 
