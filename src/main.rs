@@ -15,9 +15,9 @@ COMMANDS:
     init            Initializes a project in the current directory.
     open            Opens a project that was created with cppm.
     lp              Lists all projects configured with cppm.
+    clean           Cleans the project dist.
     *build          Builds the project to a dist directory.
     *run            Build and Runs the project.
-    *clean          Cleans the project dist.
     *remove         Removes a project from configuration.
 
 Note: Many commands have not been implemented yet. This is a minor release, more features will be added in the future. Commands with * are not yet implemented.
@@ -69,7 +69,14 @@ fn main() {
                 }
                 "run" => (),
                 "build" => (),
-                "clean" => (),
+                "clean" => {
+                    if _args.len() == 3 {
+                        println!("I'm working!");
+                        Cppm::clean(&_args[1]);
+                    } else {
+                        println!("{}", "Error: Invalid arguments".red())
+                    }
+                },
                 "release" => (),
                 "remove" => (), //todo:
                 "open" => {
