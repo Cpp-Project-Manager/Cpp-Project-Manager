@@ -56,9 +56,7 @@ cppm clean <*project_name>
 
 
 ## Download. 
-You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1) the build for windows.
-Or Download with cargo.
-```cargo install cppm```
+You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1) the build for Windows, or download with cargo: ```cargo install cppm```
 
 ## License
 [MIT](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/LICENSE)
