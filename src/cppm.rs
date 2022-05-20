@@ -7,6 +7,7 @@ use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 use std::process;
+use walkdir::WalkDir;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -180,6 +181,7 @@ impl Cppm {
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
         //let config_loc = misc::configfile();
+        // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
         if Path::new(&misc::configfile()).exists() == false {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
@@ -217,6 +219,21 @@ impl Cppm {
             println!("Project does not exist or was not created with cppm!");
         }
     }
+
+    // Removes all files and directories in a project
+    pub fn clean(project_name: &str) {
+        // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
+        println!("I'm working!");
+        if Path::new(&misc::configfile()).exists() == false {
+            println!("{}", "You have not created any projects yet!".red());
+            process::exit(0);
+        }
+        let t: Config =
+        toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+        let project_location = t.location;
+        walk_and_delete(project_location)
+    }
+
     /// initializes a project in the current directory.
     pub fn initialize() -> std::io::Result<()> {
         fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
@@ -263,6 +280,13 @@ fn path(s: Cppm) -> (String, String) {
     let main: String = format!("{}/src/main.cpp", s.project_name);
     let header: String = format!("{0}/include/{0}.hpp", s.project_name);
     (main, header)
+}
+
+fn walk_and_delete(p: std::string::String) {
+  for entry in WalkDir::new(&p).into_iter().filter_map(|e| e.ok()) {
+      // println!("{}", entry.path().display());
+      fs::remove_file(&p);
+  }
 }
 
 static HELLO: &str = "";
