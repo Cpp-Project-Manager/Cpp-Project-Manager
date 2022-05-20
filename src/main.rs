@@ -69,7 +69,13 @@ fn main() {
                 }
                 "run" => (),
                 "build" => (),
-                "clean" => (),
+                "clean" => {
+                    if _args.len() == 3 {
+                        Cppm::clean(&_args[1]);
+                    } else {
+                        println!("{}", "Error: Invalid arguments".red())
+                    }
+                },
                 "release" => (),
                 "remove" => (), //todo:
                 "open" => {
