@@ -7,6 +7,7 @@ use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 use std::process;
+use walkdir::WalkDir;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -180,6 +181,7 @@ impl Cppm {
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
         //let config_loc = misc::configfile();
+        // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
         if Path::new(&misc::configfile()).exists() == false {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
@@ -217,6 +219,19 @@ impl Cppm {
             println!("Project does not exist or was not created with cppm!");
         }
     }
+
+    pub fn clean(project_name: &str) {
+        // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
+        if Path::new(&misc::configfile()).exists() == false {
+            println!("{}", "You have not created any projects yet!".red());
+            process::exit(0);
+        }
+        let t: Config =
+        toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+        let project_location = t.location;
+        fs::remove_dir_all(&project_location);
+    }
+
     /// initializes a project in the current directory.
     pub fn initialize() -> std::io::Result<()> {
         fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
@@ -264,6 +279,15 @@ fn path(s: Cppm) -> (String, String) {
     let header: String = format!("{0}/include/{0}.hpp", s.project_name);
     (main, header)
 }
+
+// I know commented code is ugly as fuck but I need this here for when I implement remove ok :(
+
+// fn walk_and_delete(mut p: std::string::String) {
+//   p.push_str("/target");
+//   for entry in WalkDir::new(&p).into_iter().filter_map(|e| e.ok()) {
+//       fs::remove_file(&entry.path());
+//   }
+// }
 
 static HELLO: &str = "";
 
