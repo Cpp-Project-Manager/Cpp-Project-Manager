@@ -1,9 +1,11 @@
 mod cppm;
+mod builder;
+
 use colored::Colorize;
 use cppm::*;
 use std::env;
 use std::process::Command;
-mod builder;
+
 const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
     -v, --version   Displays the version of this program.
@@ -15,9 +17,9 @@ COMMANDS:
     init            Initializes a project in the current directory.
     open            Opens a project that was created with cppm.
     lp              Lists all projects configured with cppm.
+    clean           Cleans the project dist.
     *build          Builds the project to a dist directory.
     *run            Build and Runs the project.
-    *clean          Cleans the project dist.
     *remove         Removes a project from configuration.
 
 Note: Many commands have not been implemented yet. This is a minor release, more features will be added in the future. Commands with * are not yet implemented.
@@ -25,28 +27,25 @@ Note: Many commands have not been implemented yet. This is a minor release, more
 
 fn man() {
     println!("C++ Project Manager\n");
-    println!("USAGE:\n     cppm [COMMANDS] [+SUBCOMMANDS] [+NESTED-SC]\n");
+    println!("USAGE:\n cppm [COMMANDS] [+SUBCOMMANDS] [+NESTED-SC]\n");
     println!("{}", OPTIONS);
 }
 
 fn main() {
     let _args: Vec<String> = env::args().collect();
 
-    // note: `cppm list projects` is also a possible implimentation.
-    // note: human panic
-    // note: use config to configure defaults as well
-    // note: MN: Clint
     match _args.len() {
         1 => {
             man();
         }
         2 | 3 | 4 => {
             match _args[1].as_str() {
+                
                 "-v" | "--version" => {
                     println!("{}", misc::version());
                 }
+                
                 "new" => {
-                    // possibly add minimal support for C
                     if _args.len() > 3 {
                         Cppm::spawn(_args[2].clone(), _args[3].clone());
                     } else if _args.len() > 2 {
@@ -56,19 +55,20 @@ fn main() {
                         return;
                     }
                     println!(
-                        "    {} C++ project `{}`",
-                        "Created".bright_green(),
+                        "{} C++ project `{}`",
+                        "Project created".bright_green(),
                         _args[2]
                     );
                 }
+                
                 "init" => {
                     Cppm::initialize().ok();
                 }
+                
                 "lp" => {
                     misc::list_projects();
                 }
-                "run" => (),
-                "build" => (),
+                
                 "clean" => {
                     if _args.len() == 3 {
                         Cppm::clean(&_args[1]);
@@ -76,8 +76,8 @@ fn main() {
                         println!("{}", "Error: Invalid arguments".red())
                     }
                 },
-                "release" => (),
-                "remove" => (), //todo:
+                
+
                 "open" => {
                     let editor = env::var("EDITOR").unwrap_or_else(|_| "".to_string());
                     if _args.len() > 3 {
@@ -88,38 +88,48 @@ fn main() {
                             return;
                         }
                         if editor.is_empty() {
-                            println!("   {}", "Please provide a text editor.".bright_red());
+                            println!("{}", "Error: Please provide a text editor.".red());
                             return;
                         }
                         Cppm::open(_args[2].clone(), editor);
                     }
-                }
-                "config" => {
-                    //defaults::defaults(); warning:
-                    builder::compiler_check();
-                }
+                }     
+ 
                 "ini" => {
                     #[cfg(windows)]
                     Command::new("notepad")
                         .arg(misc::configfile())
                         .spawn()
-                        .expect("Couldn't start notepad.");
+                        .expect(&format!("{}", "Error: Couldn't start Notepad".red());
                     #[cfg(unix)]
                     Command::new("nvim")
                         .arg(misc::configfile())
                         .spawn()
-                        .expect("Couldnt start Nvim.");
-                    println!("location: {}", misc::configfile())
+                        .expect(&format!("{}", "Error: Couldn't start NVim".red());
                 }
-                "test" => {}
-                "--help" | "-h" => man(),
-                _ => man(),
+                
+                "config" => {
+                    builder::compiler_check();
+                }
+                
+                "--help" | "-h" => man(),                
+                
+                "run" => (),
+                "build" => (),
+                "release" => (),
+                "remove" => (),
+                "test" => (),
+                
+                _ => {
+                    println!("{}", "Error: Not a valid command! Run `cppm -h` to view the man page.".red())
+                }
+
             }
         }
         _ => {
             println!(
                 "   {}",
-                "Argument not supported, please use `cppm --help` for more info.".bright_red()
+                "Error: Argument not supported, please use `cppm --help` for more info.".red()
             );
         }
     }
