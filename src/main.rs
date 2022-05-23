@@ -3,7 +3,6 @@ use colored::Colorize;
 use cppm::*;
 use std::env;
 use std::process::Command;
-mod builder;
 const OPTIONS: &str = r#"OPTIONS:
     -h, --help      Displays this help message.
     -v, --version   Displays the version of this program.
@@ -95,11 +94,10 @@ fn main() {
                     }
                 }
                 "config" => {
-                    //defaults::defaults(); warning:
-                    builder::compiler_check();
+                    cppm::defaults();
                 }
                 "ini" => {
-                    #[cfg(windows)]
+                    
                     Command::new("notepad")
                         .arg(misc::configfile())
                         .spawn()

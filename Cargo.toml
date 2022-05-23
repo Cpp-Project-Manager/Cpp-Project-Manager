@@ -16,3 +16,4 @@ envmnt = "^0.10.0"
 fsio = "0.3.0"
 serde = { version = "1.0.137", features = ["derive"] }
 toml = "0.5.9"
+walkdir = "2.3.2"

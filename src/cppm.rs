@@ -1,3 +1,7 @@
+#![allow(unused_variables)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
@@ -5,9 +9,10 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use std::process::Command;
 use std::process;
+use std::process::Command;
 use walkdir::WalkDir;
+mod builder; 
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -220,6 +225,7 @@ impl Cppm {
         }
     }
 
+    #[allow(unused_variables)]
     pub fn clean(project_name: &str) {
         // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
         if Path::new(&misc::configfile()).exists() == false {
@@ -227,9 +233,9 @@ impl Cppm {
             process::exit(0);
         }
         let t: Config =
-        toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+            toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
         let project_location = t.location;
-        fs::remove_dir_all(&project_location);
+        fs::remove_dir_all(&project_location).ok();
     }
 
     /// initializes a project in the current directory.
@@ -291,28 +297,38 @@ fn path(s: Cppm) -> (String, String) {
 
 static HELLO: &str = "";
 
-pub mod defaults {
-    use fsio::file;
-    use std::io::{stdout, Write};
-    pub fn defaults_file() -> String {
-        let defaultsdir = dirs::config_dir()
-            .unwrap()
-            .into_os_string()
-            .into_string()
-            .unwrap()
-            .replace('"', "")
-            .replace("\\", "/");
-        format!("{}/cppm/defaults.toml", defaultsdir)
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Def{
+    editor: String,
+    compiler: Vec<String>
+}
+impl Def {
+    pub fn new() -> Def {
+        Def { editor: String::new(), compiler: Vec::new()  }
     }
-    // pub fn defaults() { warning: fix
-    //     file::ensure_exists(&defaults_file()).ok();
-    //     let mut ini = Ini::new();
-    //     let mut ans: String = String::new();
-    //     print!("Default editor: ");
-    //     stdout().flush().ok();
-    //     std::io::stdin().read_line(&mut ans).ok();
-    //     ini.set("defaults", "editor", Some(ans.clone()));
-    //     ini.write(defaults_file())
-    //         .expect("Could not write to default configuration file.");
-    // }
+}
+
+pub fn defaults_file() -> String {
+    let defaultsdir = dirs::config_dir()
+        .unwrap()
+        .into_os_string()
+        .into_string()
+        .unwrap()
+        .replace('"', "")
+        .replace("\\", "/");
+    format!("{}/cppm/defaults.toml", defaultsdir)
+}
+pub fn defaults() {
+    let mut config: Def = Def::new();
+    let mut ans: String = String::new();
+    file::ensure_exists(&defaults_file()).ok();
+    print!("Default Editor: ");
+    use std::io::{stdout, Write};
+    stdout().flush().ok();
+    std::io::stdin().read_line(&mut ans).ok();
+    config.editor = ans.trim().to_string();
+    file::write_file(&defaults_file(), toml::to_string(&config).unwrap().as_bytes())
+        .expect("Unable to write to file.");
+    
+    println!("Location: {}", defaults_file());
 }
