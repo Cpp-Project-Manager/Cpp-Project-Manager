@@ -8,54 +8,47 @@ use std::io::Write;
 use std::path::Path;
 use std::process;
 use std::process::Command;
+#[allow(unused_imports)]
 use walkdir::WalkDir;
 mod builder;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
-    location: String,
-}
-
-impl Config {
-    fn new(name: String, location: String) -> Config {
-        Config { name, location }
-    }
-}
-#[derive(Serialize, Deserialize, Debug)]
-struct Project {
-    name: String,
-    version: String,
-    edition: String,
-    include: String,
-    src: String,
+    location: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct LocalConfig {
-    project: Project,
+    project: HashMap<String, String>,
 }
 
-pub fn write(project_name: &str, location: &str) {
+pub fn write(project_name: &str, location: Vec<String>) {
     file::ensure_exists(&misc::configfile()).ok();
     let config = Config {
         name: project_name.to_string(),
-        location: location.to_string(),
+        location,
     };
     fsio::file::ensure_exists(&misc::configfile()).ok();
     let conf: String = misc::configfile();
     // println!("{}", conf); note: ouytputs the config file
     let file = std::fs::read_to_string(misc::configfile()).unwrap();
-    if file.contains(&config.name) {
-        println!("{}", "Project already exists".red());
-        std::process::exit(0);
-    } else {
-        file::append_file(
+    // if file.contains(&config.name) {
+    //     println!("{}", "Project already exists".red());
+    //     std::process::exit(0);
+    // } else {
+    //     file::append_file(
+    //         conf.as_str(),
+    //         toml::to_string_pretty(&config).unwrap().as_bytes(),
+    //     )
+    //     .expect("config not written to.");
+    // }
+
+    file::append_file(
             conf.as_str(),
             toml::to_string_pretty(&config).unwrap().as_bytes(),
         )
         .expect("config not written to.");
-    }
 }
 
 pub mod misc {
@@ -177,14 +170,14 @@ impl Cppm {
         );
         write(
             pn.as_str(),
-            &format!("{}/{}", std::env::current_dir().unwrap().display(), pn),
+            vec![format!("{}/{}", std::env::current_dir().unwrap().display(), pn)],
         );
     }
     /// note: add aliases for known editors
-    pub fn open(_project_name: String, editor: String) {
+    pub fn open(_project_name: String, editor: String) { // warning: fix the location appropriate to the vector change
         //let config_loc = misc::configfile();
         // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
-        if Path::new(&misc::configfile()).exists() == false {
+        if !Path::new(&misc::configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
@@ -193,11 +186,14 @@ impl Cppm {
         let key = format!("project.{}", _project_name);
         if t.name == key {
             let project_location = t.location;
-            println!(
-                "   Opening Project{}`: {}",
+            vec![println!(
+                "   Opening Project{}`: {:?}",
                 key.replace("project.", " `").green(),
                 project_location
-            );
+            )];
+
+            //warning: make question check here then overshadow project location to take the appropriate location and use in the rest of the function
+            let project_location: String = project_location[0].clone(); // warning: temporary
 
             let mut editor = if cfg!(target_os = "windows") {
                 Command::new("powershell")
@@ -223,6 +219,7 @@ impl Cppm {
     }
 
     #[allow(unused_variables)]
+    // Warning: fix according to the vector change
     pub fn clean(project_name: &str) {
         // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
         if !Path::new(&misc::configfile()).exists() {
@@ -232,7 +229,7 @@ impl Cppm {
         let t: Config =
             toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
         let project_location = t.location;
-        fs::remove_dir_all(&project_location).ok();
+        fs::remove_dir_all(&project_location[0]).ok();
     }
 
     /// initializes a project in the current directory.
@@ -250,7 +247,7 @@ impl Cppm {
 
         write(
             misc::dir_name().as_str(),
-            std::env::current_dir()?.as_os_str().to_str().unwrap(),
+            vec![std::env::current_dir()?.as_os_str().to_str().unwrap().to_string()],
         );
         Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
         Ok(())
@@ -263,12 +260,15 @@ impl Cppm {
             .unwrap()
             .to_string();
 
-        let project: Project = toml::from_str(&format!(
-            "name='{}'\n version='1.0.1'\n edition='2021' \ninclude=''\nsrc=''\n",
-            __loc__,
-        ))
-        .unwrap();
-        let config: LocalConfig = LocalConfig { project };
+        let config: LocalConfig = LocalConfig {
+            project: HashMap::from([
+                ("name".to_owned(), __loc__),
+                ("version".to_owned(), "1.0.1".to_owned()),
+                ("edition".to_owned(), "2021".to_owned()),
+                ("include".to_owned(), "".to_owned()),
+                ("src".to_owned(), "".to_owned()),
+            ]),
+        };
         println!("{}", loc);
         file::write_file(
             &format!("{}/Cppm.toml", loc),
@@ -277,6 +277,7 @@ impl Cppm {
         .expect("Unable to write to file.");
     }
 }
+
 fn path(s: Cppm) -> (String, String) {
     let main: String = format!("{}/src/main.cpp", s.project_name);
     let header: String = format!("{0}/include/{0}.hpp", s.project_name);
@@ -332,7 +333,9 @@ pub fn defaults() {
     match c {
         Ok(x) => match x {
             builder::Compilers::Clang => {
-                config.compilers.insert("c".to_string(), "clang".to_string());
+                config
+                    .compilers
+                    .insert("c".to_string(), "clang".to_string());
             }
             builder::Compilers::Gcc => {
                 config.compilers.insert("c".to_string(), "gcc".to_string());
@@ -345,10 +348,14 @@ pub fn defaults() {
     match cpp {
         Ok(x) => match x {
             builder::Compilers::Clangpp => {
-                config.compilers.insert("cpp".to_string(), "clang++".to_string());
+                config
+                    .compilers
+                    .insert("cpp".to_string(), "clang++".to_string());
             }
             builder::Compilers::Gpp => {
-                config.compilers.insert("cpp".to_string(), "g++".to_string());
+                config
+                    .compilers
+                    .insert("cpp".to_string(), "g++".to_string());
             }
             _ => (),
         },
