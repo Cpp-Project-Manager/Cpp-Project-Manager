@@ -1,10 +1,7 @@
-#![allow(unused_variables)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
-
 use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -12,7 +9,7 @@ use std::path::Path;
 use std::process;
 use std::process::Command;
 use walkdir::WalkDir;
-mod builder; 
+mod builder;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -228,7 +225,7 @@ impl Cppm {
     #[allow(unused_variables)]
     pub fn clean(project_name: &str) {
         // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
-        if Path::new(&misc::configfile()).exists() == false {
+        if !Path::new(&misc::configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
@@ -295,16 +292,17 @@ fn path(s: Cppm) -> (String, String) {
 //   }
 // }
 
-static HELLO: &str = "";
-
 #[derive(Debug, Deserialize, Serialize)]
-pub struct Def{
+pub struct Def {
     editor: String,
-    compiler: Vec<String>
+    compilers: HashMap<String, String>,
 }
 impl Def {
     pub fn new() -> Def {
-        Def { editor: String::new(), compiler: Vec::new()  }
+        Def {
+            editor: String::new(),
+            compilers: HashMap::new(),
+        }
     }
 }
 
@@ -323,12 +321,45 @@ pub fn defaults() {
     let mut ans: String = String::new();
     file::ensure_exists(&defaults_file()).ok();
     print!("Default Editor: ");
-    use std::io::{stdout, Write};
+    use std::io::stdout;
     stdout().flush().ok();
     std::io::stdin().read_line(&mut ans).ok();
+
     config.editor = ans.trim().to_string();
-    file::write_file(&defaults_file(), toml::to_string(&config).unwrap().as_bytes())
-        .expect("Unable to write to file.");
-    
+    let c = builder::c();
+    let cpp = builder::cpp();
+
+    match c {
+        Ok(x) => match x {
+            builder::Compilers::Clang => {
+                config.compilers.insert("c".to_string(), "clang".to_string());
+            }
+            builder::Compilers::Gcc => {
+                config.compilers.insert("c".to_string(), "gcc".to_string());
+            }
+            _ => (),
+        },
+        Err(e) => println!("{}", e),
+    }
+
+    match cpp {
+        Ok(x) => match x {
+            builder::Compilers::Clangpp => {
+                config.compilers.insert("cpp".to_string(), "clang++".to_string());
+            }
+            builder::Compilers::Gpp => {
+                config.compilers.insert("cpp".to_string(), "g++".to_string());
+            }
+            _ => (),
+        },
+        Err(e) => println!("{}", e),
+    }
+
+    file::write_file(
+        &defaults_file(),
+        toml::to_string(&config).unwrap().as_bytes(),
+    )
+    .expect("Unable to write to file.");
+
     println!("Location: {}", defaults_file());
 }

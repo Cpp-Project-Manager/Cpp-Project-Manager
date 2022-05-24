@@ -16,22 +16,7 @@ fn subprocess(process: &str, arg: &str) -> std::io::Result<ExitStatus> {
         .status()
 }
 
-pub fn cpp() -> Result<Compilers, std::io::Error> {
-    if subprocess("clangpp", "-v").is_ok() {
-        println!("Clang++ is installed.");
-        Ok(Compilers::Clangpp)
-    }
-    else if subprocess("g++", "-v").is_ok() {
-        println!("G++ is installed.");
-        Ok(Compilers::Gpp)
-    }
-    else {
-        println!("Neither G++ or Clang++ is installed.");
-        Err(std::io::Error::new(std::io::ErrorKind::Other, "Neither G++ or Clang++ is installed."))
-    }
-}
-
-pub fn c() -> Result<Compilers, std::io::Error> {
+pub fn c() -> std::io::Result<Compilers> {
     if subprocess("clang", "-v").is_ok() {
         println!("Clang is installed.");
         Ok(Compilers::Clang)
@@ -45,3 +30,19 @@ pub fn c() -> Result<Compilers, std::io::Error> {
         Err(std::io::Error::new(std::io::ErrorKind::Other, "Neither Gcc or Clang is installed."))
     }
 }
+
+pub fn cpp() -> std::io::Result<Compilers> {
+    if subprocess("clang++", "-v").is_ok() {
+        println!("Clang++ is installed.");
+        Ok(Compilers::Clangpp)
+    }
+    else if subprocess("g++", "-v").is_ok() {
+        println!("G++ is installed.");
+        Ok(Compilers::Gpp)
+    }
+    else {
+        println!("Neither G++ or Clang++ is installed.");
+        Err(std::io::Error::new(std::io::ErrorKind::Other, "Neither G++ or Clang++ is installed."))
+    }
+}
+
