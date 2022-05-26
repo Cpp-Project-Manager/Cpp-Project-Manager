@@ -10,8 +10,8 @@ const OPTIONS: &str = r#"OPTIONS:
 
 COMMANDS:
     config          Configures cppm.
-    new             Creates a new project.
-    init            Initializes a project in the current directory.
+    new             Creates a new project.                              [OPTIONAL ARGUMENT: -c (Initializes it with C code)]
+    init            Initializes a project in the current directory.     [OPTIONAL ARGUMENT: -c (Initializes it with C code)]
     open            Opens a project that was created with cppm.
     lp              Lists all projects configured with cppm.
     *build          Builds the project to a dist directory.
