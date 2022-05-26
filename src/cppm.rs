@@ -203,23 +203,22 @@ impl Cppm {
                 };
                 editor.wait().expect("Failed to wait on process.");
             } else {
-                println!("Project does not exist or was not created with cppm!");
+                //println!("Project does not exist or was not created with cppm!"); // note: add appropriate fix for this
             }
         }
     }
 
     #[allow(unused_variables)]
     // Warning: fix according to the vector change
-    pub fn clean(project_name: &str) {
-        // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
-        if !Path::new(&misc::configfile()).exists() {
-            println!("{}", "You have not created any projects yet!".red());
+    pub fn clean() {
+        let build: &str = &format!("{}\\build", std::env::current_dir().unwrap().to_str().unwrap());
+        if !Path::new(build).exists() {
+            println!("{}", "Project has not been built!".red());
             process::exit(0);
         }
-        let toml_config: Config =
-            toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
-        let project_location = toml_config.location;
-        fs::remove_dir_all(&project_location).ok();
+        else {
+            fs::remove_dir_all(build).ok();
+        }
     }
 
     /// initializes a project in the current directory.
