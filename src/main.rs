@@ -9,7 +9,7 @@ const OPTIONS: &str = r#"OPTIONS:
     -l, --list      Lists all configured projects.
 
 COMMANDS:
-    *config         Configures cppm.
+    config          Configures cppm.
     new             Creates a new project.
     init            Initializes a project in the current directory.
     open            Opens a project that was created with cppm.

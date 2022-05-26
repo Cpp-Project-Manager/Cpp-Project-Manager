@@ -25,12 +25,11 @@ struct LocalConfig {
 pub fn write(project_name: &str, location: &str) {
     file::ensure_exists(&misc::configfile()).ok();
     
-    let config: Config = Config { name: project_name.to_string(), location: location.to_owned() };
-
+    let config: Config = Config { name: project_name.to_string(), location: location.replace("/", "\\") };
     fsio::file::ensure_exists(&misc::configfile()).ok();
     file::append_file(
             &misc::configfile(),
-            toml::to_string_pretty(&config).unwrap().as_bytes(),
+            format!("\n[[config]]\n{}", toml::to_string_pretty(&config).unwrap()).as_bytes(),
         )
         .expect("config not written to.");
 }
