@@ -179,7 +179,7 @@ impl Cppm {
             if i.name == _project_name {
                 let project_location = i.location.clone();
                 println!(
-                    "   Opening Project{}`: {}",
+                    "   Opening Project `{}`: {}",
                     _project_name.green(),
                     project_location
                 );
@@ -208,10 +208,8 @@ impl Cppm {
         }
     }
 
-    #[allow(unused_variables)]
-    // Warning: fix according to the vector change
     pub fn clean() {
-        let build: &str = &format!("{}\\build", std::env::current_dir().unwrap().to_str().unwrap());
+        let build: &str = &format!("{}/build", std::env::current_dir().unwrap().to_str().unwrap());
         if !Path::new(build).exists() {
             println!("{}", "Project has not been built!".red());
             process::exit(0);
