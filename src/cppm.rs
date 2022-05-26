@@ -15,7 +15,7 @@ mod builder;
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
-    location: String
+    location: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -24,19 +24,22 @@ struct LocalConfig {
 }
 pub fn write(project_name: &str, location: &str) {
     file::ensure_exists(&misc::configfile()).ok();
-    
-    let config: Config = Config { name: project_name.to_string(), location: location.replace("/", "\\") };
+
+    let config: Config = Config {
+        name: project_name.to_string(),
+        location: location.replace("/", "\\"),
+    };
     fsio::file::ensure_exists(&misc::configfile()).ok();
     file::append_file(
-            &misc::configfile(),
-            format!("\n[[config]]\n{}", toml::to_string_pretty(&config).unwrap()).as_bytes(),
-        )
-        .expect("config not written to.");
+        &misc::configfile(),
+        format!("\n[[config]]\n{}", toml::to_string_pretty(&config).unwrap()).as_bytes(),
+    )
+    .expect("config not written to.");
 }
 
 pub mod misc {
-    use std::collections::HashMap;
     use crate::cppm::Config;
+    use std::collections::HashMap;
 
     pub const CPPBOILER: &str = r#"#include <iostream>
 
@@ -87,7 +90,8 @@ int main(){
     }
 
     pub fn list_projects() {
-        let config: HashMap<String, Vec<Config>> = toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
+        let config: HashMap<String, Vec<Config>> =
+            toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
         let items: &[Config] = &config["config"];
         print!("\nProjects configured with cppm: \n");
         for i in items {
@@ -167,36 +171,40 @@ impl Cppm {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
-        let toml_config: Config = toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
-        if toml_config.name == _project_name {
-            let project_location = toml_config.location;
-            println!(
-                "   Opening Project{}`: {}",
-                _project_name.green(),
-                project_location
-            );
-            let project_location: String = project_location.clone(); // warning: temporary
-
-            let mut editor = if cfg!(target_os = "windows") {
-                Command::new("powershell")
-                    .args(["/c", &format!("{} {}", editor, project_location)])
-                    .spawn()
-                    .expect("Failed to open editor.")
-            } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
-                Command::new("sh")
-                    .args(["-c", &format!("{} {}", editor, project_location)])
-                    .spawn()
-                    .expect("Failed to open editor.")
-            } else {
+        let toml_config: HashMap<String, Vec<Config>> =
+            toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+        let config: &[Config] = &toml_config["config"];
+        
+        for i in config {
+            if i.name == _project_name {
+                let project_location = i.location.clone();
                 println!(
-                    "{}",
-                    "Your OS is not supported, please open an issue to get it implemented.".red()
+                    "   Opening Project{}`: {}",
+                    _project_name.green(),
+                    project_location
                 );
-                return;
-            };
-            editor.wait().expect("Failed to wait on process.");
-        } else {
-            println!("Project does not exist or was not created with cppm!");
+
+                let mut editor = if cfg!(target_os = "windows") {
+                    Command::new("powershell")
+                        .args(["/c", &format!("{} {}", editor, project_location)])
+                        .spawn()
+                        .expect("Failed to open editor.")
+                } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
+                    Command::new("sh")
+                        .args(["-c", &format!("{} {}", editor, project_location)])
+                        .spawn()
+                        .expect("Failed to open editor.")
+                } else {
+                    println!(
+                        "{}",
+                        "Your OS is not supported, please open an issue to get it implemented.".red()
+                    );
+                    return;
+                };
+                editor.wait().expect("Failed to wait on process.");
+            } else {
+                println!("Project does not exist or was not created with cppm!");
+            }
         }
     }
 
@@ -229,7 +237,11 @@ impl Cppm {
 
         write(
             misc::dir_name().as_str(),
-            &std::env::current_dir()?.as_os_str().to_str().unwrap().to_string(),
+            &std::env::current_dir()?
+                .as_os_str()
+                .to_str()
+                .unwrap()
+                .to_string(),
         );
         Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
         Ok(())
