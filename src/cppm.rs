@@ -15,43 +15,28 @@ mod builder;
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
-    location: Vec<String>,
+    location: String
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct LocalConfig {
     project: HashMap<String, String>,
 }
-
-pub fn write(project_name: &str, location: Vec<String>) {
+pub fn write(project_name: &str, location: &str) {
     file::ensure_exists(&misc::configfile()).ok();
-    let config = Config {
-        name: project_name.to_string(),
-        location,
-    };
-    fsio::file::ensure_exists(&misc::configfile()).ok();
-    let conf: String = misc::configfile();
-    // println!("{}", conf); note: ouytputs the config file
-    let file = std::fs::read_to_string(misc::configfile()).unwrap();
-    // if file.contains(&config.name) {
-    //     println!("{}", "Project already exists".red());
-    //     std::process::exit(0);
-    // } else {
-    //     file::append_file(
-    //         conf.as_str(),
-    //         toml::to_string_pretty(&config).unwrap().as_bytes(),
-    //     )
-    //     .expect("config not written to.");
-    // }
+    
+    let config: Config = Config { name: project_name.to_string(), location: location.to_owned() };
 
+    fsio::file::ensure_exists(&misc::configfile()).ok();
     file::append_file(
-            conf.as_str(),
+            &misc::configfile(),
             toml::to_string_pretty(&config).unwrap().as_bytes(),
         )
         .expect("config not written to.");
 }
 
 pub mod misc {
+    use std::collections::HashMap;
     use crate::cppm::Config;
 
     pub const CPPBOILER: &str = r#"#include <iostream>
@@ -103,10 +88,13 @@ int main(){
     }
 
     pub fn list_projects() {
-        let config: Config =
-            toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
+        let config: HashMap<String, Vec<Config>> = toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
+        let items: &[Config] = &config["config"];
         print!("\nProjects configured with cppm: \n");
-        println!("{}", config.name);
+        for i in items {
+            println!("{}: {}", i.name, i.location);
+        }
+        //println!("{:?}", items[0].name);
     }
 }
 
@@ -170,30 +158,25 @@ impl Cppm {
         );
         write(
             pn.as_str(),
-            vec![format!("{}/{}", std::env::current_dir().unwrap().display(), pn)],
+            &format!("{}/{}", std::env::current_dir().unwrap().display(), pn),
         );
     }
     /// note: add aliases for known editors
-    pub fn open(_project_name: String, editor: String) { // warning: fix the location appropriate to the vector change
-        //let config_loc = misc::configfile();
-        // Notice: Make sure to include the if statement below for all commands that require you to do something with a project!
+    pub fn open(_project_name: String, editor: String) {
+        // Note: Make sure to include the if statement below for all commands that require you to do something with a project!
         if !Path::new(&misc::configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
-        let t: Config =
-            toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
-        let key = format!("project.{}", _project_name);
-        if t.name == key {
-            let project_location = t.location;
-            vec![println!(
-                "   Opening Project{}`: {:?}",
-                key.replace("project.", " `").green(),
+        let toml_config: Config = toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+        if toml_config.name == _project_name {
+            let project_location = toml_config.location;
+            println!(
+                "   Opening Project{}`: {}",
+                _project_name.green(),
                 project_location
-            )];
-
-            //warning: make question check here then overshadow project location to take the appropriate location and use in the rest of the function
-            let project_location: String = project_location[0].clone(); // warning: temporary
+            );
+            let project_location: String = project_location.clone(); // warning: temporary
 
             let mut editor = if cfg!(target_os = "windows") {
                 Command::new("powershell")
@@ -226,10 +209,10 @@ impl Cppm {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
-        let t: Config =
+        let toml_config: Config =
             toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
-        let project_location = t.location;
-        fs::remove_dir_all(&project_location[0]).ok();
+        let project_location = toml_config.location;
+        fs::remove_dir_all(&project_location).ok();
     }
 
     /// initializes a project in the current directory.
@@ -247,7 +230,7 @@ impl Cppm {
 
         write(
             misc::dir_name().as_str(),
-            vec![std::env::current_dir()?.as_os_str().to_str().unwrap().to_string()],
+            &std::env::current_dir()?.as_os_str().to_str().unwrap().to_string(),
         );
         Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
         Ok(())
