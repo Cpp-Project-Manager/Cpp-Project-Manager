@@ -10,8 +10,8 @@ const OPTIONS: &str = r#"OPTIONS:
 
 COMMANDS:
     config          Configures cppm.
-    new             Creates a new project.
-    init            Initializes a project in the current directory.
+    new             Creates a new project.                              [OPTIONAL ARGUMENT: -c (Initializes it with C code)]
+    init            Initializes a project in the current directory.     [OPTIONAL ARGUMENT: -c (Initializes it with C code)]
     open            Opens a project that was created with cppm.
     lp              Lists all projects configured with cppm.
     *build          Builds the project to a dist directory.
@@ -45,23 +45,48 @@ fn main() {
                     println!("{}", misc::version());
                 }
                 "new" => {
-                    // possibly add minimal support for C
-                    if _args.len() > 3 {
-                        Cppm::spawn(_args[2].clone(), _args[3].clone());
+                    if _args.len() == 4 {
+                        if _args[3] == "-c" {
+                            println!("{:?}", _args);
+                            Cppm::spawn(_args[2].clone(), "null".to_string(), "c")
+                            println!(
+                                "    {} C project `{}`",
+                                "Created".bright_green(),
+                                _args[2]
+                            );
+                        } else {
+                            println!("Invalid arguments!");
+                            return
+                        }
+                    } else if _args.len() > 3 {
+                        Cppm::spawn(_args[2].clone(), _args[3].clone(), "cpp");
                     } else if _args.len() > 2 {
-                        Cppm::spawn(_args[2].clone(), "null".to_string());
+                        println!(
+                            "    {} C++ project `{}`",
+                            "Created".bright_green(),
+                            _args[2]
+                        );
+                        Cppm::spawn(_args[2].clone(), "null".to_string(), "cpp");
+                        println!(
+                            "    {} C++ project `{}`",
+                            "Created".bright_green(),
+                            _args[2]
+                        );
                     } else {
                         println!("{}", "Error: You must provide a project name.".red());
                         return;
                     }
-                    println!(
-                        "    {} C++ project `{}`",
-                        "Created".bright_green(),
-                        _args[2]
-                    );
                 }
                 "init" => {
-                    Cppm::initialize().ok();
+                    if _args.len() == 3 {
+                        if _args[2] == "-c" {
+                            Cppm::initialize("c").ok();
+                        } else {
+                            println!("Invalid arguments!")
+                        }
+                    } else {
+                        Cppm::initialize("cpp").ok();
+                    }
                 }
                 "lp" => {
                     misc::list_projects();
