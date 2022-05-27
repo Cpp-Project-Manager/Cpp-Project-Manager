@@ -12,8 +12,8 @@ keywords = ["cli", "terminal", "tui"]
 [dependencies]
 colored = "2"
 dirs = "4.0.0"
-envmnt = "^0.10.0"
-fsio = "0.3.0"
+fsio = "0.3.0" #note: get rid of fsio using std functions
 serde = { version = "1.0.137", features = ["derive"] }
 toml = "0.5.9"
 ansi_term = "0.12.1"
+clap = { version = "3.1.18", features = ["derive"] }

@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
@@ -47,6 +48,19 @@ int main(void) {
     return 0;
 }
 "#;
+
+pub fn header_boiler_c(header_name: &str) -> String {
+    format!(
+        r#"#ifndef {0}_H
+#define {0}_H
+
+#include <stdio.h>
+
+
+#endif"#,
+        header_name.to_uppercase()
+    )
+}
 
     pub const CPPBOILER: &str = r#"#include <iostream>
 
@@ -291,9 +305,14 @@ impl Cppm {
         }
         if init_type == "c" {
             fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
+            fs::create_dir_all("include").expect("Folder creation failed or folder already exists.");
             File::create("src/main.c")
                 .expect("Folder creation failed or folder already exists.")
                 .write_all(misc::CBOILER.as_bytes())
+                .expect("Unable to write to file.");
+            File::create("include/main.h")
+                .expect("Unable to create file or file already exists.")
+                .write_all(misc::header_boiler_c("main").as_bytes())
                 .expect("Unable to write to file.");
     
             write(
@@ -361,6 +380,7 @@ fn path(s: Cppm) -> (String, String) {
     (main, header)
 }
 
+// note: find a way to impliment removing from the config file
 pub fn remove(project_name: String) {
     let toml_config: HashMap<String, Vec<Config>> =
         toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();

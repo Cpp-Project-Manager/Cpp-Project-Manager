@@ -1,137 +1,107 @@
 mod cppm;
-use colored::Colorize;
 use cppm::*;
-use std::env;
-use std::process::Command;
-const OPTIONS: &str = r#"OPTIONS:
-    -h, --help      Displays this help message.
-    -v, --version   Displays the version of this program.
-    -l, --list      Lists all configured projects.
+use clap::{Parser, Subcommand};
+use colored::Colorize;
 
-COMMANDS:
-    config          Configures cppm.
-    new             Creates a new project.                              [OPTIONAL ARGUMENT: -c (Initializes it with C code)]
-    init            Initializes a project in the current directory.     [OPTIONAL ARGUMENT: -c (Initializes it with C code)]
-    open            Opens a project that was created with cppm.
-    lp              Lists all projects configured with cppm.
-    *build          Builds the project to a dist directory.
-    *run            Build and Runs the project.
-    *clean          Cleans the project dist.
-    *remove         Removes a project from configuration.
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// Lists all projects configured with cppm
+    #[clap(short, long)]
+    list: bool,
 
-Note: Many commands have not been implemented yet. This is a minor release, more features will be added in the future. Commands with * are not yet implemented.
-"#;
+    /// Generate C files instead of C++ files
+    #[clap(short, long)]
+    c: bool,
 
-fn man() {
-    println!("C++ Project Manager\n");
-    println!("USAGE:\n     cppm [COMMANDS] [+SUBCOMMANDS] [+NESTED-SC]\n");
-    println!("{}", OPTIONS);
+    /// Configure cppm defaults
+    #[clap(short = 'g', long)]
+    config: bool,
+
+    /// Initialize cppm in the current directory
+    #[clap(short, long)]
+    init: bool,
+
+    /// Clean up build
+    #[clap(long)]
+    clean: bool,
+
+    /// View and Edit cppm config file
+    #[clap(long)]
+    ini: bool,
+
+    /// Remove a cppm project
+    #[clap(short, long)]
+    remove: Option<String>,
+
+    #[clap(subcommand)]
+    command: Option<Command>,
+}
+
+#[derive(Subcommand, Clone)]
+enum Command {
+    /// Open a cppm project
+    Open { name: String, editor: Option<String> },
+    /// Creates a new cppm project
+    New { name: String, editor: Option<String> }
 }
 
 fn main() {
+    let args = Args::parse();
     let _enabled = ansi_term::enable_ansi_support();
-    let _args: Vec<String> = env::args().collect();
-
-    // note: human panic
-    // note: MN: Clint
-    match _args.len() {
-        1 => {
-            man();
-        }
-        2 | 3 | 4 => {
-            match _args[1].as_str() {
-                "-v" | "--version" => {
-                    println!("{}", misc::version());
-                }
-                "new" => {
-                    if _args.len() == 4 {
-                        if _args[3] == "-c" {
-                            println!("{:?}", _args);
-                            Cppm::spawn(_args[2].clone(), "null".to_string(), "c");
-                            println!(
-                                "    {} C project `{}`",
-                                "Created".bright_green(),
-                                _args[2]
-                            );
-                        } else {
-                            println!("Invalid arguments!");
-                            return;
-                        }
-                    } else if _args.len() > 3 {
-                        Cppm::spawn(_args[2].clone(), _args[3].clone(), "cpp");
-                    } else if _args.len() > 2 {
-                        Cppm::spawn(_args[2].clone(), "null".to_string(), "cpp");
-                        println!(
-                            "    {} C++ project `{}`",
-                            "Created".bright_green(),
-                            _args[2]
-                        );
-                    } else {
-                        println!("{}", "Error: You must provide a project name.".red());
-                        return;
-                    }
-                }
-                "init" => {
-                    if _args.len() == 3 {
-                        if _args[2] == "-c" {
-                            Cppm::initialize("c").ok();
-                        } else {
-                            println!("Invalid arguments!")
-                        }
-                    } else {
-                        Cppm::initialize("cpp").ok();
-                    }
-                }
-                "lp" => {
-                    misc::list_projects();
-                }
-                "run" => (),
-                "build" => (),
-                "clean" => Cppm::clean(),
-                "release" => (),
-                "remove" => cppm::remove(_args[2].clone()),
-                "open" => {
-                    let editor = env::var("EDITOR").unwrap_or_else(|_| "".to_string());
-                    if _args.len() > 3 {
-                        Cppm::open(_args[2].clone(), _args[3].clone());
-                    } else {
-                        if _args.len() == 2 {
-                            println!("{}", "Error: You need to provide a project name.".red());
-                            return;
-                        }
-                        if editor.is_empty() {
-                            println!("   {}", "Please provide a text editor.".bright_red());
-                            return;
-                        }
-                        Cppm::open(_args[2].clone(), editor);
-                    }
-                }
-                "config" => {
-                    cppm::defaults();
-                }
-                "ini" => {
-                    
-                    Command::new("notepad")
-                        .arg(misc::configfile())
-                        .spawn()
-                        .expect("Couldn't start notepad.");
-                    #[cfg(unix)]
-                    Command::new("nvim")
-                        .arg(misc::configfile())
-                        .spawn()
-                        .expect("Couldnt start Nvim.");
-                    println!("location: {}", misc::configfile())
-                }
-                "test" => {}
-                "--help" | "-h" => man(),
-                _ => man(),
-            }
-        }
-        _ => {
-            println!(
-                "   {}",
-                "Argument not supported, please use `cppm --help` for more info.".bright_red()
-            );
+    if args.list { misc::list_projects() }
+    if args.config { cppm::defaults() }
+    if args.clean { Cppm::clean() }
+    if args.init {
+        if args.c {
+            Cppm::initialize("c").ok();
+        } else {
+            Cppm::initialize("cpp").ok();
         }
     }
+    if args.ini {
+        std::process::Command::new("notepad")
+            .arg(misc::configfile())
+            .spawn()
+            .expect("Couldn't start notepad.");
+        #[cfg(unix)]
+        std::process::Command::new("nvim")
+            .arg(misc::configfile())
+            .spawn()
+            .expect("Couldnt start Nvim.");
+        println!("location: {}", misc::configfile())
+    }
+
+    if let Some(remove) = args.remove {
+        cppm::remove(remove);
+    }
+
+    match args.command {
+        Some(Command::Open { name, editor })  => {
+            if editor.is_none() {
+                // note: do config stuff, get default ed if exists
+            } else {
+              Cppm::open(name, editor.unwrap());  
+            }
+        }
+        Some(Command::New { name, editor }) => {
+            if args.c {
+                Cppm::spawn(name.clone(), editor.unwrap_or("null".to_string()), "c");
+                println!(
+                    "    {} C project `{}`",
+                    "Created".bright_green(),
+                    name
+                );
+            } else {
+                Cppm::spawn(name.clone(), editor.unwrap_or("null".to_string()), "cpp");
+                println!(
+                    "    {} C++ project `{}`",
+                    "Created".bright_green(),
+                    name
+                );
+            }
+        }
+        None => (),
+    }
+    
 }
