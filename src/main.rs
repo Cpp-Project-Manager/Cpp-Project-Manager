@@ -29,6 +29,7 @@ fn man() {
 }
 
 fn main() {
+    let _enabled = ansi_term::enable_ansi_support();
     let _args: Vec<String> = env::args().collect();
 
     // note: `cppm list projects` is also a possible implimentation.
@@ -48,7 +49,7 @@ fn main() {
                     if _args.len() == 4 {
                         if _args[3] == "-c" {
                             println!("{:?}", _args);
-                            Cppm::spawn(_args[2].clone(), "null".to_string(), "c")
+                            Cppm::spawn(_args[2].clone(), "null".to_string(), "c");
                             println!(
                                 "    {} C project `{}`",
                                 "Created".bright_green(),
@@ -95,7 +96,7 @@ fn main() {
                 "build" => (),
                 "clean" => Cppm::clean(),
                 "release" => (),
-                "remove" => (), //todo:
+                "remove" => cppm::remove(_args[2].clone()),
                 "open" => {
                     let editor = env::var("EDITOR").unwrap_or_else(|_| "".to_string());
                     if _args.len() > 3 {

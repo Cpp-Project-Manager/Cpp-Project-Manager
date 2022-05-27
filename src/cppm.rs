@@ -348,6 +348,27 @@ fn path(s: Cppm) -> (String, String) {
     (main, header)
 }
 
+pub fn remove(project_name: String) {
+    let toml_config: HashMap<String, Vec<Config>> =
+        toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+    let config: &[Config] = &toml_config["config"]; // config is a vector of Config structs
+    
+    for i in config {
+        if i.name == project_name {
+            let project_location = i.location.clone();
+            println!(
+                "   Removing Project `{}`: {}",
+                project_name.green(),
+                project_location
+            );
+            fs::remove_dir_all(project_location).expect("Failed to remove project.");
+            // find a way to remove from file
+            process::exit(0);
+        }   
+    }
+    println!("Project does not exist or was not created with cppm!");
+}
+
 fn c_path(s: Cppm) -> String {
     let main: String = format!("{}/src/main.cpp", s.project_name);
     main
