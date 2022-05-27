@@ -32,9 +32,7 @@ fn main() {
     let _enabled = ansi_term::enable_ansi_support();
     let _args: Vec<String> = env::args().collect();
 
-    // note: `cppm list projects` is also a possible implimentation.
     // note: human panic
-    // note: use config to configure defaults as well
     // note: MN: Clint
     match _args.len() {
         1 => {
@@ -57,16 +55,11 @@ fn main() {
                             );
                         } else {
                             println!("Invalid arguments!");
-                            return
+                            return;
                         }
                     } else if _args.len() > 3 {
                         Cppm::spawn(_args[2].clone(), _args[3].clone(), "cpp");
                     } else if _args.len() > 2 {
-                        println!(
-                            "    {} C++ project `{}`",
-                            "Created".bright_green(),
-                            _args[2]
-                        );
                         Cppm::spawn(_args[2].clone(), "null".to_string(), "cpp");
                         println!(
                             "    {} C++ project `{}`",

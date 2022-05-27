@@ -8,8 +8,6 @@ use std::io::Write;
 use std::path::Path;
 use std::process;
 use std::process::Command;
-#[allow(unused_imports)]
-use walkdir::WalkDir;
 mod builder;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -86,7 +84,7 @@ int main(){
     }
 
     pub fn version() -> String {
-        "cppm 3.0.0 (5-11-2022)".to_string() // Warning: update date
+        "cppm 0.3subl.0 (5-11-2022)".to_string() // Warning: update date
     }
 
     pub fn dir_name() -> String {
@@ -124,6 +122,11 @@ impl Cppm {
     }
 
     pub fn spawn(_project_name: String, editor: String, init_type: &str) {
+        if Path::new(&_project_name).exists() {
+            println!("{}", "Folder with the same name already exists!");
+            process::exit(0);
+        }
+
         if init_type == "c" {
             let mut s = Cppm::init();
             s.project_name = _project_name;
@@ -226,10 +229,14 @@ impl Cppm {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
+        if !builder::subprocess(&editor, "").is_ok() {
+            println!("    {}", "Editor does not exist or cannot be opened with the argument passed.".red());
+            process::exit(0);
+        }
         let toml_config: HashMap<String, Vec<Config>> =
             toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
         let config: &[Config] = &toml_config["config"];
-        
+        let mut b = false;
         for i in config {
             if i.name == _project_name {
                 let project_location = i.location.clone();
@@ -256,26 +263,32 @@ impl Cppm {
                     );
                     return;
                 };
+                b = true; 
                 editor.wait().expect("Failed to wait on process.");
-            } else {
-                //println!("Project does not exist or was not created with cppm!"); // note: add appropriate fix for this
             }
         }
+        if !b {
+            println!("    {}","Project does not exist or was not created with cppm!".red());
+        }
+
     }
 
     pub fn clean() {
-        let build: &str = &format!("{}/build", std::env::current_dir().unwrap().to_str().unwrap());
-        if !Path::new(build).exists() {
+        if !Path::new("build").exists() {
             println!("{}", "Project has not been built!".red());
             process::exit(0);
         }
         else {
-            fs::remove_dir_all(build).ok();
+            fs::remove_dir_all("build").ok();
         }
     }
 
     /// initializes a project in the current directory.
     pub fn initialize(init_type: &str) -> std::io::Result<()> {
+        if Path::new("src").exists() || Path::new("include").exists() {
+            println!("    {}", "You already have a project in this directory!".red());
+            process::exit(0);
+        }
         if init_type == "c" {
             fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
             File::create("src/main.c")

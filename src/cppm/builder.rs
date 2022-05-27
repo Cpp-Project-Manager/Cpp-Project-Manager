@@ -8,7 +8,7 @@ pub enum Compilers {
     Clangpp,
 }
 
-fn subprocess(process: &str, arg: &str) -> std::io::Result<ExitStatus> {
+pub fn subprocess(process: &str, arg: &str) -> std::io::Result<ExitStatus> {
     Command::new(process)
         .arg(arg)
         .stdout(Stdio::null())
