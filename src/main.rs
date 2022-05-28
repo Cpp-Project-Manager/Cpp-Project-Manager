@@ -1,7 +1,7 @@
 mod cppm;
-use cppm::*;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
+use cppm::*;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -41,19 +41,31 @@ struct Args {
 #[derive(Subcommand, Clone)]
 enum Command {
     /// Open a cppm project
-    Open { name: String, editor: Option<String> },
+    Open {
+        name: String,
+        editor: Option<String>,
+    },
     /// Creates a new cppm project
-    New { name: String, editor: Option<String> }
+    New {
+        name: String,
+        editor: Option<String>,
+    },
 }
 
 fn main() {
     let args = Args::parse();
     #[cfg(windows)]
     let _enabled = ansi_term::enable_ansi_support();
-    
-    if args.list { misc::list_projects() }
-    if args.config { cppm::defaults() }
-    if args.clean { Cppm::clean() }
+
+    if args.list {
+        misc::list_projects()
+    }
+    if args.config {
+        cppm::defaults()
+    }
+    if args.clean {
+        Cppm::clean()
+    }
     if args.init {
         if args.c {
             Cppm::initialize("c").ok();
@@ -70,7 +82,7 @@ fn main() {
         std::process::Command::new("nvim")
             .arg(misc::configfile())
             .spawn()
-            .expect("Couldnt start Nvim.");
+            .expect("Couldn't start Nvim.");
         println!("location: {}", misc::configfile())
     }
 
@@ -79,31 +91,22 @@ fn main() {
     }
 
     match args.command {
-        Some(Command::Open { name, editor })  => {
+        Some(Command::Open { name, editor }) => {
             if editor.is_none() {
                 // note: do config stuff, get default ed if exists
             } else {
-              Cppm::open(name, editor.unwrap());  
+                Cppm::open(name, editor.unwrap());
             }
         }
         Some(Command::New { name, editor }) => {
             if args.c {
                 Cppm::spawn(name.clone(), editor.unwrap_or("null".to_string()), "c");
-                println!(
-                    "    {} C project `{}`",
-                    "Created".bright_green(),
-                    name
-                );
+                println!("    {} C project `{}`", "Created".bright_green(), name);
             } else {
                 Cppm::spawn(name.clone(), editor.unwrap_or("null".to_string()), "cpp");
-                println!(
-                    "    {} C++ project `{}`",
-                    "Created".bright_green(),
-                    name
-                );
+                println!("    {} C++ project `{}`", "Created".bright_green(), name);
             }
         }
         None => (),
     }
-    
 }
