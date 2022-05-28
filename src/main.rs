@@ -48,7 +48,9 @@ enum Command {
 
 fn main() {
     let args = Args::parse();
+    #[cfg(windows)]
     let _enabled = ansi_term::enable_ansi_support();
+    
     if args.list { misc::list_projects() }
     if args.config { cppm::defaults() }
     if args.clean { Cppm::clean() }
