@@ -1,15 +1,17 @@
 #![allow(dead_code)]
+mod builder;
+
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    io::Write,
+    path::Path,
+    process::{self, Command},
+};
+
 use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fs;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
-use std::process;
-use std::process::Command;
-mod builder;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -49,18 +51,18 @@ int main(void) {
 }
 "#;
 
-pub fn header_boiler_c(header_name: &str) -> String {
-    format!(
-        r#"#ifndef {0}_H
+    pub fn header_boiler_c(header_name: &str) -> String {
+        format!(
+            r#"#ifndef {0}_H
 #define {0}_H
 
 #include <stdio.h>
 
 
 #endif"#,
-        header_name.to_uppercase()
-    )
-}
+            header_name.to_uppercase()
+        )
+    }
 
     pub const CPPBOILER: &str = r#"#include <iostream>
 
@@ -137,7 +139,7 @@ impl Cppm {
 
     pub fn spawn(_project_name: String, editor: String, init_type: &str) {
         if Path::new(&_project_name).exists() {
-            println!("{}", "Folder with the same name already exists!");
+            println!("{}", "Folder with the same name already exists!".red());
             process::exit(0);
         }
 
@@ -148,7 +150,7 @@ impl Cppm {
             s.editor = editor;
             fs::create_dir_all(s.project_name.clone()).expect("Folder creation failed.");
             fs::create_dir_all(format!("{}/src", s.project_name)).expect("Folder creation failed.");
-    
+
             if !s.editor.contains("null") {
                 let mut child = if cfg!(target_os = "windows") {
                     Command::new("powershell")
@@ -163,7 +165,8 @@ impl Cppm {
                 } else {
                     println!(
                         "{}",
-                        "Your OS is not supported, please open an issue to get it implemented.".red()
+                        "Your OS is not supported, please open an issue to get it implemented."
+                            .red()
                     );
                     return;
                 };
@@ -171,14 +174,15 @@ impl Cppm {
             }
             let main = c_path(s);
             let main_path = Path::new(main.as_str());
-    
+
             File::create(&main_path)
                 .expect("File creation failed.")
                 .write_all(misc::CBOILER.as_bytes())
                 .expect("Failed to write to main file.");
-    
+
             Cppm::cppm_ini(
-                &format!("{}/{}", std::env::current_dir().unwrap().display(), pn).replace("\\", "/"),
+                &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
+                    .replace("\\", "/"),
             );
             write(
                 pn.as_str(),
@@ -191,8 +195,9 @@ impl Cppm {
             s.editor = editor;
             fs::create_dir_all(s.project_name.clone()).expect("Folder creation failed.");
             fs::create_dir_all(format!("{}/src", s.project_name)).expect("Folder creation failed.");
-            fs::create_dir_all(format!("{}/include", s.project_name)).expect("Folder creation failed.");
-    
+            fs::create_dir_all(format!("{}/include", s.project_name))
+                .expect("Folder creation failed.");
+
             if !s.editor.contains("null") {
                 let mut child = if cfg!(target_os = "windows") {
                     Command::new("powershell")
@@ -207,7 +212,8 @@ impl Cppm {
                 } else {
                     println!(
                         "{}",
-                        "Your OS is not supported, please open an issue to get it implemented.".red()
+                        "Your OS is not supported, please open an issue to get it implemented."
+                            .red()
                     );
                     return;
                 };
@@ -216,7 +222,7 @@ impl Cppm {
             let (main, header) = path(s);
             let main_path = Path::new(main.as_str());
             let header_path = Path::new(header.as_str());
-    
+
             File::create(&main_path)
                 .expect("File creation failed.")
                 .write_all(misc::CPPBOILER.as_bytes())
@@ -225,9 +231,10 @@ impl Cppm {
                 .expect("File creation failed.")
                 .write_all(misc::header_boiler(pn.as_str()).as_bytes())
                 .expect("failed to write to header file.");
-    
+
             Cppm::cppm_ini(
-                &format!("{}/{}", std::env::current_dir().unwrap().display(), pn).replace("\\", "/"),
+                &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
+                    .replace("\\", "/"),
             );
             write(
                 pn.as_str(),
@@ -244,7 +251,10 @@ impl Cppm {
             process::exit(0);
         }
         if !builder::subprocess(&editor, "").is_ok() {
-            println!("    {}", "Editor does not exist or cannot be opened with the argument passed.".red());
+            println!(
+                "    {}",
+                "Editor does not exist or cannot be opened with the argument passed.".red()
+            );
             process::exit(0);
         }
         let toml_config: HashMap<String, Vec<Config>> =
@@ -273,26 +283,28 @@ impl Cppm {
                 } else {
                     println!(
                         "{}",
-                        "Your OS is not supported, please open an issue to get it implemented.".red()
+                        "Your OS is not supported, please open an issue to get it implemented."
+                            .red()
                     );
                     return;
                 };
-                b = true; 
+                b = true;
                 editor.wait().expect("Failed to wait on process.");
             }
         }
         if !b {
-            println!("    {}","Project does not exist or was not created with cppm!".red());
+            println!(
+                "    {}",
+                "Project does not exist or was not created with cppm!".red()
+            );
         }
-
     }
 
     pub fn clean() {
         if !Path::new("build").exists() {
             println!("{}", "Project has not been built!".red());
             process::exit(0);
-        }
-        else {
+        } else {
             fs::remove_dir_all("build").ok();
         }
     }
@@ -300,12 +312,16 @@ impl Cppm {
     /// initializes a project in the current directory.
     pub fn initialize(init_type: &str) -> std::io::Result<()> {
         if Path::new("src").exists() || Path::new("include").exists() {
-            println!("    {}", "You already have a project in this directory!".red());
+            println!(
+                "    {}",
+                "You already have a project in this directory!".red()
+            );
             process::exit(0);
         }
         if init_type == "c" {
             fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
-            fs::create_dir_all("include").expect("Folder creation failed or folder already exists.");
+            fs::create_dir_all("include")
+                .expect("Folder creation failed or folder already exists.");
             File::create("src/main.c")
                 .expect("Folder creation failed or folder already exists.")
                 .write_all(misc::CBOILER.as_bytes())
@@ -314,7 +330,7 @@ impl Cppm {
                 .expect("Unable to create file or file already exists.")
                 .write_all(misc::header_boiler_c("main").as_bytes())
                 .expect("Unable to write to file.");
-    
+
             write(
                 misc::dir_name().as_str(),
                 &std::env::current_dir()?
@@ -327,7 +343,8 @@ impl Cppm {
             Ok(())
         } else {
             fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
-            fs::create_dir_all("include").expect("Folder creation failed or folder already exists.");
+            fs::create_dir_all("include")
+                .expect("Folder creation failed or folder already exists.");
             File::create("include/main.hpp")
                 .expect("Unable to create file or file already exists.")
                 .write_all(misc::header_boiler("main").as_bytes())
@@ -336,7 +353,7 @@ impl Cppm {
                 .expect("Folder creation failed or folder already exists.")
                 .write_all(misc::CPPBOILER.as_bytes())
                 .expect("Unable to write to file.");
-    
+
             write(
                 misc::dir_name().as_str(),
                 &std::env::current_dir()?
@@ -383,21 +400,18 @@ fn path(s: Cppm) -> (String, String) {
 // note: find a way to impliment removing from the config file
 pub fn remove(project_name: String) {
     let toml_config: HashMap<String, Vec<Config>> =
-        toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
-    let config: &[Config] = &toml_config["config"]; // config is a vector of Config structs
-    
-    for i in config {
-        if i.name == project_name {
-            let project_location = i.location.clone();
-            println!(
-                "   Removing Project `{}`: {}",
-                project_name.green(),
-                project_location
-            );
-            fs::remove_dir_all(project_location).expect("Failed to remove project.");
-            // find a way to remove from file
-            process::exit(0);
-        }   
+        toml::from_str(&fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+    let config: &[Config] = &toml_config["config"];
+    let project = config.iter().find(|p| p.name == project_name);
+    if !project.is_none() {
+        let project_location = project.unwrap().location.clone();
+        println!(
+            "   Removing Project `{}`: {}",
+            project_name.green(),
+            project_location
+        );
+        fs::remove_dir_all(project_location).expect("Failed to remove project.");
+        process::exit(0); 
     }
     println!("Project does not exist or was not created with cppm!");
 }
