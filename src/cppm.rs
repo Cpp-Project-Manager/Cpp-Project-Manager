@@ -1,15 +1,17 @@
 #![allow(dead_code)]
+mod builder;
+
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    io::Write,
+    path::Path,
+    process::{self, Command},
+};
+
 use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fs;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
-use std::process;
-use std::process::Command;
-mod builder;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
