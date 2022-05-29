@@ -26,7 +26,7 @@ pub fn write(project_name: &str, location: &str) {
 
     let config: Config = Config {
         name: project_name.to_string(),
-        location: location.replace("/", "\\"),
+        location: location.replace('/', "\\"),
     };
     fsio::file::ensure_exists(&misc::configfile()).ok();
     file::append_file(
@@ -93,7 +93,7 @@ int main(){
             .into_string()
             .unwrap()
             .replace('"', "")
-            .replace("\\", "/");
+            .replace('\\', "/");
         format!("{}/cppm/config.toml", configdir)
     }
 
@@ -180,7 +180,7 @@ impl Cppm {
 
             Cppm::cppm_ini(
                 &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
-                    .replace("\\", "/"),
+                    .replace('\\', "/"),
             );
             write(
                 pn.as_str(),
@@ -232,7 +232,7 @@ impl Cppm {
 
             Cppm::cppm_ini(
                 &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
-                    .replace("\\", "/"),
+                    .replace('\\', "/"),
             );
             write(
                 pn.as_str(),
@@ -248,7 +248,7 @@ impl Cppm {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
-        if !builder::subprocess(&editor, "").is_ok() {
+        if builder::subprocess(&editor, "").is_err() {
             println!(
                 "    {}",
                 "Editor does not exist or cannot be opened with the argument passed.".red()
@@ -331,11 +331,7 @@ impl Cppm {
 
             write(
                 misc::dir_name().as_str(),
-                &std::env::current_dir()?
-                    .as_os_str()
-                    .to_str()
-                    .unwrap()
-                    .to_string(),
+                std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
             Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
             Ok(())
@@ -354,11 +350,7 @@ impl Cppm {
 
             write(
                 misc::dir_name().as_str(),
-                &std::env::current_dir()?
-                    .as_os_str()
-                    .to_str()
-                    .unwrap()
-                    .to_string(),
+                std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
             Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
             Ok(())
@@ -404,6 +396,7 @@ pub fn remove(project_name: String) {
 
     if project.is_none() {
         println!("Project does not exist or was not created with cppm!");
+        process::exit(1);
     }
 
     let project_location = project.unwrap().location.clone();
@@ -442,7 +435,7 @@ pub fn defaults_file() -> String {
         .into_string()
         .unwrap()
         .replace('"', "")
-        .replace("\\", "/");
+        .replace('\\', "/");
     format!("{}/cppm/defaults.toml", defaultsdir)
 }
 pub fn defaults() {
