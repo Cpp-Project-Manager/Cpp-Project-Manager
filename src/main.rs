@@ -92,18 +92,26 @@ fn main() {
 
     match args.command {
         Some(Command::Open { name, editor }) => {
-            if editor.is_none() {
-                // note: do config stuff, get default ed if exists
-            } else {
+            if editor.is_some() {
                 Cppm::open(name, editor.unwrap());
+            } else {
+                // note: do config stuff, get default ed if exists
             }
         }
         Some(Command::New { name, editor }) => {
             if args.c {
-                Cppm::spawn(name.clone(), editor.unwrap_or("null".to_string()), "c");
+                Cppm::spawn(
+                    name.clone(),
+                    editor.unwrap_or_else(|| "null".to_string()),
+                    "c",
+                );
                 println!("    {} C project `{}`", "Created".bright_green(), name);
             } else {
-                Cppm::spawn(name.clone(), editor.unwrap_or("null".to_string()), "cpp");
+                Cppm::spawn(
+                    name.clone(),
+                    editor.unwrap_or_else(|| "null".to_string()),
+                    "cpp",
+                );
                 println!("    {} C++ project `{}`", "Created".bright_green(), name);
             }
         }
