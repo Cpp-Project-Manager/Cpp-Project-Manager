@@ -1,4 +1,5 @@
 mod cppm;
+mod build;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use cppm::*;
@@ -50,6 +51,12 @@ enum Command {
         name: String,
         editor: Option<String>,
     },
+    /// Build your project to build directory.
+    Build,
+    /// Clean current build
+    Clean,
+    /// Run project's main file
+    Run,
 }
 
 fn main() {
@@ -114,6 +121,15 @@ fn main() {
                 );
                 println!("    {} C++ project `{}`", "Created".bright_green(), name);
             }
+        }
+        Some(Command::Build) => {
+            build::build();
+        }
+        Some(Command::Clean) => {
+            Cppm::clean();
+        }
+        Some(Command::Run) => {
+            build::run();
         }
         None => (),
     }
