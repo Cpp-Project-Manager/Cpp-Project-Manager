@@ -1,15 +1,17 @@
 #![allow(dead_code)]
+mod builder;
+
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    io::Write,
+    path::Path,
+    process::{self, Command},
+};
+
 use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fs;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
-use std::process;
-use std::process::Command;
-mod builder;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -390,15 +392,13 @@ fn path(s: Cppm) -> (String, String) {
 // note: find a way to impliment removing from the config file
 pub fn remove(project_name: String) {
     let toml_config: HashMap<String, Vec<Config>> =
-        toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
-    let config: &[Config] = &toml_config["config"]; // config is a vector of Config structs
+        toml::from_str(&fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+    let config: &[Config] = &toml_config["config"];
     let project = config.iter().find(|p| p.name == project_name);
-
     if project.is_none() {
         println!("Project does not exist or was not created with cppm!");
         process::exit(1);
     }
-
     let project_location = project.unwrap().location.clone();
     println!(
         "   Removing Project `{}`: {}",
