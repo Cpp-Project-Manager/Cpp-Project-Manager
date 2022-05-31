@@ -7,6 +7,8 @@ use std::{
     str,
 };
 
+const FLAGS: &str = "-Wall -Wpedantic -Werror -Wshadow -Wformat=2 -Wconversion -Wunused-parameter -fsanitize=address -fsanitize=undefined";
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Build {
     project: HashMap<String, String>,
@@ -17,7 +19,7 @@ pub fn include(folders: Vec<&str>) -> String {
     for i in folders {
         return_string.push(i);
     }
-    format!("-I../{}", return_string.join(" -I../"))
+    format!("-I{}", return_string.join(" -I"))
 }
 
 #[allow(dead_code)]
@@ -43,19 +45,20 @@ pub fn build() {
     let src = cppm.project["src"].clone();
 
     let build = format!(
-        "g++ {} {src} -o build/{}",
+        "g++ {} {src} -o build/{} {FLAGS}",
         include(includes.clone()),
         cppm.project["name"].clone()
     );
-    //println!("{}", build.clone());
+    println!("{}", build.clone());
 
     fs::create_dir_all("build").ok();
+    use std::io::{self, Write};
     let out = Command::new("powershell").arg(build).output().unwrap();
-    println!("{}", &out.status);
-    let out = str::from_utf8(&out.stdout).unwrap();
-    println!("{}", out);
-
-    //println!("{}", include(includes));
+    if !out.status.success() {
+        io::stdout().write_all(&out.stdout).unwrap();
+        io::stderr().write_all(&out.stderr).unwrap();
+        exit(0);
+    }
 }
 
 // warning: get output and print to console
