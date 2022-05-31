@@ -1,8 +1,9 @@
-mod cppm;
 mod build;
+mod cppm;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use cppm::*;
+
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -128,7 +129,9 @@ fn main() {
         Some(Command::Clean) => {
             Cppm::clean();
         }
+        // note: pass extra args through run
         Some(Command::Run) => {
+            
             build::run();
         }
         None => (),

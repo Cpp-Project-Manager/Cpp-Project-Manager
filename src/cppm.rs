@@ -20,8 +20,8 @@ struct Config {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct LocalConfig {
-    project: HashMap<String, String>,
+pub struct LocalConfig {
+    pub project: HashMap<String, String>,
 }
 pub fn write(project_name: &str, location: &str) {
     file::ensure_exists(&misc::configfile()).ok();
@@ -30,7 +30,6 @@ pub fn write(project_name: &str, location: &str) {
         name: project_name.to_string(),
         location: location.replace('/', "\\"),
     };
-    fsio::file::ensure_exists(&misc::configfile()).ok();
     file::append_file(
         &misc::configfile(),
         format!("\n[[config]]\n{}", toml::to_string_pretty(&config).unwrap()).as_bytes(),
