@@ -136,7 +136,7 @@ impl Cppm {
             editor: String::new(),
         }
     }
-
+    // note: possibly integrate git_init
     pub fn spawn(_project_name: String, editor: String, init_type: &str) {
         if Path::new(&_project_name).exists() {
             println!("{}", "Folder with the same name already exists!".red());

@@ -36,6 +36,7 @@ pub fn lib() {}
 // note: optimize for smart object building headerfiles in the future
 // note: add build --release, -O3
 // note: add building messages
+// note: add git_init integration
 // warning: dont forget linux support
 pub fn build() {
     if !Path::new("Cppm.toml").exists() {
