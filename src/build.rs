@@ -7,7 +7,7 @@ use std::{
     str,
 };
 
-const FLAGS: &str = "-Wall -Wpedantic -Werror -Wshadow -Wformat=2 -Wconversion -Wunused-parameter -fsanitize=address -fsanitize=undefined";
+const FLAGS: &str = "-Wall -Wpedantic -Werror -Wshadow -Wformat=2 -Wconversion -Wunused-parameter";
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Build {
@@ -34,6 +34,8 @@ pub fn lib() {}
 // note: add `flags_all = bool`, `flags = ""`
 // note: look for a logger lib
 // note: optimize for smart object building headerfiles in the future
+// note: add build --release, -O3
+// note: add building messages
 // warning: dont forget linux support
 pub fn build() {
     if !Path::new("Cppm.toml").exists() {
@@ -49,7 +51,7 @@ pub fn build() {
         include(includes.clone()),
         cppm.project["name"].clone()
     );
-    println!("{}", build.clone());
+   // println!("{}", build.clone());
 
     fs::create_dir_all("build").ok();
     use std::io::{self, Write};

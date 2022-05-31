@@ -371,8 +371,8 @@ impl Cppm {
                 ("name".to_owned(), __loc__),
                 ("version".to_owned(), "1.0.1".to_owned()),
                 ("edition".to_owned(), "2021".to_owned()),
-                ("include".to_owned(), "".to_owned()),
-                ("src".to_owned(), "".to_owned()),
+                ("include".to_owned(), "include".to_owned()),
+                ("src".to_owned(), "src/main.cpp".to_owned()),
             ]),
         };
         file::write_file(
