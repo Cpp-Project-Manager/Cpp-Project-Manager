@@ -91,7 +91,7 @@ pub fn build(release: bool) {
     use std::io::{self, Write};
     let compiler: Def = toml::from_str(&read_to_string(&defaults_file()).unwrap()).unwrap();
 
-    let mut flags: Vec<String> = vec![
+    let flags: Vec<String> = vec![
         "-Wall".to_string(),
         "-Wpedantic".to_string(),
         "-Werror".to_string(),

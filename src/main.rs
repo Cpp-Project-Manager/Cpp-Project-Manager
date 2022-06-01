@@ -54,7 +54,7 @@ enum Command {
         name: String,
         editor: Option<String>,
     },
-    /// Initialize a cppm project in current directory
+    // Initialize a cppm project in current directory
     Init {
 
     },
