@@ -11,17 +11,9 @@ struct Args {
     #[clap(short, long)]
     list: bool,
 
-    /// Generate C files instead of C++ files
-    #[clap(short)]
-    c: bool, //warning: move c to build, new, init
-
     /// Configure cppm defaults
     #[clap(short = 'g', long)]
     config: bool,
-
-    /// Initialize cppm in the current directory
-    #[clap(short, long)]
-    init: bool,
 
     /// Clean up build
     #[clap(long)]
@@ -53,10 +45,15 @@ enum Command {
     New {
         name: String,
         editor: Option<String>,
+        /// Generate C files instead of C++ files
+        #[clap(short)]
+        c: bool,
     },
     // Initialize a cppm project in current directory
     Init {
-
+        /// Generate C files instead of C++ files
+        #[clap(short)]
+        c: bool,
     },
     /// Build your project to build directory.
     Build {
@@ -86,13 +83,6 @@ fn main() {
     if args.clean {
         Cppm::clean()
     }
-    if args.init {
-        if args.c {
-            Cppm::initialize("c").ok();
-        } else {
-            Cppm::initialize("cpp").ok();
-        }
-    }
     if args.toml {
         cppm::toml();
     }
@@ -108,11 +98,11 @@ fn main() {
                 // note: do config stuff, get default ed if exists
             }
         }
-        Some(Command::New { name, editor }) => {
+        Some(Command::New { name, editor, c }) => {
             if !args.git {
                 cppm::git_init();
             }
-            if args.c {
+            if c {
                 Cppm::spawn(
                     name.clone(),
                     editor.unwrap_or_else(|| "null".to_string()),
@@ -129,11 +119,11 @@ fn main() {
             }
         }
         // warning: check
-        Some(Command::Init {}) => {
+        Some(Command::Init { c }) => {
             if !args.git {
                 cppm::git_init();
             }
-            if args.c {
+            if c {
                 Cppm::initialize("c").ok();
             } else {
                 Cppm::initialize("cpp").ok();
