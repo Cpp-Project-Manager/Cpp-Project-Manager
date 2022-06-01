@@ -179,7 +179,7 @@ impl Cppm {
                 .write_all(misc::CBOILER.as_bytes())
                 .expect("Failed to write to main file.");
 
-            Cppm::cppm_ini(
+            Cppm::cppm_toml(
                 &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
                     .replace('\\', "/"),
             );
@@ -231,7 +231,7 @@ impl Cppm {
                 .write_all(misc::header_boiler(pn.as_str()).as_bytes())
                 .expect("failed to write to header file.");
 
-            Cppm::cppm_ini(
+            Cppm::cppm_toml(
                 &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
                     .replace('\\', "/"),
             );
@@ -244,7 +244,6 @@ impl Cppm {
 
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: String) {
-        // Note: Make sure to include the if statement below for all commands that require you to do something with a project!
         if !Path::new(&misc::configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
@@ -334,7 +333,7 @@ impl Cppm {
                 misc::dir_name().as_str(),
                 std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
-            Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
+            Cppm::cppm_toml(std::env::current_dir()?.as_os_str().to_str().unwrap());
             Ok(())
         } else {
             fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
@@ -353,11 +352,11 @@ impl Cppm {
                 misc::dir_name().as_str(),
                 std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
-            Cppm::cppm_ini(std::env::current_dir()?.as_os_str().to_str().unwrap());
+            Cppm::cppm_toml(std::env::current_dir()?.as_os_str().to_str().unwrap());
             Ok(())
         }
     }
-    pub fn cppm_ini(loc: &str) {
+    pub fn cppm_toml(loc: &str) {
         let __loc__ = std::path::Path::new(loc)
             .file_name()
             .unwrap()
@@ -365,20 +364,28 @@ impl Cppm {
             .unwrap()
             .to_string();
 
-        let config: LocalConfig = LocalConfig {
-            project: HashMap::from([
-                ("name".to_owned(), __loc__),
-                ("version".to_owned(), "1.0.1".to_owned()),
-                ("edition".to_owned(), "2021".to_owned()),
-                ("include".to_owned(), "include".to_owned()),
-                ("src".to_owned(), "src/main.cpp".to_owned()),
-            ]),
-        };
-        file::write_file(
-            &format!("{}/Cppm.toml", loc),
-            toml::to_string(&config).unwrap().as_bytes(),
-        )
-        .expect("Unable to write to file.");
+        // let config: LocalConfig = LocalConfig {
+        //     project: HashMap::from([
+        //         ("name".to_owned(), __loc__),
+        //         ("version".to_owned(), "1.0.0".to_owned()),
+        //         ("edition".to_owned(), "2022".to_owned()),
+        //         ("include".to_owned(), "include".to_owned()),
+        //         ("src".to_owned(), "src/main.cpp".to_owned()),
+        //     ]),
+        // };
+        let cc = format!(
+            r#"[project]
+name = "{}"
+version = "1.0.0"
+edition = "2022"
+include = "include"
+src = "src/main.cpp"
+flags_all = false
+flags = """#,
+            __loc__
+        );
+        file::write_file(&format!("{}/Cppm.toml", loc), cc.as_bytes())
+            .expect("Unable to write to file.");
     }
 }
 
@@ -415,13 +422,11 @@ fn c_path(s: Cppm) -> String {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
-    editor: String,
     compilers: HashMap<String, String>,
 }
 impl Def {
     pub fn new() -> Def {
         Def {
-            editor: String::new(),
             compilers: HashMap::new(),
         }
     }
@@ -439,14 +444,7 @@ pub fn defaults_file() -> String {
 }
 pub fn defaults() {
     let mut config: Def = Def::new();
-    let mut ans: String = String::new();
     file::ensure_exists(&defaults_file()).ok();
-    print!("Default Editor: ");
-    use std::io::stdout;
-    stdout().flush().ok();
-    std::io::stdin().read_line(&mut ans).ok();
-
-    config.editor = ans.trim().to_string();
     let c = builder::c();
     let cpp = builder::cpp();
 
@@ -489,4 +487,18 @@ pub fn defaults() {
     .expect("Unable to write to file.");
 
     println!("Location: {}", defaults_file());
+}
+
+pub fn toml() {
+    Command::new(misc::configfile())
+        .spawn()
+        .expect("Couldn't start notepad.");
+    println!("location: {}", misc::configfile())
+}
+
+pub fn git_init() {
+    Command::new("git")
+        .arg("init")
+        .spawn()
+        .expect("Couldn't start git.");
 }

@@ -1,3 +1,4 @@
+#![allow(unused_assignments)]
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -13,8 +14,6 @@ use std::{
 pub struct LocalConfig {
     pub project: HashMap<String, String>,
 }
-
-const FLAGS: &str = "-Wall -Wpedantic -Werror -Wshadow -Wformat=2 -Wconversion -Wunused-parameter";
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Build {
@@ -37,15 +36,34 @@ pub fn compiler() {}
 #[allow(dead_code)]
 pub fn lib() {}
 
-// note: dynamically "include"
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Def {
+    compilers: HashMap<String, String>,
+}
+
+pub fn defaults_file() -> String {
+    let defaultsdir = dirs::config_dir()
+        .unwrap()
+        .into_os_string()
+        .into_string()
+        .unwrap()
+        .replace('"', "")
+        .replace('\\', "/");
+    format!("{}/cppm/defaults.toml", defaultsdir)
+}
+
 // note: add `flags_all = bool`, `flags = ""`
-// note: look for a logger lib
 // note: optimize for smart object building headerfiles in the future
-// note: add build --release, -O3
-// note: add building messages
 // note: add git_init integration
-// warning: dont forget linux support
-pub fn build() {
+pub fn build(release: bool) {
+    let start = Instant::now();
+    if !Path::new("Cppm.toml").exists() {
+        println!("Cppm project isnt in current directory!");
+        exit(0);
+    }
+    let mut target = String::new();
+    let mut build_t = String::new();
+
     let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
     println!(
         "   {} {} v{} ({:?})",
@@ -61,43 +79,83 @@ pub fn build() {
             .trim()[4..]
             .to_owned()
     );
-    let start = Instant::now();
-    if !Path::new("Cppm.toml").exists() {
-        println!("Cppm project isnt in current directory!");
-        exit(0);
-    }
+
+    // we're no strangers to love
+    // you know the rules and so do I
+
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
     let includes: Vec<&str> = cppm.project["include"].split(",").collect();
     let src = cppm.project["src"].clone();
 
-    let build = format!(
-        "g++ {} {src} -o build/{} {FLAGS}",
-        include(includes.clone()),
-        cppm.project["name"].clone()
-    );
-    // println!("{}", build.clone());
-
     fs::create_dir_all("build").ok();
     use std::io::{self, Write};
-    let out = Command::new("powershell").arg(build).output().unwrap();
+    let compiler: Def = toml::from_str(&read_to_string(&defaults_file()).unwrap()).unwrap();
+
+    let mut flags: Vec<String> = vec![
+        "-Wall".to_string(),
+        "-Wpedantic".to_string(),
+        "-Werror".to_string(),
+        "-Wshadow".to_string(),
+        "-Wformat=2".to_string(),
+        "-Wconversion".to_string(),
+        "-Wunused-parameter".to_string(),
+    ];
+
+    let out: Output;
+    if release == true {
+        out = Command::new(&compiler.compilers["cpp"])
+            .args([
+                "-o".to_owned(),
+                format!("build/{}", cppm.project["name"].clone()),
+                src.clone(),
+                include(includes.clone()),
+                flags.join(" "),
+                "-O3".to_string(),
+            ])
+            .output()
+            .unwrap();
+        target = "optimized".to_string();
+        build_t = "release".to_string();
+    } else {
+        out = Command::new(&compiler.compilers["cpp"])
+            .args([
+                "-o".to_owned(),
+                format!("build/{}", cppm.project["name"].clone()),
+                src.clone(),
+                include(includes.clone()),
+                flags.join(" "),
+            ])
+            .output()
+            .unwrap();
+        target = "unoptimized".to_owned();
+        build_t = "dev".to_string();
+    }
     if !out.status.success() {
         io::stdout().write_all(&out.stdout).unwrap();
         io::stderr().write_all(&out.stderr).unwrap();
         exit(0);
     }
     println!(
-        "    {} dev [unoptimized] in {:?}",
+        "    {} {build_t} [{target}] target(s) in {:?}",
         "Finished".bright_green(),
         start.elapsed()
     );
 }
 
-// warning: get output and print to console
-pub fn run() {
+pub fn run(release: bool) {
+    if !Path::new("Cppm.toml").exists() {
+        println!("Cppm project isnt in current directory!");
+        exit(0);
+    }
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
-    build();
+    build(release);
     let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
+
+    #[cfg(windows)]
     let name = format!("build/{}.exe", l.project["name"]);
+    #[cfg(unix)]
+    let name = format!("build/{}", l.project["name"]);
+
     println!(
         "     {} `{}`",
         "Running".bright_green(),
@@ -110,11 +168,9 @@ pub fn run() {
             .trim()[4..]
             .to_owned()
     );
-    let run = format!("build/{}.exe", cppm.project["name"]);
-    let out = Command::new("powershell")
-        .arg(run.clone())
-        .output()
-        .unwrap();
+
+    let run = format!("build/{}", cppm.project["name"]);
+    let out = Command::new(run).output().unwrap();
     let out = str::from_utf8(&out.stdout).unwrap();
     println!("{}", out.trim());
 }

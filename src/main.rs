@@ -4,7 +4,6 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use cppm::*;
 
-
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
@@ -13,8 +12,8 @@ struct Args {
     list: bool,
 
     /// Generate C files instead of C++ files
-    #[clap(short, long)]
-    c: bool,
+    #[clap(short)]
+    c: bool, //warning: move c to build, new, init
 
     /// Configure cppm defaults
     #[clap(short = 'g', long)]
@@ -30,7 +29,10 @@ struct Args {
 
     /// View and Edit cppm config file
     #[clap(long)]
-    ini: bool,
+    toml: bool,
+
+    #[clap(long = "no-git")]
+    git: bool,
 
     /// Remove a cppm project
     #[clap(short, long)]
@@ -52,12 +54,22 @@ enum Command {
         name: String,
         editor: Option<String>,
     },
+    /// Initialize a cppm project in current directory
+    Init {
+
+    },
     /// Build your project to build directory.
-    Build,
+    Build {
+        #[clap(long)]
+        release: bool,
+    },
     /// Clean current build
     Clean,
     /// Run project's main file
-    Run,
+    Run {
+        #[clap(long)]
+        release: bool,
+    },
 }
 
 fn main() {
@@ -81,19 +93,9 @@ fn main() {
             Cppm::initialize("cpp").ok();
         }
     }
-    if args.ini {
-        std::process::Command::new("notepad")
-            .arg(misc::configfile())
-            .spawn()
-            .expect("Couldn't start notepad.");
-        #[cfg(unix)]
-        std::process::Command::new("nvim")
-            .arg(misc::configfile())
-            .spawn()
-            .expect("Couldn't start Nvim.");
-        println!("location: {}", misc::configfile())
+    if args.toml {
+        cppm::toml();
     }
-
     if let Some(remove) = args.remove {
         cppm::remove(remove);
     }
@@ -107,6 +109,9 @@ fn main() {
             }
         }
         Some(Command::New { name, editor }) => {
+            if !args.git {
+                cppm::git_init();
+            }
             if args.c {
                 Cppm::spawn(
                     name.clone(),
@@ -123,16 +128,26 @@ fn main() {
                 println!("    {} C++ project `{}`", "Created".bright_green(), name);
             }
         }
-        Some(Command::Build) => {
-            build::build();
+        // warning: check
+        Some(Command::Init {}) => {
+            if !args.git {
+                cppm::git_init();
+            }
+            if args.c {
+                Cppm::initialize("c").ok();
+            } else {
+                Cppm::initialize("cpp").ok();
+            }
+        }
+        Some(Command::Build { release }) => {
+            build::build(release);
         }
         Some(Command::Clean) => {
             Cppm::clean();
         }
         // note: pass extra args through run
-        Some(Command::Run) => {
-            
-            build::run();
+        Some(Command::Run { release }) => {
+            build::run(release);
         }
         None => (),
     }
