@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fs::{self, read_to_string},
+    io::{self, Write},
     path::Path,
     process::*,
     str,
@@ -80,36 +81,29 @@ pub fn build(release: bool) {
             .to_owned()
     );
 
-    // we're no strangers to love
-    // you know the rules and so do I
-
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
+    let compiler: Def = toml::from_str(&read_to_string(&defaults_file()).unwrap()).unwrap();
+
     let includes: Vec<&str> = cppm.project["include"].split(",").collect();
     let src = cppm.project["src"].clone();
 
     fs::create_dir_all("build").ok();
-    use std::io::{self, Write};
-    let compiler: Def = toml::from_str(&read_to_string(&defaults_file()).unwrap()).unwrap();
-
-    let flags: Vec<String> = vec![
-        "-Wall".to_string(),
-        "-Wpedantic".to_string(),
-        "-Werror".to_string(),
-        "-Wshadow".to_string(),
-        "-Wformat=2".to_string(),
-        "-Wconversion".to_string(),
-        "-Wunused-parameter".to_string(),
-    ];
 
     let out: Output;
     if release == true {
         out = Command::new(&compiler.compilers["cpp"])
             .args([
-                "-o".to_owned(),
+                "-o".to_string(),
                 format!("build/{}", cppm.project["name"].clone()),
                 src.clone(),
                 include(includes.clone()),
-                flags.join(" "),
+                "-Wall".to_string(),
+                "-Wpedantic".to_string(),
+                "-Werror".to_string(),
+                "-Wshadow".to_string(),
+                "-Wformat=2".to_string(),
+                "-Wconversion".to_string(),
+                "-Wunused-parameter".to_string(),
                 "-O3".to_string(),
             ])
             .output()
@@ -123,7 +117,13 @@ pub fn build(release: bool) {
                 format!("build/{}", cppm.project["name"].clone()),
                 src.clone(),
                 include(includes.clone()),
-                flags.join(" "),
+                "-Wall".to_string(),
+                "-Wpedantic".to_string(),
+                "-Werror".to_string(),
+                "-Wshadow".to_string(),
+                "-Wformat=2".to_string(),
+                "-Wconversion".to_string(),
+                "-Wunused-parameter".to_string(),
             ])
             .output()
             .unwrap();
@@ -171,6 +171,6 @@ pub fn run(release: bool) {
 
     let run = format!("build/{}", cppm.project["name"]);
     let out = Command::new(run).output().unwrap();
-    let out = str::from_utf8(&out.stdout).unwrap();
-    println!("{}", out.trim());
+    io::stdout().write_all(&out.stdout).unwrap();
+    io::stderr().write_all(&out.stderr).unwrap();
 }

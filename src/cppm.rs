@@ -356,6 +356,7 @@ impl Cppm {
             Ok(())
         }
     }
+    // note: impliment libs
     pub fn cppm_toml(loc: &str) {
         let __loc__ = std::path::Path::new(loc)
             .file_name()
@@ -380,8 +381,7 @@ version = "1.0.0"
 edition = "2022"
 include = "include"
 src = "src/main.cpp"
-flags_all = false
-flags = """#,
+"#,
             __loc__
         );
         file::write_file(&format!("{}/Cppm.toml", loc), cc.as_bytes())
