@@ -29,33 +29,36 @@
 * Create a C++ project with a single command.
 * Manage Project Locations.
 * Opening Projects from any command line
+* Minimal C support 
 
-## How To Use
-Note: * means a required entity, and + means an optional entity.
-```powershell
-# Download cppm and have it in your PATH so its available on all terminals
-cppm --help/-h # Will display the help menu
-cppm --version/-v # Will display the current version of cppm
-
-# Currently available commands
-
-# Creates a new project in the current directory and opens it in the
-# specified editor if specified. No default editor available. 
-cppm new <*project_name> <+editor> 
-
-# Opens the project the specified editor if specified. 
-# No default editor available.
-# Supports editors that have the `{editor} .` functionality
-# in the terminal. eg: Vscode, Atom, Sublime, etc.
-cppm open <*project_name> <*editor> 
-
-```
-
-
-## Download. 
-You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/tag/v2.2.1) the build for windows.
+### Download. 
+You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/latest) the build for windows.
 Or Download with cargo.
 ```cargo install cppm```
+
+#### For usage instructions run `cppm --help` or refer to the [wiki](https://github.com/Maou-Shimazu/Cpp-Project-Manager/wiki).
+
+### Road Map
+- [x] Generating C/C++ files
+- [x] Commands for opening and removing projects
+- [x] Support for g++ and clang++
+- [x] Active build/run system 
+- * [ ] C build/run support
+- * [ ] C/C++ Smart Object file compilation
+- [ ] External lib support
+- [ ] Code formatting command
+- [ ] Linter Integration
+- [ ] Package management
+* - [ ] Caching
+* - [ ] Frontend
+* - - [ ] Versioning
+* - - [ ] Documentation
+* - - [ ] User Interface
+* - [ ] Backend
+* - - [ ] User system
+* - - [ ] Git integration
+* - * - [ ] Custom ignore
+* - [ ] Atomated package compilation
 
 ## License
 [MIT](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/LICENSE)
