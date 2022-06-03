@@ -20,8 +20,8 @@ pub fn c() -> std::io::Result<Compilers> {
     if subprocess("clang", "-v").is_ok() {
         println!("Clang is installed.");
         Ok(Compilers::Clang)
-    } else if subprocess("g++", "-v").is_ok() {
-        println!("G++ is installed.");
+    } else if subprocess("gcc", "-v").is_ok() {
+        println!("Gcc is installed.");
         Ok(Compilers::Gcc)
     } else {
         println!("Neither G++ or Clang++ is installed.");
