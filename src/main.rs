@@ -1,8 +1,12 @@
 mod build;
 mod cppm;
+use std::env;
+
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use cppm::*;
+
+// warning: add human panic in next prerelease
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -11,6 +15,7 @@ struct Args {
     #[clap(short, long)]
     list: bool,
 
+    //note: add makefile flag, for cppm use only generating files
     /// Configure cppm defaults
     #[clap(short = 'g', long)]
     config: bool,
@@ -99,9 +104,6 @@ fn main() {
             }
         }
         Some(Command::New { name, editor, c }) => {
-            if !args.git {
-                cppm::git_init();
-            }
             if c {
                 Cppm::spawn(
                     name.clone(),
@@ -116,6 +118,11 @@ fn main() {
                     "cpp",
                 );
                 println!("    {} C++ project `{}`", "Created".bright_green(), name);
+            }
+            if !args.git && cppm::git_exists() {
+                env::set_current_dir(name.clone()).unwrap();
+                cppm::git_init();
+                env::set_current_dir("../").unwrap();
             }
         }
         // warning: check

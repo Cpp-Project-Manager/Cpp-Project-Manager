@@ -502,3 +502,6 @@ pub fn git_init() {
         .spawn()
         .expect("Couldn't start git.");
 }
+pub fn git_exists() -> bool {
+    builder::subprocess("git", "--version").is_ok()
+}
