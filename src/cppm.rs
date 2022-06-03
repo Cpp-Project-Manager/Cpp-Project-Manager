@@ -499,6 +499,7 @@ pub fn toml() {
 pub fn git_init() {
     Command::new("git")
         .arg("init")
+        .stdout(process::Stdio::null())
         .spawn()
         .expect("Couldn't start git.");
 }

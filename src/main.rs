@@ -122,18 +122,18 @@ fn main() {
             if !args.git && cppm::git_exists() {
                 env::set_current_dir(name.clone()).unwrap();
                 cppm::git_init();
-                env::set_current_dir("../").unwrap();
+                //env::set_current_dir("../").unwrap();
             }
         }
         // warning: check
         Some(Command::Init { c }) => {
-            if !args.git {
-                cppm::git_init();
-            }
             if c {
                 Cppm::initialize("c").ok();
             } else {
                 Cppm::initialize("cpp").ok();
+            }
+            if !args.git && cppm::git_exists() {
+                cppm::git_init();
             }
         }
         Some(Command::Build { release }) => {
