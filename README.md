@@ -1,6 +1,6 @@
 <h1 align="center"> C++ Project Manager </h1>
 
-<h4 align="center"> The C++ alternative to cargo. </h4>
+<h4 align="center"> The C++ equivalent to cargo. </h4>
 
 <p align="center">
   <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/actions">
