@@ -32,9 +32,10 @@
 * Minimal C support 
 
 ### Download. 
-You can [download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/latest) the build for windows.
-Or Download with cargo.
-```cargo install cppm```
+There's three ways to get cppm:
+1. [Download](https://github.com/Maou-Shimazu/Cpp-Project-Manager/releases/latest) the build for windows.
+2. Install with Cargo `cargo install cppm`
+3. Get with our [custom installer](https://github.com/maou-shimazu/cppm-installer)
 
 #### For usage instructions run `cppm --help` or refer to the [wiki](https://github.com/Maou-Shimazu/Cpp-Project-Manager/wiki).
 
