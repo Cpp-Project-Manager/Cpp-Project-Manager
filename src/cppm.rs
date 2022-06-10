@@ -13,6 +13,8 @@ use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
 
+use crate::build::{build, run};
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
@@ -304,6 +306,20 @@ impl Cppm {
             process::exit(0);
         } else {
             fs::remove_dir_all("build").ok();
+        }
+    }
+
+    pub fn watch(file: String) {
+        let mut original_contents = fs::read_to_string(&file).expect("That file either doesn't exist or cannot be accessed!");
+    
+        loop {
+            let contents = fs::read_to_string(&file).expect("That file either doesn't exist or cannot be accessed!");
+    
+            if contents != original_contents && contents != "" { // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
+                original_contents = contents;
+                build(false);
+                run(false);
+            }
         }
     }
 

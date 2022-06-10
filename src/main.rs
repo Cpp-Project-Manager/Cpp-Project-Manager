@@ -72,6 +72,11 @@ enum Command {
         #[clap(long)]
         release: bool,
     },
+    /// Constantly watch a file for changes and build/run when changes are detected
+    Watch {
+        #[clap(long)]
+        filename: String,
+    }
 }
 
 fn main() {
@@ -141,6 +146,9 @@ fn main() {
         }
         Some(Command::Clean) => {
             Cppm::clean();
+        }
+        Some(Command::Watch { filename}) => {
+            Cppm::watch(filename);
         }
         // note: pass extra args through run
         Some(Command::Run { release }) => {
