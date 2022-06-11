@@ -23,3 +23,5 @@ toml = "0.5.9"
 ansi_term = "0.12.1"
 clap = { version = "3.1.18", features = ["derive"] }
 glob = "0.3.0"
+ureq = "2.4.0"
+serde_json = "1"
