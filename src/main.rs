@@ -1,12 +1,10 @@
 mod build;
 mod cppm;
-use std::env;
-
-use clap::{Parser, Subcommand};
-use colored::Colorize;
 use cppm::*;
-
-// warning: add human panic in next prerelease
+use std::env;
+use colored::Colorize;
+use human_panic::setup_panic;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -83,6 +81,7 @@ enum Command {
 }
 
 fn main() {
+    setup_panic!();
     let args = Args::parse();
     #[cfg(windows)]
     let _enabled = ansi_term::enable_ansi_support();
