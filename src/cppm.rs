@@ -13,7 +13,7 @@ use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
 
-use crate::build::{build, run};
+use crate::build::{run};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -42,6 +42,8 @@ pub fn write(project_name: &str, location: &str) {
 pub mod misc {
     use crate::cppm::Config;
     use std::collections::HashMap;
+    use colored::Colorize;
+    use std::path::Path;
 
     pub const CBOILER: &str = r#"
 #include <stdio.h>
@@ -90,19 +92,15 @@ int main(){
     }
 
     pub fn configfile() -> String {
-        let configdir = dirs::config_dir()
+        let configdir = dirs::home_dir()
             .unwrap()
             .into_os_string()
             .into_string()
             .unwrap()
             .replace('"', "")
             .replace('\\', "/");
-        format!("{}/cppm/config.toml", configdir)
-    }
-
-    pub fn version() -> String {
-        "cppm 0.3subl.0 (5-11-2022)".to_string() // Warning: update date
-    }
+        format!("{}/.cppm/config.toml", configdir)
+    } 
 
     pub fn dir_name() -> String {
         std::path::Path::new(&std::env::current_dir().unwrap())
@@ -114,6 +112,10 @@ int main(){
     }
 
     pub fn list_projects() {
+        if !Path::new(&configfile()).exists() {
+            println!("{}", "You have not created any projects yet!".red());
+            std::process::exit(0);
+        }
         let config: HashMap<String, Vec<Config>> =
             toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
         let items: &[Config] = &config["config"];
@@ -317,7 +319,7 @@ impl Cppm {
     
             if contents != original_contents && contents != "" { // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
                 original_contents = contents;
-                build(false);
+                //build(false);
                 run(false);
             }
         }
@@ -381,15 +383,6 @@ impl Cppm {
             .unwrap()
             .to_string();
 
-        // let config: LocalConfig = LocalConfig {
-        //     project: HashMap::from([
-        //         ("name".to_owned(), __loc__),
-        //         ("version".to_owned(), "1.0.0".to_owned()),
-        //         ("edition".to_owned(), "2022".to_owned()),
-        //         ("include".to_owned(), "include".to_owned()),
-        //         ("src".to_owned(), "src/main.cpp".to_owned()),
-        //     ]),
-        // };
         let cc = format!(
             r#"[project]
 name = "{}"
@@ -449,14 +442,14 @@ impl Def {
 }
 
 pub fn defaults_file() -> String {
-    let defaultsdir = dirs::config_dir()
+    let defaultsdir = dirs::home_dir()
         .unwrap()
         .into_os_string()
         .into_string()
         .unwrap()
         .replace('"', "")
         .replace('\\', "/");
-    format!("{}/cppm/defaults.toml", defaultsdir)
+    format!("{}/.cppm/defaults.toml", defaultsdir)
 }
 pub fn defaults() {
     let mut config: Def = Def::new();

@@ -10,6 +10,7 @@ use std::{
     str,
     time::Instant,
 };
+use crate::cppm;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalConfig {
@@ -36,21 +37,10 @@ pub fn sources() {}
 pub fn compiler() {}
 #[allow(dead_code)]
 pub fn lib() {}
-
+ 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
     compilers: HashMap<String, String>,
-}
-
-pub fn defaults_file() -> String {
-    let defaultsdir = dirs::config_dir()
-        .unwrap()
-        .into_os_string()
-        .into_string()
-        .unwrap()
-        .replace('"', "")
-        .replace('\\', "/");
-    format!("{}/cppm/defaults.toml", defaultsdir)
 }
 
 // note: add `flags_all = bool`, `flags = ""`
@@ -82,7 +72,7 @@ pub fn build(release: bool) {
     );
 
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
-    let compiler: Def = toml::from_str(&read_to_string(&defaults_file()).unwrap()).unwrap();
+    let compiler: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
 
     let includes: Vec<&str> = cppm.project["include"].split(",").collect();
     let src = cppm.project["src"].clone();
