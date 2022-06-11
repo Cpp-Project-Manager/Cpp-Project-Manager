@@ -20,6 +20,10 @@ struct Args {
     #[clap(short = 'g', long)]
     config: bool,
 
+    /// Compare your current cppm version to the most recent version
+    #[clap(short = 's', long)]
+    status: bool,
+
     /// Clean up build
     #[clap(long)]
     clean: bool,
@@ -33,7 +37,7 @@ struct Args {
 
     /// Remove a cppm project
     #[clap(short, long)]
-    remove: Option<String>,
+    remove: Option<String>,    
 
     #[clap(subcommand)]
     command: Option<Command>,
@@ -89,6 +93,9 @@ fn main() {
     }
     if args.config {
         cppm::defaults()
+    }
+    if args.status {
+        Cppm::status();
     }
     if args.clean {
         Cppm::clean()
