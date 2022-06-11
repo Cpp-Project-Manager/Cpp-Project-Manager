@@ -15,6 +15,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::build::{run};
 
+// Imports for `cppm --status`
+use serde_json::Value;
+use std::str;
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
@@ -325,7 +329,31 @@ impl Cppm {
         }
     }
 
-    /// initializes a project in the current directory.
+    pub fn status() {
+        let current_version = Command::new("cppm")
+                        .arg("-V")
+                        .output()
+                        .expect("An internal error occurred - please contact a developer");
+    
+        let current_version_str = match str::from_utf8(&current_version.stdout) {
+            Ok(value) => value.trim(),
+            Err(..) => panic!("An internal error occurred - please contact a developer"),
+        };
+    
+        let result = ureq::get("https://api.github.com/repos/maou-shimazu/cpp-project-manager/releases/latest")
+                                        .call()
+                                        .unwrap()
+                                        .into_string()
+                                        .unwrap();
+        let json_value: Value = serde_json::from_str(&result).unwrap();
+    
+        let latest = &json_value["tag_name"];
+    
+        println!("Current version: {} - Latest version: cppm {}", current_version_str, latest)
+    }
+    
+
+    /// Initializes a project in the current directory.
     pub fn initialize(init_type: &str) -> std::io::Result<()> {
         if Path::new("src").exists() || Path::new("include").exists() {
             println!(
