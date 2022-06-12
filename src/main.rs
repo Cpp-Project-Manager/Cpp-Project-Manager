@@ -61,12 +61,10 @@ enum Command {
         #[clap(short)]
         c: bool,
     },
-    /// Initialize a new cppm project inside of an existing Git repository
-    InitExisting {
+    /// Initialize a new cppm project to an existing git repo
+    GitInit {
         name: String,
-        repo: String,
-        #[clap(short)]
-        c: bool,
+        repo: String
     },
     /// Initialize a cppm project in current directory
     Init {
@@ -142,17 +140,11 @@ fn main() {
             if !args.git && cppm::git_exists() {
                 env::set_current_dir(name.clone()).unwrap();
                 cppm::git_init();
-                //env::set_current_dir("../").unwrap();
             }
         }
-        Some(Command::InitExisting { name, repo, c }) => {
-            if c {
-                Cppm::init_existing(name.clone(), repo.clone(), "c".to_string());
+        Some(Command::GitInit { name, repo }) => {
+                Cppm::init_existing(name.clone(), repo.clone());
                 println!("{}", "Project initialized successfully".bright_green());
-            } else {
-                Cppm::init_existing(name.clone(), repo.clone(), "c++".to_string());
-                println!("{}", "Project initialized successfully".bright_green());
-            }
         }
         // warning: check
         Some(Command::Init { c }) => {
