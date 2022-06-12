@@ -30,6 +30,7 @@ struct Args {
     #[clap(long)]
     toml: bool,
 
+    /// Create a project without initializing an empty git repo
     #[clap(long = "no-git")]
     git: bool,
 
