@@ -37,6 +37,7 @@ struct Args {
     #[clap(short, long)]
     remove: Option<String>,
 
+    /// Run or Build without compilation messages
     #[clap(short, long)]
     quiet: bool,
 
