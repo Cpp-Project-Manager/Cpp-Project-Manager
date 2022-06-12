@@ -61,6 +61,7 @@ enum Command {
         #[clap(short)]
         c: bool,
     },
+    /// Initialize a new cppm project inside of an existing Git repository
     InitExisting {
         name: String,
         repo: String,
