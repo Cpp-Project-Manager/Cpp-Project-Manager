@@ -61,7 +61,7 @@ enum Command {
         #[clap(short)]
         c: bool,
     },
-    // Initialize a cppm project in current directory
+    /// Initialize a cppm project in current directory
     Init {
         /// Generate C files instead of C++ files
         #[clap(short)]
