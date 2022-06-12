@@ -1,4 +1,5 @@
 #![allow(unused_assignments)]
+use crate::cppm;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -10,7 +11,6 @@ use std::{
     str,
     time::Instant,
 };
-use crate::cppm;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalConfig {
@@ -37,7 +37,7 @@ pub fn sources() {}
 pub fn compiler() {}
 #[allow(dead_code)]
 pub fn lib() {}
- 
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
     compilers: HashMap<String, String>,
@@ -46,7 +46,7 @@ pub struct Def {
 // note: add `flags_all = bool`, `flags = ""`
 // note: optimize for smart object building headerfiles in the future
 // note: add git_init integration
-pub fn build(release: bool) {
+pub fn build(release: bool, run_type: bool) {
     let start = Instant::now();
     if !Path::new("Cppm.toml").exists() {
         println!("Cppm project isnt in current directory!");
@@ -125,20 +125,23 @@ pub fn build(release: bool) {
         io::stderr().write_all(&out.stderr).unwrap();
         exit(0);
     }
-    println!(
-        "    {} {build_t} [{target}] target(s) in {:?}",
-        "Finished".bright_green(),
-        start.elapsed()
-    );
+
+    if !run_type {
+        println!(
+            "    {} {build_t} [{target}] target(s) in {:?}",
+            "Finished".bright_green(),
+            start.elapsed()
+        );
+    }
 }
 
-pub fn run(release: bool) {
+pub fn run(release: bool, run_type: bool) {
     if !Path::new("Cppm.toml").exists() {
         println!("Cppm project isnt in current directory!");
         exit(0);
     }
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
-    build(release);
+    build(release, run_type);
     let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
 
     #[cfg(windows)]

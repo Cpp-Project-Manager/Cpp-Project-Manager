@@ -323,8 +323,7 @@ impl Cppm {
     
             if contents != original_contents && contents != "" { // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
                 original_contents = contents;
-                //build(false);
-                run(false);
+                run(false, true);
             }
         }
     }

@@ -1,10 +1,10 @@
 mod build;
 mod cppm;
-use cppm::*;
-use std::env;
-use colored::Colorize;
-use human_panic::setup_panic;
 use clap::{Parser, Subcommand};
+use colored::Colorize;
+use cppm::*;
+use human_panic::setup_panic;
+use std::env;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -15,7 +15,7 @@ struct Args {
 
     //note: add makefile flag, for cppm use only generating files
     /// Configure cppm defaults
-    #[clap(short = 'g', long)]
+    #[clap(long)]
     config: bool,
 
     /// Compare your current cppm version to the most recent version
@@ -35,7 +35,10 @@ struct Args {
 
     /// Remove a cppm project
     #[clap(short, long)]
-    remove: Option<String>,    
+    remove: Option<String>,
+
+    #[clap(short, long)]
+    quiet: bool,
 
     #[clap(subcommand)]
     command: Option<Command>,
@@ -75,9 +78,7 @@ enum Command {
         release: bool,
     },
     /// Constantly watch a file for changes and build/run when changes are detected
-    Watch {
-        filename: Option<String>,
-    }
+    Watch { filename: Option<String> },
 }
 
 fn main() {
@@ -147,7 +148,7 @@ fn main() {
             }
         }
         Some(Command::Build { release }) => {
-            build::build(release);
+            build::build(release, args.quiet);
         }
         Some(Command::Clean) => {
             Cppm::clean();
@@ -157,7 +158,7 @@ fn main() {
         }
         // note: pass extra args through run
         Some(Command::Run { release }) => {
-            build::run(release); 
+            build::run(release, args.quiet);
         }
         None => (),
     }
