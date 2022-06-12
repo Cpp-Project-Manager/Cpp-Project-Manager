@@ -61,6 +61,12 @@ enum Command {
         #[clap(short)]
         c: bool,
     },
+    InitExisting {
+        name: String,
+        repo: String,
+        #[clap(short)]
+        c: bool,
+    },
     /// Initialize a cppm project in current directory
     Init {
         /// Generate C files instead of C++ files
@@ -136,6 +142,15 @@ fn main() {
                 env::set_current_dir(name.clone()).unwrap();
                 cppm::git_init();
                 //env::set_current_dir("../").unwrap();
+            }
+        }
+        Some(Command::InitExisting { name, repo, c }) => {
+            if c {
+                Cppm::init_existing(name.clone(), repo.clone(), "c".to_string());
+                println!("{}", "Project initialized successfully".bright_green());
+            } else {
+                Cppm::init_existing(name.clone(), repo.clone(), "c++".to_string());
+                println!("{}", "Project initialized successfully".bright_green());
             }
         }
         // warning: check
