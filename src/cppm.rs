@@ -350,6 +350,45 @@ impl Cppm {
     
         println!("Current version: {} - Latest version: cppm {}", current_version_str, latest)
     }
+
+    pub fn init_existing(name: String, repo: String, init_type: String) { // TODO: Add nice error messages
+        if init_type == "c" {
+            Cppm::spawn(name, "null".to_string(), "c");
+        } else {
+            Cppm::spawn(name, "null".to_string(), "c++");
+        }
+        Command::new("git")
+            .arg("init")
+            .output()
+            .expect("An error initializing Git - Make sure you have Git installed and try again!");
+        Command::new("git")
+            .arg("commit")
+            .arg("--allow-empty")
+            .arg("-m")
+            .arg("\"init\"")
+            .output()
+            .expect("An error occurred while trying to commit changes to Git - Make sure you have Git installed and try again");
+        Command::new("git")
+            .arg("branch")
+            .arg("-M")
+            .arg("main")
+            .output()
+            .expect("An error occured while trying to set the branch to main - Make sure you have Git installed and try again");
+        Command::new("git")
+            .arg("remote")
+            .arg("add")
+            .arg("origin")
+            .arg(repo)
+            .output()
+            .expect("An error occurred while trying to connect to the remote repository - Make sure the repository exists and try again");
+        Command::new("git")
+            .arg("push")
+            .arg("-u")
+            .arg("origin")
+            .arg("main")
+            .output()
+            .expect("An error occurred while trying to push changes to the repository - Make sure the repository exists and try again");
+    }
     
 
     /// Initializes a project in the current directory.
