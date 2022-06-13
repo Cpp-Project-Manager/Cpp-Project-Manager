@@ -365,7 +365,7 @@ impl Cppm {
             .arg("commit")
             .arg("--allow-empty")
             .arg("-m")
-            .arg("\"init\"")
+            .arg("Initial Commit")
             .output()
             .expect("An error occurred while trying to commit changes to Git - Make sure you have Git installed and try again");
         Command::new("git")
