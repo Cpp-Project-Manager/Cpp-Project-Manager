@@ -13,7 +13,7 @@ use colored::Colorize;
 use fsio::file;
 use serde::{Deserialize, Serialize};
 
-use crate::build::run;
+use crate::build::{run};
 
 // Imports for `cppm --status`
 use serde_json::Value;
@@ -45,8 +45,8 @@ pub fn write(project_name: &str, location: &str) {
 
 pub mod misc {
     use crate::cppm::Config;
-    use colored::Colorize;
     use std::collections::HashMap;
+    use colored::Colorize;
     use std::path::Path;
 
     pub const CBOILER: &str = r#"
@@ -104,7 +104,7 @@ int main(){
             .replace('"', "")
             .replace('\\', "/");
         format!("{}/.cppm/config.toml", configdir)
-    }
+    } 
 
     pub fn dir_name() -> String {
         std::path::Path::new(&std::env::current_dir().unwrap())
@@ -316,15 +316,12 @@ impl Cppm {
     }
 
     pub fn watch(file: String) {
-        let mut original_contents = fs::read_to_string(&file)
-            .expect("That file either doesn't exist or cannot be accessed!");
-
+        let mut original_contents = fs::read_to_string(&file).expect("That file either doesn't exist or cannot be accessed!");
+    
         loop {
-            let contents = fs::read_to_string(&file)
-                .expect("That file either doesn't exist or cannot be accessed!");
-
-            if contents != original_contents && contents != "" {
-                // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
+            let contents = fs::read_to_string(&file).expect("That file either doesn't exist or cannot be accessed!");
+    
+            if contents != original_contents && contents != "" { // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
                 original_contents = contents;
                 run(false, true);
             }
@@ -333,50 +330,44 @@ impl Cppm {
 
     pub fn status() {
         let current_version = Command::new("cppm")
-            .arg("-V")
-            .output()
-            .expect("An internal error occurred - please contact a developer");
-
+                        .arg("-V")
+                        .output()
+                        .expect("An internal error occurred - please contact a developer");
+    
         let current_version_str = match str::from_utf8(&current_version.stdout) {
             Ok(value) => value.trim(),
             Err(..) => panic!("An internal error occurred - please contact a developer"),
         };
-
-        let result = ureq::get(
-            "https://api.github.com/repos/maou-shimazu/cpp-project-manager/releases/latest",
-        )
-        .call()
-        .unwrap()
-        .into_string()
-        .unwrap();
+    
+        let result = ureq::get("https://api.github.com/repos/maou-shimazu/cpp-project-manager/releases/latest")
+                                        .call()
+                                        .unwrap()
+                                        .into_string()
+                                        .unwrap();
         let json_value: Value = serde_json::from_str(&result).unwrap();
-
+    
         let latest = &json_value["tag_name"];
-
-        println!(
-            "Current version: {} - Latest version: cppm {}",
-            current_version_str, latest
-        )
+    
+        println!("Current version: {} - Latest version: cppm {}", current_version_str, latest)
     }
 
-    pub fn init_existing(name: String, mut repo: String) {
-        // TODO: Add nice error messages
-        repo = format!("https://github.com/{name}/{repo}.git");
+    pub fn init_existing(name: String, repo: String, init_type: String) { // TODO: Add nice error messages
+        if init_type == "c" {
+            Cppm::spawn(name, "null".to_string(), "c");
+        } else {
+            Cppm::spawn(name, "null".to_string(), "c++");
+        }
         Command::new("git")
             .arg("init")
             .output()
             .expect("An error initializing Git - Make sure you have Git installed and try again!");
         Command::new("git")
-            .arg("add")
-            .arg("-A")
+            .arg("commit")
+            .arg("--allow-empty")
+            .arg("-m")
+            .arg("\"init\"")
             .output()
             .expect("An error occurred while trying to commit changes to Git - Make sure you have Git installed and try again");
-        Command::new("git")
-            .arg("commit")
-            .arg("-m")
-            .arg("Initial commit")
-            .output()
-            .expect("An error occured while trying to set the branch to main - Make sure you have Git installed and try again");
         Command::new("git")
             .arg("branch")
             .arg("-M")
@@ -398,6 +389,7 @@ impl Cppm {
             .output()
             .expect("An error occurred while trying to push changes to the repository - Make sure the repository exists and try again");
     }
+    
 
     /// Initializes a project in the current directory.
     pub fn initialize(init_type: &str) -> std::io::Result<()> {
@@ -572,12 +564,13 @@ pub fn defaults() {
     println!("Location: {}", defaults_file());
 }
 
-// warning: file dosent spawn properly
 pub fn toml() {
-    println!("location: {}", misc::configfile());
-    Command::new(misc::configfile())
+    println!("{}", "cppm will now ask you for your password - please provide it! Don't worry, our program itself doesn't have access to it.".bright_green());
+    Command::new("sudo")
+        .arg(misc::configfile())
         .spawn()
-        .expect("Couldn't start editor.");
+        .expect("Couldn't start notepad.");
+    println!("TOML location: {}", misc::configfile())
 }
 
 pub fn git_init() {
