@@ -464,6 +464,7 @@ version = "1.0.0"
 edition = "2022"
 include = "include"
 src = "src/main.cpp"
+standard = "-std=c++11"
 "#,
             __loc__
         );

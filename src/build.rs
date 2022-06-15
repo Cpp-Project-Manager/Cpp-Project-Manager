@@ -76,13 +76,13 @@ pub fn build(release: bool, run_type: bool) {
 
     let includes: Vec<&str> = cppm.project["include"].split(",").collect();
     let src = cppm.project["src"].clone();
-
     fs::create_dir_all("build").ok();
 
     let out: Output;
     if release == true {
         out = Command::new(&compiler.compilers["cpp"])
             .args([
+                cppm.project["standard"].clone(),
                 "-o".to_string(),
                 format!("build/{}", cppm.project["name"].clone()),
                 src.clone(),
@@ -103,6 +103,7 @@ pub fn build(release: bool, run_type: bool) {
     } else {
         out = Command::new(&compiler.compilers["cpp"])
             .args([
+                cppm.project["standard"].clone(),
                 "-o".to_owned(),
                 format!("build/{}", cppm.project["name"].clone()),
                 src.clone(),
