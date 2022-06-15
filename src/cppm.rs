@@ -67,7 +67,7 @@ int main(void) {
 
 
 #endif"#,
-            header_name.to_uppercase()
+            header_name.to_uppercase().replace("-", "_")
         )
     }
 
@@ -91,7 +91,7 @@ int main(){
 
 
 #endif"#,
-            header_name.to_uppercase()
+            header_name.to_uppercase().replace("-", "_")
         )
     }
 
@@ -464,7 +464,7 @@ version = "1.0.0"
 edition = "2022"
 include = "include"
 src = "src/main.cpp"
-standard = "-std=c++11"
+standard = "11"
 "#,
             __loc__
         );

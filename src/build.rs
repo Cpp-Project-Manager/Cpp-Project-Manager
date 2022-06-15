@@ -45,7 +45,6 @@ pub struct Def {
 
 // note: add `flags_all = bool`, `flags = ""`
 // note: optimize for smart object building headerfiles in the future
-// note: add git_init integration
 pub fn build(release: bool, run_type: bool) {
     let start = Instant::now();
     if !Path::new("Cppm.toml").exists() {
@@ -76,13 +75,16 @@ pub fn build(release: bool, run_type: bool) {
 
     let includes: Vec<&str> = cppm.project["include"].split(",").collect();
     let src = cppm.project["src"].clone();
+    let mut standard = cppm.project["standard"].clone();
+    standard = format!("-std=c++{standard}");
     fs::create_dir_all("build").ok();
+
 
     let out: Output;
     if release == true {
         out = Command::new(&compiler.compilers["cpp"])
             .args([
-                cppm.project["standard"].clone(),
+                standard,
                 "-o".to_string(),
                 format!("build/{}", cppm.project["name"].clone()),
                 src.clone(),
@@ -103,7 +105,7 @@ pub fn build(release: bool, run_type: bool) {
     } else {
         out = Command::new(&compiler.compilers["cpp"])
             .args([
-                cppm.project["standard"].clone(),
+                standard,
                 "-o".to_owned(),
                 format!("build/{}", cppm.project["name"].clone()),
                 src.clone(),
