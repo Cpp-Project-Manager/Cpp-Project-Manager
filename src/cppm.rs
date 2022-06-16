@@ -578,6 +578,7 @@ pub fn defaults() {
         Err(e) => println!("{}", e),
     }
 
+    println!("Please enter what you would like to set your default editor as...");
     let mut default_editor = String::new();
     stdin().read_line(&mut default_editor).ok().expect("Failed to read line");
     config.editor = default_editor;
