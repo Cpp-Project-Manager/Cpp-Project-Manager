@@ -255,6 +255,10 @@ impl Cppm {
 
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: Option<String>) {
+        if !Path::new(&misc::configfile()).exists() {
+            println!("{}", "You have not created any projects yet!".red());
+            process::exit(0);
+        }
         let editor = match editor {
             Some(val) => val,
             None => {
@@ -263,10 +267,6 @@ impl Cppm {
                 value["editor"].to_string()
             }
         };
-        if !Path::new(&misc::configfile()).exists() {
-            println!("{}", "You have not created any projects yet!".red());
-            process::exit(0);
-        }
         if builder::subprocess(&editor, "").is_err() {
             println!(
                 "    {}",
