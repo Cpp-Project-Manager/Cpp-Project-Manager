@@ -116,9 +116,9 @@ fn main() {
     match args.command {
         Some(Command::Open { name, editor }) => {
             if editor.is_some() {
-                Cppm::open(name, editor.unwrap());
+                Cppm::open(name, Some(editor));
             } else {
-                // note: do config stuff, get default ed if exists
+                Cppm::open(name, None);
             }
         }
         Some(Command::New { name, editor, c }) => {
