@@ -251,7 +251,15 @@ impl Cppm {
     }
 
     /// note: add aliases for known editors
-    pub fn open(_project_name: String, editor: String) {
+    pub fn open(_project_name: String, editor: Option<String>) {
+        let editor = match editor {
+            Some(val) => val,
+            None => {
+                let contents = fs::read_to_string(defaults_file()).expect("You don't have a default editor configured!");
+                let value = contents.parse::<TomlVal>().unwrap();
+                value["editor"].to_string()
+            }
+        };
         if !Path::new(&misc::configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
@@ -507,11 +515,13 @@ fn c_path(s: Cppm) -> String {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
     compilers: HashMap<String, String>,
+    editor: String,
 }
 impl Def {
     pub fn new() -> Def {
         Def {
             compilers: HashMap::new(),
+            editor: String::new(),
         }
     }
 }
@@ -526,7 +536,7 @@ pub fn defaults_file() -> String {
         .replace('\\', "/");
     format!("{}/.cppm/defaults.toml", defaultsdir)
 }
-pub fn defaults() {
+pub fn defaults(default_editor: String) {
     let mut config: Def = Def::new();
     file::ensure_exists(&defaults_file()).ok();
     let c = builder::c();
@@ -563,6 +573,8 @@ pub fn defaults() {
         },
         Err(e) => println!("{}", e),
     }
+
+    config.editor = default_editor;
 
     file::write_file(
         &defaults_file(),
