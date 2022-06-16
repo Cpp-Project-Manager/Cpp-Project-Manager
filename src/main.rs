@@ -86,6 +86,11 @@ enum Command {
     },
     /// Constantly watch a file for changes and build/run when changes are detected
     Watch { filename: Option<String> },
+        /// Set your default editor
+    SetEditor {
+        #[clap(long)]
+        editor: String,
+    },
 }
 
 fn main() {
@@ -116,7 +121,7 @@ fn main() {
     match args.command {
         Some(Command::Open { name, editor }) => {
             if editor.is_some() {
-                Cppm::open(name, Some(editor));
+                Cppm::open(name, editor);
             } else {
                 Cppm::open(name, None);
             }
@@ -141,6 +146,9 @@ fn main() {
                 env::set_current_dir(name.clone()).unwrap();
                 cppm::git_init();
             }
+        }
+        Some(Command::SetEditor { editor }) => {
+            cppm::defaults(editor);
         }
         Some(Command::GitInit { name, repo }) => {
                 Cppm::init_existing(name.clone(), repo.clone());
