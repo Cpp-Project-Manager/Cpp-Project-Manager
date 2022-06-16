@@ -21,6 +21,7 @@ use std::str;
 
 // Imports for default editor
 use toml::Value as TomlVal;
+use std::io::stdin;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -539,7 +540,7 @@ pub fn defaults_file() -> String {
         .replace('\\', "/");
     format!("{}/.cppm/defaults.toml", defaultsdir)
 }
-pub fn defaults(default_editor: String) {
+pub fn defaults() {
     let mut config: Def = Def::new();
     file::ensure_exists(&defaults_file()).ok();
     let c = builder::c();
@@ -577,6 +578,8 @@ pub fn defaults(default_editor: String) {
         Err(e) => println!("{}", e),
     }
 
+    let mut default_editor = String::new();
+    stdin().read_line(&mut default_editor).ok().expect("Failed to read line");
     config.editor = default_editor;
 
     file::write_file(
