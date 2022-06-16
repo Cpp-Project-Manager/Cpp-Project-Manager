@@ -19,6 +19,9 @@ use crate::build::run;
 use serde_json::Value;
 use std::str;
 
+// Imports for default editor
+use toml::Value as TomlVal;
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
