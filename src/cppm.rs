@@ -19,10 +19,6 @@ use crate::build::run;
 use serde_json::Value;
 use std::str;
 
-// Imports for default editor
-use toml::Value as TomlVal;
-use std::io::stdin;
-
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
@@ -260,14 +256,15 @@ impl Cppm {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
+        
         let editor = match editor {
             Some(val) => val,
             None => {
-                let contents = fs::read_to_string(defaults_file()).expect("You don't have a default editor configured!");
-                let value = contents.parse::<TomlVal>().unwrap();
-                value["editor"].to_string()
+                let contents: Def = toml::from_str(&fs::read_to_string(defaults_file()).unwrap()).unwrap();
+                contents.editor
             }
         };
+
         if builder::subprocess(&editor, "").is_err() {
             println!(
                 "    {}",
@@ -276,7 +273,7 @@ impl Cppm {
             process::exit(0);
         }
         let toml_config: HashMap<String, Vec<Config>> =
-            toml::from_str(&std::fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+            toml::from_str(&fs::read_to_string(misc::configfile()).unwrap()).unwrap();
         let config: &[Config] = &toml_config["config"];
         let mut b = false;
         for i in config {
@@ -518,14 +515,14 @@ fn c_path(s: Cppm) -> String {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
-    compilers: HashMap<String, String>,
     editor: String,
+    compilers: HashMap<String, String>,
 }
 impl Def {
     pub fn new() -> Def {
         Def {
-            compilers: HashMap::new(),
             editor: String::new(),
+            compilers: HashMap::new(),
         }
     }
 }
@@ -540,9 +537,17 @@ pub fn defaults_file() -> String {
         .replace('\\', "/");
     format!("{}/.cppm/defaults.toml", defaultsdir)
 }
+
+use std::io::{stdout, stdin};
 pub fn defaults() {
     let mut config: Def = Def::new();
     file::ensure_exists(&defaults_file()).ok();
+
+    print!("Default editor: ");
+    stdout().flush().ok();
+    stdin().read_line(&mut config.editor).expect("Failed to read line");
+    config.editor = config.editor.trim().to_string();
+
     let c = builder::c();
     let cpp = builder::cpp();
 
@@ -578,11 +583,6 @@ pub fn defaults() {
         Err(e) => println!("{}", e),
     }
 
-    println!("Please enter what you would like to set your default editor as...");
-    let mut default_editor = String::new();
-    stdin().read_line(&mut default_editor).ok().expect("Failed to read line");
-    config.editor = default_editor;
-
     file::write_file(
         &defaults_file(),
         toml::to_string(&config).unwrap().as_bytes(),
@@ -601,8 +601,7 @@ pub fn toml() {
         .spawn()
         .expect("Couldn't open config file");
     #[cfg(unix)]
-    Command::new("sh")
-        .arg(misc::configfile())
+    Command::new(misc::configfile())
         .spawn()
         .expect("Couldn't open config file");
 }
