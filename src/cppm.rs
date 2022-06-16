@@ -595,9 +595,16 @@ pub fn defaults() {
 // warning: file dosent spawn properly
 pub fn toml() {
     println!("location: {}", misc::configfile());
-    Command::new(misc::configfile())
+    #[cfg(windows)]
+    Command::new("powershell")
+        .arg(misc::configfile())
         .spawn()
-        .expect("Couldn't start editor.");
+        .expect("Couldn't open config file");
+    #[cfg(unix)]
+    Command::new("sh")
+        .arg(misc::configfile())
+        .spawn()
+        .expect("Couldn't open config file");
 }
 
 pub fn git_init() {
