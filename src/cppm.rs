@@ -352,15 +352,16 @@ impl Cppm {
             Err(..) => panic!("An internal error occurred - please contact a developer"),
         };
 
-        let result = ureq::get(
+        let result = minreq::get(
             "https://api.github.com/repos/maou-shimazu/cpp-project-manager/releases/latest",
         )
-        .call()
-        .unwrap()
-        .into_string()
-        .unwrap();
-        let json_value: Value = serde_json::from_str(&result).unwrap();
+        	.with_header("User-Agent", "cppm")
+        	.send()
+        	.unwrap();
 
+        let result_str = result.as_str().unwrap();
+        
+        let json_value: Value = serde_json::from_str(result_str).unwrap();
         let latest = &json_value["tag_name"];
 
         println!(
