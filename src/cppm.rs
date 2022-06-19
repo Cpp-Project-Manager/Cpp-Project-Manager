@@ -266,6 +266,10 @@ impl Cppm {
                 }
                 let contents: Def =
                     toml::from_str(&fs::read_to_string(defaults_file()).unwrap()).unwrap();
+                if contents.editor == "null" {
+                    println!("{}", "You haven't configured a default editor yet!".red());
+                    process::exit(0);
+                }
                 contents.editor
             }
         };
@@ -559,12 +563,14 @@ pub fn defaults() {
     let mut config: Def = Def::new();
     file::ensure_exists(&defaults_file()).ok();
 
-    print!("Default editor: ");
+    print!("Default editor [ENTER `null` FOR NO DEFAULT EDITOR]: ");
     stdout().flush().ok();
     stdin()
         .read_line(&mut config.editor)
         .expect("Failed to read line");
     config.editor = config.editor.trim().to_string();
+
+    println!("{}", config.editor);
 
     let c = builder::c();
     let cpp = builder::cpp();
