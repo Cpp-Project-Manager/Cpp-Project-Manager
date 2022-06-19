@@ -260,6 +260,10 @@ impl Cppm {
         let editor = match editor {
             Some(val) => val,
             None => {
+                if !Path::new(&defaults_file()).exists() {
+                    println!("{}", "You haven't configured a default editor yet!".red());
+                    process::exit(0);
+                }
                 let contents: Def =
                     toml::from_str(&fs::read_to_string(defaults_file()).unwrap()).unwrap();
                 contents.editor
