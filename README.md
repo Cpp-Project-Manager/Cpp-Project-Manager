@@ -20,7 +20,7 @@
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
+  <a href="https://github.com/Maou-Shimazu/Cpp-Project-Manager/wiki/Usage">How To Use</a> •
   <a href="#download">Download</a> •
   <a href="#license">License</a>
 </p>
@@ -59,7 +59,7 @@ There's three ways to get cppm:
 * - - [ ] User system
 * - - [ ] Git integration
 * - * - [ ] Custom ignore
-* - [ ] Atomated package compilation
+* - [ ] Automated package compilation
 
 ## License
 [MIT](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/LICENSE)
