@@ -569,9 +569,7 @@ pub fn defaults() {
         .read_line(&mut config.editor)
         .expect("Failed to read line");
     config.editor = config.editor.trim().to_string();
-
-    println!("{}", config.editor);
-
+    
     let c = builder::c();
     let cpp = builder::cpp();
 
