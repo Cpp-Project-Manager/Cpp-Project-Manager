@@ -261,7 +261,7 @@ impl Cppm {
             Some(val) => val,
             None => {
                 if !Path::new(&defaults_file()).exists() {
-                    println!("{}", "You haven't configured a default editor yet!".red());
+                    println!("{}", "You haven't configured a default editor yet! Run `cppm --config` to resolve this error.".red());
                     process::exit(0);
                 }
                 let contents: Def =
