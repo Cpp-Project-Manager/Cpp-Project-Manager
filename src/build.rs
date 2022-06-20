@@ -51,6 +51,10 @@ pub fn build(release: bool, run_type: bool) {
         println!("Cppm project isnt in current directory!");
         exit(0);
     }
+    if !Path::new(&defaults_file()).exists() {
+        println!("{}", "You haven't set up your defaults yet! Run `cppm --config` to resolve this error.".red());
+        exit(0);
+    }
     let mut target = String::new();
     let mut build_t = String::new();
 
@@ -143,6 +147,10 @@ pub fn run(release: bool, run_type: bool) {
         println!("Cppm project isnt in current directory!");
         exit(0);
     }
+    if !Path::new(&defaults_file()).exists() {
+        println!("{}", "You haven't set up your defaults yet! Run `cppm --config` to resolve this error.".red());
+        exit(0);
+    }
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
     build(release, run_type);
     let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
@@ -169,4 +177,15 @@ pub fn run(release: bool, run_type: bool) {
     let out = Command::new(run).output().unwrap();
     io::stdout().write_all(&out.stdout).unwrap();
     io::stderr().write_all(&out.stderr).unwrap();
+}
+
+fn defaults_file() -> String {
+    let defaultsdir = dirs::home_dir()
+        .unwrap()
+        .into_os_string()
+        .into_string()
+        .unwrap()
+        .replace('"', "")
+        .replace('\\', "/");
+    format!("{}/.cppm/defaults.toml", defaultsdir)
 }
