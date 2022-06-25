@@ -350,16 +350,8 @@ impl Cppm {
     }
 
     pub fn status() {
-        let current_version = Command::new("cppm")
-            .arg("-V")
-            .output()
-            .expect("An internal error occurred - please contact a developer");
-
-        let current_version_str = match str::from_utf8(&current_version.stdout) {
-            Ok(value) => value.trim(),
-            Err(..) => panic!("An internal error occurred - please contact a developer"),
-        };
-
+        let current_version = env!("CARGO_PKG_VERSION");
+        
         let result = minreq::get(
             "https://api.github.com/repos/maou-shimazu/cpp-project-manager/releases/latest",
         )
@@ -373,8 +365,8 @@ impl Cppm {
         let latest = &json_value["tag_name"];
 
         println!(
-            "Current version: {} - Latest version: cppm {}",
-            current_version_str, latest
+            "Current version: v{} - Latest version: cppm {}",
+            current_version, latest
         )
     }
 
