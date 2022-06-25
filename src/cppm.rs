@@ -67,7 +67,7 @@ int main(void) {
 
 
 #endif"#,
-            header_name.to_uppercase().replace("-", "_")
+            header_name.to_uppercase().replace('-', "_")
         )
     }
 
@@ -91,7 +91,7 @@ int main(){
 
 
 #endif"#,
-            header_name.to_uppercase().replace("-", "_")
+            header_name.to_uppercase().replace('-', "_")
         )
     }
 
@@ -295,15 +295,10 @@ impl Cppm {
                 );
 
                 let mut editor = if cfg!(target_os = "windows") {
-                    Command::new("powershell")
-                        .args(["/c", &format!("{} {}", editor, project_location)])
+                    Command::new(editor.clone())
+                        .arg(project_location)
                         .spawn()
-                        .expect("Failed to open editor.")
-                } else if cfg!(target_os = "linux") || cfg!(target_os = "unix") {
-                    Command::new("sh")
-                        .args(["-c", &format!("{} {}", editor, project_location)])
-                        .spawn()
-                        .expect("Failed to open editor.")
+                        .expect("Failed to open editor.") 
                 } else {
                     println!(
                         "{}",
@@ -341,7 +336,7 @@ impl Cppm {
             let contents = fs::read_to_string(&file)
                 .expect("That file either doesn't exist or cannot be accessed!");
 
-            if contents != original_contents && contents != "" {
+            if contents != original_contents && !contents.is_empty() {
                 // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
                 original_contents = contents;
                 run(false, true);
@@ -609,15 +604,16 @@ pub fn defaults() {
 // warning: file dosent spawn properly
 pub fn toml() {
     println!("location: {}", misc::configfile());
-    #[cfg(windows)]
-    Command::new("powershell")
-        .arg(misc::configfile())
-        .spawn()
-        .expect("Couldn't open config file");
-    #[cfg(unix)]
-    Command::new(misc::configfile())
-        .spawn()
-        .expect("Couldn't open config file");
+    // #[cfg(windows)]
+    // Command::new("powershell")
+    //     .arg(misc::configfile())
+    //     .spawn()
+    //     .expect("Couldn't open config file");
+    // #[cfg(unix)]
+    // Command::new(misc::configfile())
+    //     .spawn()
+    //     .expect("Couldn't open config file");
+    edit::edit(misc::configfile()).expect("COuldnt open config file"); // note: read source and implement editor opening, this dosent do what we think it does.
 }
 
 pub fn git_init() {

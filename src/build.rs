@@ -77,7 +77,7 @@ pub fn build(release: bool, run_type: bool) {
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
     let compiler: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
 
-    let includes: Vec<&str> = cppm.project["include"].split(",").collect();
+    let includes: Vec<&str> = cppm.project["include"].split(',').collect();
     let src = cppm.project["src"].clone();
     let mut standard = cppm.project["standard"].clone();
     standard = format!("-std=c++{standard}");
@@ -85,13 +85,13 @@ pub fn build(release: bool, run_type: bool) {
 
 
     let out: Output;
-    if release == true {
+    if release {
         out = Command::new(&compiler.compilers["cpp"])
             .args([
                 standard,
                 "-o".to_string(),
                 format!("build/{}", cppm.project["name"].clone()),
-                src.clone(),
+                src,
                 include(includes.clone()),
                 "-Wall".to_string(),
                 "-Wpedantic".to_string(),
@@ -112,7 +112,7 @@ pub fn build(release: bool, run_type: bool) {
                 standard,
                 "-o".to_owned(),
                 format!("build/{}", cppm.project["name"].clone()),
-                src.clone(),
+                src,
                 include(includes.clone()),
                 "-Wall".to_string(),
                 "-Wpedantic".to_string(),
