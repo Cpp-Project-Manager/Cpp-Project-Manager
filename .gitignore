@@ -4,7 +4,7 @@
 dist
 test
 *.pdb
-cargo.lock
+Cargo.lock
 # Added by cargo
 /.idea
 /target

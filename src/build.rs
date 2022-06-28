@@ -100,6 +100,7 @@ pub fn build(release: bool, run_type: bool) {
                 "-Wformat=2".to_string(),
                 "-Wconversion".to_string(),
                 "-Wunused-parameter".to_string(),
+                "-fsanitize=address".to_string(),
                 "-O3".to_string(),
             ])
             .output()
@@ -121,6 +122,7 @@ pub fn build(release: bool, run_type: bool) {
                 "-Wformat=2".to_string(),
                 "-Wconversion".to_string(),
                 "-Wunused-parameter".to_string(),
+                "-fsanitize=address".to_string(),
             ])
             .output()
             .unwrap();
