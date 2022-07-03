@@ -30,6 +30,14 @@ pub fn include(folders: Vec<&str>) -> String {
     format!("-I{}", return_string.join(" -I"))
 }
 
+pub fn library(libs: Vec<&str>) -> String {
+    let mut return_string: Vec<&str> = Vec::new();
+    for i in libs {
+        return_string.push(i);
+    }
+    format!("-L{}", return_string.join(" -L"))
+}
+
 #[allow(dead_code)]
 pub fn sources() {}
 
@@ -52,7 +60,11 @@ pub fn build(release: bool, run_type: bool) {
         exit(0);
     }
     if !Path::new(&defaults_file()).exists() {
-        println!("{}", "You haven't set up your defaults yet! Run `cppm --config` to resolve this error.".red());
+        println!(
+            "{}",
+            "You haven't set up your defaults yet! Run `cppm --config` to resolve this error."
+                .red()
+        );
         exit(0);
     }
     let mut target = String::new();
@@ -77,22 +89,28 @@ pub fn build(release: bool, run_type: bool) {
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
     let compiler: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
 
-    let includes: Vec<&str> = cppm.project["include"].split(",").collect();
+    let includes: Vec<&str> = cppm.project["include"].split(',').collect();
+    let mut libraries: Vec<&str> = Vec::new(); // note: someone please test that the libraries link properly.
+    if cppm.project.contains_key("libs") {
+        libraries = cppm.project["libs"].split(',').collect();
+    } else {
+        libraries = vec![""];
+    }
     let src = cppm.project["src"].clone();
     let mut standard = cppm.project["standard"].clone();
     standard = format!("-std=c++{standard}");
     fs::create_dir_all("build").ok();
 
-
     let out: Output;
-    if release == true {
+    if release {
         out = Command::new(&compiler.compilers["cpp"])
             .args([
                 standard,
                 "-o".to_string(),
                 format!("build/{}", cppm.project["name"].clone()),
-                src.clone(),
+                src,
                 include(includes.clone()),
+                library(libraries.clone()),
                 "-Wall".to_string(),
                 "-Wpedantic".to_string(),
                 "-Werror".to_string(),
@@ -113,7 +131,7 @@ pub fn build(release: bool, run_type: bool) {
                 standard,
                 "-o".to_owned(),
                 format!("build/{}", cppm.project["name"].clone()),
-                src.clone(),
+                src,
                 include(includes.clone()),
                 "-Wall".to_string(),
                 "-Wpedantic".to_string(),
@@ -150,7 +168,11 @@ pub fn run(release: bool, run_type: bool) {
         exit(0);
     }
     if !Path::new(&defaults_file()).exists() {
-        println!("{}", "You haven't set up your defaults yet! Run `cppm --config` to resolve this error.".red());
+        println!(
+            "{}",
+            "You haven't set up your defaults yet! Run `cppm --config` to resolve this error."
+                .red()
+        );
         exit(0);
     }
     let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();

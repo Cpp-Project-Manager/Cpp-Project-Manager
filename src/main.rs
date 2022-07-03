@@ -138,12 +138,12 @@ fn main() {
                 println!("    {} C++ project `{}`", "Created".bright_green(), name);
             }
             if !args.git && cppm::git_exists() {
-                env::set_current_dir(name.clone()).unwrap();
+                env::set_current_dir(name).unwrap();
                 cppm::git_init();
             }
         }
         Some(Command::GitInit { name, repo }) => {
-                Cppm::init_existing(name.clone(), repo.clone());
+                Cppm::init_existing(name, repo);
                 println!("{}", "Project initialized successfully".bright_green());
         }
         // warning: check
@@ -164,7 +164,7 @@ fn main() {
             Cppm::clean();
         }
         Some(Command::Watch { filename }) => {
-            Cppm::watch(filename.unwrap_or("src/main.cpp".to_string()));
+            Cppm::watch((filename).unwrap_or("src/main.cpp".to_string()));
         }
         // note: pass extra args through run
         Some(Command::Run { release }) => {
