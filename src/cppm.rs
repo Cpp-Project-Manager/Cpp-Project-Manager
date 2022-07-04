@@ -339,7 +339,7 @@ impl Cppm {
             if contents != original_contents && !contents.is_empty() {
                 // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
                 original_contents = contents;
-                run(false, true);
+                run(false, true, vec![]);
             }
         }
     }
@@ -604,16 +604,16 @@ pub fn defaults() {
 // warning: file dosent spawn properly
 pub fn toml() {
     println!("location: {}", misc::configfile());
-    // #[cfg(windows)]
-    // Command::new("powershell")
-    //     .arg(misc::configfile())
-    //     .spawn()
-    //     .expect("Couldn't open config file");
-    // #[cfg(unix)]
-    // Command::new(misc::configfile())
-    //     .spawn()
-    //     .expect("Couldn't open config file");
-    edit::edit(misc::configfile()).expect("COuldnt open config file"); // note: read source and implement editor opening, this dosent do what we think it does.
+    #[cfg(windows)]
+    Command::new("powershell")
+        .arg(misc::configfile())
+        .spawn()
+        .expect("Couldn't open config file");
+    #[cfg(unix)]
+    Command::new(misc::configfile())
+        .spawn()
+        .expect("Couldn't open config file");
+    // edit::edit(misc::configfile()).expect("COuldnt open config file"); // note: read source and implement editor opening, this dosent do what we think it does. [https://github.com/milkey-mouse/edit]
 }
 
 pub fn git_init() {

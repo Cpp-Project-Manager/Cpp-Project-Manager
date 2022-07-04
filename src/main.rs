@@ -83,6 +83,9 @@ enum Command {
     Run {
         #[clap(long)]
         release: bool,
+
+        #[clap(allow_hyphen_values = true)]
+        extra_args: Vec<String>
     },
     /// Constantly watch a file for changes and build/run when changes are detected
     Watch { filename: Option<String> },
@@ -167,8 +170,8 @@ fn main() {
             Cppm::watch((filename).unwrap_or("src/main.cpp".to_string()));
         }
         // note: pass extra args through run
-        Some(Command::Run { release }) => {
-            build::run(release, args.quiet);
+        Some(Command::Run { release, extra_args }) => {
+            build::run(release, args.quiet, extra_args);
         }
         None => (),
     }

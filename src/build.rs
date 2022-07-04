@@ -1,4 +1,5 @@
 #![allow(unused_assignments)]
+/// Build, handles the functions for the build process.
 use crate::cppm;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
@@ -12,17 +13,19 @@ use std::{
     time::Instant,
 };
 
+/// ### Struct used to serialze Cppm.toml
+/// Usage:
+/// ```rs
+/// let value: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap
+/// ```
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalConfig {
     pub project: HashMap<String, String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Build {
-    project: HashMap<String, String>,
-}
-
-pub fn include(folders: Vec<&str>) -> String {
+/// Generates an include command based on all the folders passed into the argument.\
+/// Used in [build](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/src/build.rs#L56)
+fn include(folders: Vec<&str>) -> String {
     let mut return_string: Vec<&str> = Vec::new();
     for i in folders {
         return_string.push(i);
@@ -30,7 +33,9 @@ pub fn include(folders: Vec<&str>) -> String {
     format!("-I{}", return_string.join(" -I"))
 }
 
-pub fn library(libs: Vec<&str>) -> String {
+/// Links libraries specified.\
+/// Used in [build](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/src/build.rs#L56)
+fn library(libs: Vec<&str>) -> String {
     let mut return_string: Vec<&str> = Vec::new();
     for i in libs {
         return_string.push(i);
@@ -38,14 +43,11 @@ pub fn library(libs: Vec<&str>) -> String {
     format!("-L{}", return_string.join(" -L"))
 }
 
-#[allow(dead_code)]
-pub fn sources() {}
-
-#[allow(dead_code)]
-pub fn compiler() {}
-#[allow(dead_code)]
-pub fn lib() {}
-
+/// ### Struct used to serialze defaults file
+/// Usage:
+/// ```rs
+/// let value: Def = toml::from_str(&std::fs::read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
+/// ```
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
     compilers: HashMap<String, String>,
@@ -70,23 +72,32 @@ pub fn build(release: bool, run_type: bool) {
     let mut target = String::new();
     let mut build_t = String::new();
 
-    let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
+    let l: LocalConfig = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
+    #[cfg(windows)]
+    let canc: String = std::fs::canonicalize(".")
+        .unwrap()
+        .as_os_str()
+        .to_str()
+        .unwrap()
+        .replace('\\', "\\")
+        .trim()[4..]
+        .to_owned();
+    #[cfg(unix)]
+    let canc: String = std::fs::canonicalize(".")
+        .unwrap()
+        .as_os_str()
+        .to_str()
+        .unwrap()
+        .to_owned();
     println!(
-        "   {} {} v{} ({:?})",
-        "Compiling".bright_green(),
+        "   {} {} v{} ({})",
+        "Compiling".bright_blue().bold(),
         l.project["name"],
         l.project["version"],
-        std::fs::canonicalize(".")
-            .unwrap()
-            .as_os_str()
-            .to_str()
-            .unwrap()
-            .replace('\\', "/")
-            .trim()[4..]
-            .to_owned()
+        canc
     );
 
-    let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
+    let cppm: LocalConfig = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
     let compiler: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
 
     let includes: Vec<&str> = cppm.project["include"].split(',').collect();
@@ -96,57 +107,64 @@ pub fn build(release: bool, run_type: bool) {
     } else {
         libraries = vec![""];
     }
+    let mut flags: Vec<&str> = vec![
+        "-fdiagnostics-color=always",
+        "-Wall",
+        "-Wpedantic",
+        "-Werror",
+        "-Wshadow",
+        "-Wformat=2",
+        "-Wconversion",
+        "-Wunused-parameter",
+    ];
+    if let Some(flag_string) = cppm.project.get("flags").filter(|f| !f.is_empty()) {
+        flags = flag_string.split(" ").collect();
+    }
     let src = cppm.project["src"].clone();
     let mut standard = cppm.project["standard"].clone();
     standard = format!("-std=c++{standard}");
     fs::create_dir_all("build").ok();
 
     let out: Output;
+
     if release {
         out = Command::new(&compiler.compilers["cpp"])
-            .args([
-                standard,
-                "-o".to_string(),
-                format!("build/{}", cppm.project["name"].clone()),
-                src,
-                include(includes.clone()),
-                library(libraries.clone()),
-                "-Wall".to_string(),
-                "-Wpedantic".to_string(),
-                "-Werror".to_string(),
-                "-Wshadow".to_string(),
-                "-Wformat=2".to_string(),
-                "-Wconversion".to_string(),
-                "-Wunused-parameter".to_string(),
-                "-fsanitize=address".to_string(),
-                "-O3".to_string(),
-            ])
+            .arg(standard.clone())
+            .arg("-o")
+            .arg(format!("build/{}", cppm.project["name"]))
+            .arg(src.clone())
+            .arg(include(includes.clone()))
+            .arg(library(libraries.clone()))
+            .arg("-O3")
+            .args(flags)
             .output()
             .unwrap();
         target = "optimized".to_string();
         build_t = "release".to_string();
     } else {
         out = Command::new(&compiler.compilers["cpp"])
-            .args([
-                standard,
-                "-o".to_owned(),
-                format!("build/{}", cppm.project["name"].clone()),
-                src,
-                include(includes.clone()),
-                "-Wall".to_string(),
-                "-Wpedantic".to_string(),
-                "-Werror".to_string(),
-                "-Wshadow".to_string(),
-                "-Wformat=2".to_string(),
-                "-Wconversion".to_string(),
-                "-Wunused-parameter".to_string(),
-                "-fsanitize=address".to_string(),
-            ])
+            .arg(standard.clone())
+            .arg("-o")
+            .arg(format!("build/{}", cppm.project["name"]))
+            .arg(src.clone())
+            .arg(include(includes.clone()))
+            .arg(library(libraries.clone()))
+            .args(flags)
+            .stderr(Stdio::piped())
+            .stdout(Stdio::piped())
             .output()
             .unwrap();
         target = "unoptimized".to_owned();
         build_t = "dev".to_string();
     }
+    // println!(
+    //     "{} {standard} -o build/{} {src} {} {} {flags:?}",
+    //     &compiler.compilers["cpp"],
+    //     cppm.project["name"].clone(),
+    //     include(includes.clone()),
+    //     library(libraries.clone())
+    // );
+
     if !out.status.success() {
         io::stdout().write_all(&out.stdout).unwrap();
         io::stderr().write_all(&out.stderr).unwrap();
@@ -156,13 +174,13 @@ pub fn build(release: bool, run_type: bool) {
     if !run_type {
         println!(
             "    {} {build_t} [{target}] target(s) in {:?}",
-            "Finished".bright_green(),
+            "Finished".bright_blue().bold(),
             start.elapsed()
         );
     }
 }
 
-pub fn run(release: bool, run_type: bool) {
+pub fn run(release: bool, run_type: bool, extra_args: Vec<String>) {
     if !Path::new("Cppm.toml").exists() {
         println!("Cppm project isnt in current directory!");
         exit(0);
@@ -175,7 +193,7 @@ pub fn run(release: bool, run_type: bool) {
         );
         exit(0);
     }
-    let cppm: Build = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
+    let cppm: LocalConfig = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
     build(release, run_type);
     let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
 
@@ -183,22 +201,30 @@ pub fn run(release: bool, run_type: bool) {
     let name = format!("build/{}.exe", l.project["name"]);
     #[cfg(unix)]
     let name = format!("build/{}", l.project["name"]);
-
+    #[cfg(windows)]
+    let canc: String = std::fs::canonicalize(name)
+        .unwrap()
+        .as_os_str()
+        .to_str()
+        .unwrap()
+        .trim()[4..]
+        .to_owned();
+    #[cfg(unix)]
+    let canc: String = std::fs::canonicalize(name)
+        .unwrap()
+        .as_os_str()
+        .to_str()
+        .unwrap()
+        .to_owned();
     println!(
-        "     {} `{}`",
-        "Running".bright_green(),
-        std::fs::canonicalize(&name)
-            .unwrap()
-            .as_os_str()
-            .to_str()
-            .unwrap()
-            .replace('\\', "/")
-            .trim()[4..]
-            .to_owned()
+        "     {} `{} {}`",
+        "Running".bright_blue().bold(),
+        canc,
+        extra_args.join(" ")
     );
 
     let run = format!("build/{}", cppm.project["name"]);
-    let out = Command::new(run).output().unwrap();
+    let out = Command::new(run).args(extra_args).output().unwrap();
     io::stdout().write_all(&out.stdout).unwrap();
     io::stderr().write_all(&out.stderr).unwrap();
 }
