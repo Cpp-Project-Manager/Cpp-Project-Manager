@@ -127,7 +127,6 @@ int main(){
         for i in items {
             println!("{}: {}", i.name, i.location);
         }
-        //println!("{:?}", items[0].name);
     }
 }
 
@@ -298,7 +297,7 @@ impl Cppm {
                     Command::new(editor.clone())
                         .arg(project_location)
                         .spawn()
-                        .expect("Failed to open editor.") 
+                        .expect("Failed to open editor.")
                 } else {
                     println!(
                         "{}",
@@ -346,16 +345,16 @@ impl Cppm {
 
     pub fn status() {
         let current_version = env!("CARGO_PKG_VERSION");
-        
+
         let result = minreq::get(
             "https://api.github.com/repos/maou-shimazu/cpp-project-manager/releases/latest",
         )
-        	.with_header("User-Agent", "cppm")
-        	.send()
-        	.unwrap();
+        .with_header("User-Agent", "cppm")
+        .send()
+        .unwrap();
 
         let result_str = result.as_str().unwrap();
-        
+
         let json_value: Value = serde_json::from_str(result_str).unwrap();
         let latest = &json_value["tag_name"];
 
@@ -454,7 +453,7 @@ impl Cppm {
             Ok(())
         }
     }
-    // note: impliment libs
+    // note: implement libs
     pub fn cppm_toml(loc: &str) {
         let __loc__ = std::path::Path::new(loc)
             .file_name()
@@ -495,7 +494,7 @@ fn path(s: Cppm) -> (String, String) {
     (main, header)
 }
 
-// note: find a way to impliment removing from the config file
+// note: find a way to implement removing from the config file
 pub fn remove(project_name: String) {
     let toml_config: HashMap<String, Vec<Config>> =
         toml::from_str(&fs::read_to_string(misc::configfile()).unwrap()).unwrap();
@@ -556,7 +555,7 @@ pub fn defaults() {
         .read_line(&mut config.editor)
         .expect("Failed to read line");
     config.editor = config.editor.trim().to_string();
-    
+
     let c = builder::c();
     let cpp = builder::cpp();
 
