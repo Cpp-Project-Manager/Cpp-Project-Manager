@@ -52,6 +52,8 @@ enum Command {
     Open {
         name: String,
         editor: Option<String>,
+        #[clap(allow_hyphen_values = true)]
+        flags: Vec<String>,
     },
     /// Creates a new cppm project
     New {
@@ -117,7 +119,7 @@ fn main() {
     }
 
     match args.command {
-        Some(Command::Open { name, editor }) => {
+        Some(Command::Open { name, editor, flags}) => {
             if editor.is_some() {
                 Cppm::open(name, editor);
             } else {
