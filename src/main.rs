@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use colored::Colorize;
 use cppm::*;
 use human_panic::setup_panic;
-use std::env;
+use std::{env, vec};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -121,9 +121,9 @@ fn main() {
     match args.command {
         Some(Command::Open { name, editor, flags}) => {
             if editor.is_some() {
-                Cppm::open(name, editor);
+                Cppm::open(name, editor, flags);
             } else {
-                Cppm::open(name, None);
+                Cppm::open(name, None, vec![]);
             }
         }
         Some(Command::New { name, editor, c }) => {
