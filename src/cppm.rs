@@ -250,7 +250,7 @@ impl Cppm {
     }
 
     /// note: add aliases for known editors
-    pub fn open(_project_name: String, editor: Option<String>) {
+    pub fn open(_project_name: String, editor: Option<String>, flags: Vec<String>) {
         if !Path::new(&misc::configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
@@ -295,6 +295,7 @@ impl Cppm {
 
                 let mut editor = if cfg!(target_os = "windows") {
                     Command::new(editor.clone())
+                        .args(flags.clone())
                         .arg(project_location)
                         .spawn()
                         .expect("Failed to open editor.")
