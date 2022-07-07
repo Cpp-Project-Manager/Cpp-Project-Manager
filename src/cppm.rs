@@ -613,7 +613,7 @@ pub fn toml() {
     Command::new(misc::configfile())
         .spawn()
         .expect("Couldn't open config file");
-    // edit::edit(misc::configfile()).expect("COuldnt open config file"); // note: read source and implement editor opening, this dosent do what we think it does. [https://github.com/milkey-mouse/edit]
+        // check on linux, dosent work on wsl
 }
 
 pub fn git_init() {

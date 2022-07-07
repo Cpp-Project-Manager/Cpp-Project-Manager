@@ -1,5 +1,7 @@
 mod build;
+mod clangd;
 mod cppm;
+mod templates;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use cppm::*;
@@ -62,17 +64,22 @@ enum Command {
         /// Generate C files instead of C++ files
         #[clap(short)]
         c: bool,
+
+        /// Enable cppm generated clangd linting
+        #[clap(long)]
+        clangd: bool,
     },
     /// Initialize a new cppm project to an existing git repo
-    GitInit {
-        name: String,
-        repo: String
-    },
+    GitInit { name: String, repo: String },
     /// Initialize a cppm project in current directory
     Init {
         /// Generate C files instead of C++ files
         #[clap(short)]
         c: bool,
+
+        /// Enable cppm generated clangd linting
+        #[clap(long)]
+        clangd: bool,
     },
     /// Build your project to build directory.
     Build {
@@ -87,7 +94,7 @@ enum Command {
         release: bool,
 
         #[clap(allow_hyphen_values = true)]
-        extra_args: Vec<String>
+        extra_args: Vec<String>,
     },
     /// Constantly watch a file for changes and build/run when changes are detected
     Watch { filename: Option<String> },
@@ -114,19 +121,24 @@ fn main() {
     if args.toml {
         cppm::toml();
     }
+
     if let Some(remove) = args.remove {
         cppm::remove(remove);
     }
 
     match args.command {
-        Some(Command::Open { name, editor, flags}) => {
+        Some(Command::Open {
+            name,
+            editor,
+            flags,
+        }) => {
             if editor.is_some() {
                 Cppm::open(name, editor, flags);
             } else {
                 Cppm::open(name, None, vec![]);
             }
         }
-        Some(Command::New { name, editor, c }) => {
+        Some(Command::New { name, editor, c, clangd }) => {
             if c {
                 Cppm::spawn(
                     name.clone(),
@@ -143,16 +155,19 @@ fn main() {
                 println!("    {} C++ project `{}`", "Created".bright_green(), name);
             }
             if !args.git && cppm::git_exists() {
-                env::set_current_dir(name).unwrap();
+                env::set_current_dir(name.clone()).unwrap();
                 cppm::git_init();
+            }
+            if clangd {
+                clangd::create();
             }
         }
         Some(Command::GitInit { name, repo }) => {
-                Cppm::init_existing(name, repo);
-                println!("{}", "Project initialized successfully".bright_green());
+            Cppm::init_existing(name, repo);
+            println!("{}", "Project initialized successfully".bright_green());
         }
         // warning: check
-        Some(Command::Init { c }) => {
+        Some(Command::Init { c, clangd }) => {
             if c {
                 Cppm::initialize("c").ok();
             } else {
@@ -160,6 +175,9 @@ fn main() {
             }
             if !args.git && cppm::git_exists() {
                 cppm::git_init();
+            }
+            if clangd {
+                clangd::create();
             }
         }
         Some(Command::Build { release }) => {
@@ -172,7 +190,10 @@ fn main() {
             Cppm::watch((filename).unwrap_or("src/main.cpp".to_string()));
         }
         // note: pass extra args through run
-        Some(Command::Run { release, extra_args }) => {
+        Some(Command::Run {
+            release,
+            extra_args,
+        }) => {
             build::run(release, args.quiet, extra_args);
         }
         None => (),
