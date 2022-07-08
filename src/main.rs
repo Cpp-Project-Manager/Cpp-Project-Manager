@@ -98,6 +98,14 @@ enum Command {
     },
     /// Constantly watch a file for changes and build/run when changes are detected
     Watch { filename: Option<String> },
+
+    /// Format files in project
+    Format,
+    /// Lints and shows error checks for the project
+    Clint {
+        /// Default is src/main.cpp
+        source: Option<String>,
+    },
 }
 
 fn main() {
@@ -138,7 +146,12 @@ fn main() {
                 Cppm::open(name, None, vec![]);
             }
         }
-        Some(Command::New { name, editor, c, clangd }) => {
+        Some(Command::New {
+            name,
+            editor,
+            c,
+            clangd,
+        }) => {
             if c {
                 Cppm::spawn(
                     name.clone(),
@@ -195,6 +208,12 @@ fn main() {
             extra_args,
         }) => {
             build::run(release, args.quiet, extra_args);
+        }
+        Some(Command::Format) => {
+            clangd::format();
+        }
+        Some(Command::Clint { source }) => {
+            clangd::clint(source);
         }
         None => (),
     }

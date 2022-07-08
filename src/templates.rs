@@ -8,7 +8,7 @@ Diagnostics:
   UnusedIncludes: None #Possible values: None, Strict
   ClangTidy: # Checklist can be found here: https://clang.llvm.org/extra/clang-tidy/checks/list.html
     Add: modernize*
-    Remove: hicpp-braces-around-statements
+    Remove: [hicpp-braces-around-statements, modernize-use-trailing-return-type]
 
 Hover:
    ShowAKA: Yes
@@ -67,4 +67,17 @@ BraceWrapping: {
   SplitEmptyRecord : 'false'
   SplitEmptyNamespace : 'true'
 }
+"#;
+
+pub static CLANG_TIDY: &str = r#"
+Checks:              '-checks=-*,clang-analyzer-*,-clang-analyzer-cplusplus*'
+WarningsAsErrors:    true
+HeaderFilterRegex:   '.*'
+FormatStyle:         LLVM
+InheritParentConfig: true
+User:                user
+CheckOptions:
+  - { key: readability-identifier-naming.VariableCase,        value: lower_case }
+  - { key: readability-identifier-naming.GlobalConstantCase,  value: UPPER_CASE }
+  - { key: readability-identifier-naming.FunctionCase,        value: lower_case }
 "#;
