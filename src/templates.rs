@@ -81,3 +81,49 @@ CheckOptions:
   - { key: readability-identifier-naming.GlobalConstantCase,  value: UPPER_CASE }
   - { key: readability-identifier-naming.FunctionCase,        value: lower_case }
 "#;
+
+pub const CBOILER: &str = r#"
+#include <stdio.h>
+
+int main(void) {
+    printf("Hello World!\n");
+    return 0;
+}
+"#;
+
+pub fn header_boiler_c(header_name: &str) -> String {
+    format!(
+        r#"#ifndef {0}_H
+#define {0}_H
+
+#include <stdio.h>
+
+
+#endif"#,
+        header_name.to_uppercase().replace('-', "_")
+    )
+}
+
+pub const CPPBOILER: &str = r#"#include <iostream>
+
+int main(){
+
+    std::cout << "Hello World" << std::endl;
+    return 0;
+}
+"#;
+/// C++ header file boilerplate.
+pub fn header_boiler(header_name: &str) -> String {
+    format!(
+        r#"#pragma once
+
+#ifndef {0}_HPP
+#define {0}_HPP
+
+#include <iostream>
+
+
+#endif"#,
+        header_name.to_uppercase().replace('-', "_")
+    )
+}

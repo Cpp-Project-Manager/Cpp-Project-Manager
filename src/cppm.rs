@@ -30,103 +30,50 @@ pub struct LocalConfig {
     pub project: HashMap<String, String>,
 }
 pub fn write(project_name: &str, location: &str) {
-    file::ensure_exists(&misc::configfile()).ok();
+    file::ensure_exists(&configfile()).ok();
 
     let config: Config = Config {
         name: project_name.to_string(),
         location: location.replace('/', "\\"),
     };
     file::append_file(
-        &misc::configfile(),
+        &configfile(),
         format!("\n[[config]]\n{}", toml::to_string_pretty(&config).unwrap()).as_bytes(),
     )
     .expect("config not written to.");
 }
 
-pub mod misc {
-    use crate::cppm::Config;
-    use colored::Colorize;
-    use std::collections::HashMap;
-    use std::path::Path;
-
-    pub const CBOILER: &str = r#"
-#include <stdio.h>
-
-int main(void) {
-    printf("Hello, cppm!\n");
-    return 0;
+pub fn dir_name() -> String {
+    std::path::Path::new(&std::env::current_dir().unwrap())
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string()
 }
-"#;
 
-    pub fn header_boiler_c(header_name: &str) -> String {
-        format!(
-            r#"#ifndef {0}_H
-#define {0}_H
-
-#include <stdio.h>
-
-
-#endif"#,
-            header_name.to_uppercase().replace('-', "_")
-        )
-    }
-
-    pub const CPPBOILER: &str = r#"#include <iostream>
-
-int main(){
-
-    std::cout << "Hello World" << std::endl;
-    return 0;
+pub fn configfile() -> String {
+    let configdir = dirs::home_dir()
+        .unwrap()
+        .into_os_string()
+        .into_string()
+        .unwrap()
+        .replace('"', "")
+        .replace('\\', "/");
+    format!("{}/.cppm/config.toml", configdir)
 }
-"#;
-    /// C++ header file boilerplate.
-    pub fn header_boiler(header_name: &str) -> String {
-        format!(
-            r#"#pragma once
 
-#ifndef {0}_HPP
-#define {0}_HPP
-
-#include <iostream>
-
-
-#endif"#,
-            header_name.to_uppercase().replace('-', "_")
-        )
+pub fn list_projects() {
+    if !Path::new(&configfile()).exists() {
+        println!("{}", "You have not created any projects yet!".red());
+        std::process::exit(0);
     }
-
-    pub fn configfile() -> String {
-        let configdir = dirs::home_dir()
-            .unwrap()
-            .into_os_string()
-            .into_string()
-            .unwrap()
-            .replace('"', "")
-            .replace('\\', "/");
-        format!("{}/.cppm/config.toml", configdir)
-    }
-
-    pub fn dir_name() -> String {
-        std::path::Path::new(&std::env::current_dir().unwrap())
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .to_string()
-    }
-
-    pub fn list_projects() {
-        if !Path::new(&configfile()).exists() {
-            println!("{}", "You have not created any projects yet!".red());
-            std::process::exit(0);
-        }
-        let config: HashMap<String, Vec<Config>> =
-            toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
-        let items: &[Config] = &config["config"];
-        print!("\nProjects configured with cppm: \n");
-        for i in items {
-            println!("{}: {}", i.name, i.location);
-        }
+    let config: HashMap<String, Vec<Config>> =
+        toml::from_str(&std::fs::read_to_string(configfile()).unwrap()).unwrap();
+    let items: &[Config] = &config["config"];
+    print!("\nProjects configured with cppm: \n");
+    for i in items {
+        println!("{}: {}", i.name, i.location);
     }
 }
 
@@ -183,7 +130,7 @@ impl Cppm {
 
             File::create(&main_path)
                 .expect("File creation failed.")
-                .write_all(misc::CBOILER.as_bytes())
+                .write_all(crate::templates::CBOILER.as_bytes())
                 .expect("Failed to write to main file.");
 
             Cppm::cppm_toml(
@@ -231,11 +178,11 @@ impl Cppm {
 
             File::create(&main_path)
                 .expect("File creation failed.")
-                .write_all(misc::CPPBOILER.as_bytes())
+                .write_all(crate::templates::CPPBOILER.as_bytes())
                 .expect("Failed to write to main file.");
             File::create(&header_path)
                 .expect("File creation failed.")
-                .write_all(misc::header_boiler(pn.as_str()).as_bytes())
+                .write_all(crate::templates::header_boiler(pn.as_str()).as_bytes())
                 .expect("failed to write to header file.");
 
             Cppm::cppm_toml(
@@ -251,7 +198,7 @@ impl Cppm {
 
     /// note: add aliases for known editors
     pub fn open(_project_name: String, editor: Option<String>, flags: Vec<String>) {
-        if !Path::new(&misc::configfile()).exists() {
+        if !Path::new(&configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
             process::exit(0);
         }
@@ -281,7 +228,7 @@ impl Cppm {
             process::exit(0);
         }
         let toml_config: HashMap<String, Vec<Config>> =
-            toml::from_str(&fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+            toml::from_str(&fs::read_to_string(configfile()).unwrap()).unwrap();
         let config: &[Config] = &toml_config["config"];
         let mut b = false;
         for i in config {
@@ -420,15 +367,15 @@ impl Cppm {
                 .expect("Folder creation failed or folder already exists.");
             File::create("src/main.c")
                 .expect("Folder creation failed or folder already exists.")
-                .write_all(misc::CBOILER.as_bytes())
+                .write_all(crate::templates::CBOILER.as_bytes())
                 .expect("Unable to write to file.");
             File::create("include/main.h")
                 .expect("Unable to create file or file already exists.")
-                .write_all(misc::header_boiler_c("main").as_bytes())
+                .write_all(crate::templates::header_boiler_c("main").as_bytes())
                 .expect("Unable to write to file.");
 
             write(
-                misc::dir_name().as_str(),
+                dir_name().as_str(),
                 std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
             Cppm::cppm_toml(std::env::current_dir()?.as_os_str().to_str().unwrap());
@@ -439,15 +386,15 @@ impl Cppm {
                 .expect("Folder creation failed or folder already exists.");
             File::create("include/main.hpp")
                 .expect("Unable to create file or file already exists.")
-                .write_all(misc::header_boiler("main").as_bytes())
+                .write_all(crate::templates::header_boiler("main").as_bytes())
                 .expect("Unable to write to file.");
             File::create("src/main.cpp")
                 .expect("Folder creation failed or folder already exists.")
-                .write_all(misc::CPPBOILER.as_bytes())
+                .write_all(crate::templates::CPPBOILER.as_bytes())
                 .expect("Unable to write to file.");
 
             write(
-                misc::dir_name().as_str(),
+                dir_name().as_str(),
                 std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
             Cppm::cppm_toml(std::env::current_dir()?.as_os_str().to_str().unwrap());
@@ -498,7 +445,7 @@ fn path(s: Cppm) -> (String, String) {
 // note: find a way to implement removing from the config file
 pub fn remove(project_name: String) {
     let toml_config: HashMap<String, Vec<Config>> =
-        toml::from_str(&fs::read_to_string(misc::configfile()).unwrap()).unwrap();
+        toml::from_str(&fs::read_to_string(configfile()).unwrap()).unwrap();
     let config: &[Config] = &toml_config["config"];
     let project = config.iter().find(|p| p.name == project_name);
     if project.is_none() {
@@ -603,17 +550,17 @@ pub fn defaults() {
 
 // warning: file dosent spawn properly
 pub fn toml() {
-    println!("location: {}", misc::configfile());
+    println!("location: {}", configfile());
     #[cfg(windows)]
     Command::new("powershell")
-        .arg(misc::configfile())
+        .arg(configfile())
         .spawn()
         .expect("Couldn't open config file");
     #[cfg(unix)]
-    Command::new(misc::configfile())
+    Command::new(configfile())
         .spawn()
         .expect("Couldn't open config file");
-        // check on linux, dosent work on wsl
+    // check on linux, dosent work on wsl
 }
 
 pub fn git_init() {
