@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-mod builder;
+pub mod builder;
 
 use std::{
     collections::HashMap,

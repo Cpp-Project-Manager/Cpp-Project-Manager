@@ -35,38 +35,35 @@ pub fn create() {
 /// Iterates through the project directory and returns a vector of all the c/cpp files in the project.
 /// note: add checks for hxx, cxx
 fn files() -> Vec<String> {
-    let mut files: Vec<String> = Vec::new();
-
-    for path in glob::glob("**/*.cpp")
-        .expect("Failed to read glob pattern")
-        .filter_map(Result::ok)
-    {
-        files.push(path.to_str().unwrap().to_string());
-    }
-    for path in glob::glob("**/*.hpp")
-        .expect("Failed to read glob pattern")
-        .filter_map(Result::ok)
-    {
-        files.push(path.to_str().unwrap().to_string());
-    }
-    for path in glob::glob("**/*.h")
-        .expect("Failed to read glob pattern")
-        .filter_map(Result::ok)
-    {
-        files.push(path.to_str().unwrap().to_string());
-    }
-    for path in glob::glob("**/*.c")
-        .expect("Failed to read glob pattern")
-        .filter_map(Result::ok)
-    {
-        files.push(path.to_str().unwrap().to_string());
-    }
+    let files: Vec<String> = glob::glob("**/*.cpp")
+        .expect("couldnt glob cpp")
+        .chain(glob::glob("**/*.hpp").expect("couldnt glob hpp"))
+        .chain(glob::glob("**/*.h").expect("couldnt glob h"))
+        .chain(glob::glob("**/*.c").expect("couldnt glob c"))
+        .chain(glob::glob("**/*.cxx").expect("couldnt glob cxx"))
+        .chain(glob::glob("**/*.hxx").expect("couldnt glob hxx"))
+        .map(|x| {
+            x.expect("couldnt unwrap pathbuf")
+                .as_os_str()
+                .to_str()
+                .unwrap()
+                .to_string()
+        })
+        .collect::<Vec<_>>();
     files
 }
 
 /// Calls clang format and format files in the project.
 pub fn format() {
-    Command::new("clang-format")
+    if crate::cppm::builder::subprocess("clang-format", "--version").is_err() {
+        println!(
+            "   {}",
+            "Could not run clang-format. Please ensure that it is installed and on your PATH."
+                .bright_red()
+        );
+        return;
+    }
+    let mut cmd = Command::new("clang-format")
         .arg("--Werror")
         .arg("-style=file")
         .arg("--files")
@@ -77,6 +74,8 @@ pub fn format() {
         .stderr(Stdio::null())
         .spawn()
         .expect("Could not run clang-format.");
+    cmd.wait().expect("Could not wait on clang-format.");
+
     println!(
         "    {}`{}`{}",
         "Formatted ".bright_blue(),
@@ -87,14 +86,22 @@ pub fn format() {
 
 /// Calls clang tidy and lints the file specified or main.cpp and its included headers.
 pub fn clint(src: Option<String>) {
-        let mut cmd = Command::new("clang-tidy")
-            .arg(src.unwrap_or_else(|| "src/main.cpp".to_string()))
-            .arg("--quiet")
-            .arg("--use-color")
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .spawn()
-            .expect("Could not run clang-tidy.");
+    if crate::cppm::builder::subprocess("clang-tidy", "--version").is_err() {
+        println!(
+            "   {}",
+            "Could not run clang-tidy. Please ensure that it is installed and on your PATH."
+                .bright_red()
+        );
+        return;
+    }
+    let mut cmd = Command::new("clang-tidy")
+        .arg(src.unwrap_or_else(|| "src/main.cpp".to_string()))
+        .arg("--quiet")
+        .arg("--use-color")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .expect("Could not run clang-tidy.");
 
-        cmd.wait().expect("Could not wait for clang-tidy.");
+    cmd.wait().expect("Could not wait for clang-tidy.");
 }
