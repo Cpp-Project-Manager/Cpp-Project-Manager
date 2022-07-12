@@ -20,6 +20,7 @@
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
+  <a href="#getting-started">Getting Started</a> •
   <a href="https://github.com/Cpp-Project-Manager/Cpp-Project-Manager/wiki/Usage">How To Use</a> •
   <a href="#download">Download</a> •
   <a href="#license">License</a>
@@ -36,6 +37,18 @@ There's three ways to get cppm:
 1. [Download](https://github.com/Cpp-Project-Manager/Cpp-Project-Manager/releases/latest) the build for windows.
 2. Install with Cargo `cargo install cppm`
 3. Get with our [custom installer](https://github.com/maou-shimazu/cppm-installer)
+
+### Getting Started
+The first thing needed when cppm has just been installed is to run `cppm --config`, and it'll ask for your default editor.
+You should see something like this:
+```
+$ cppm --config
+Default editor: nvim
+Clang is installed.
+Clang++ is installed.
+Location: /some/path/.cppm/defaults.toml
+```
+After that you are free to start using cppm.
 
 #### For usage instructions run `cppm --help` or refer to the [wiki](https://github.com/Cpp-Project-Manager/Cpp-Project-Manager/wiki).
 
