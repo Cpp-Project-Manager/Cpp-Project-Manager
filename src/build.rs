@@ -149,6 +149,14 @@ pub fn build(release: bool, run_type: bool) {
             .arg(library(libraries.clone()))
             .arg("-O3")
             .args(flags)
+            .arg("-D") // note: look into a better way to impliment the quotes, test on linux. note: plug these in a constant array.
+            .arg(format!("VERSION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["version"]))
+            .arg("-D")
+            .arg(format!("NAME=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["name"]))
+            .arg("-D")
+            .arg(format!("EDITION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["edition"]))
+            .stderr(Stdio::piped())
+            .stdout(Stdio::piped())
             .output()
             .unwrap();
         target = "optimized".to_string();

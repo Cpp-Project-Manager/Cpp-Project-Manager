@@ -29,6 +29,8 @@ struct Config {
 pub struct LocalConfig {
     pub project: HashMap<String, String>,
 }
+
+/// writes project location to config file
 pub fn write(project_name: &str, location: &str) {
     file::ensure_exists(&configfile()).ok();
 
@@ -43,6 +45,7 @@ pub fn write(project_name: &str, location: &str) {
     .expect("config not written to.");
 }
 
+/// gets the name of the current directory
 pub fn dir_name() -> String {
     std::path::Path::new(&std::env::current_dir().unwrap())
         .file_name()
@@ -52,6 +55,7 @@ pub fn dir_name() -> String {
         .to_string()
 }
 
+/// ~/.cppm/config.toml
 pub fn configfile() -> String {
     let configdir = dirs::home_dir()
         .unwrap()
@@ -63,6 +67,7 @@ pub fn configfile() -> String {
     format!("{}/.cppm/config.toml", configdir)
 }
 
+/// lists all the projects in configfile
 pub fn list_projects() {
     if !Path::new(&configfile()).exists() {
         println!("{}", "You have not created any projects yet!".red());
@@ -291,11 +296,12 @@ impl Cppm {
         }
     }
 
+    /// check version status of cppm gh release and package version
     pub fn status() {
         let current_version = env!("CARGO_PKG_VERSION");
 
         let result = minreq::get(
-            "https://api.github.com/repos/maou-shimazu/cpp-project-manager/releases/latest",
+            "https://api.github.com/repos/cpp-project-manager/cpp-project-manager/releases/latest",
         )
         .with_header("User-Agent", "cppm")
         .send()
@@ -307,7 +313,7 @@ impl Cppm {
         let latest = &json_value["tag_name"];
 
         println!(
-            "Current version: v{} - Latest version: cppm {}",
+            "Current version: cppm v{} - Latest version: cppm {}",
             current_version, latest
         )
     }
@@ -417,7 +423,7 @@ version = "1.0.0"
 edition = "2022"
 include = "include"
 src = "src/main.cpp"
-standard = "11"
+standard = "17"
 "#,
             __loc__
         );
