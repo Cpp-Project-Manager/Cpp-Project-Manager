@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-
+/// clangd file template 
 pub static CLANGD: &str = r#"
 CompileFlags:                   
   Add: [-xc++, -Wall, -std=c++11, -fdiagnostics-color=always, -Wpedantic, -Werror, -Wshadow, -Wformat=2, -Wconversion, -Wunused-parameter]
@@ -19,6 +19,7 @@ InlayHints:
   DeducedTypes: No
 "#;
 
+/// clang format file template
 pub static CLANG_FORMAT: &str = r#"
 BasedOnStyle: LLVM
 IndentWidth: 4
@@ -69,6 +70,7 @@ BraceWrapping: {
 }
 "#;
 
+/// clang tidy file template
 pub static CLANG_TIDY: &str = r#"
 Checks:              '-checks=-*,clang-analyzer-*,-clang-analyzer-cplusplus*'
 WarningsAsErrors:    true
@@ -91,6 +93,7 @@ int main(void) {
 }
 "#;
 
+/// c headefile boilerplate
 pub fn header_boiler_c(header_name: &str) -> String {
     format!(
         r#"#ifndef {0}_H
@@ -104,6 +107,7 @@ pub fn header_boiler_c(header_name: &str) -> String {
     )
 }
 
+/// c++ main file boilerplate
 pub const CPPBOILER: &str = r#"#include <iostream>
 
 int main(){
@@ -112,6 +116,7 @@ int main(){
     return 0;
 }
 "#;
+
 /// C++ header file boilerplate.
 pub fn header_boiler(header_name: &str) -> String {
     format!(

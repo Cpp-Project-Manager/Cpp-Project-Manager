@@ -8,8 +8,9 @@ use cppm::*;
 use human_panic::setup_panic;
 use std::{env, vec};
 
+/// Argument struct for clap. All flags go here.
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(about, version)]
 struct Args {
     /// Lists all projects configured with cppm
     #[clap(short, long)]
@@ -88,7 +89,7 @@ enum Command {
     },
     /// Clean current build
     Clean,
-    /// Run project's main file
+    /// Run your project
     Run {
         #[clap(long)]
         release: bool,
@@ -109,11 +110,11 @@ enum Command {
 }
 
 fn main() {
-    setup_panic!();
+    setup_panic!(); // set up human panic
     let args = Args::parse();
     #[cfg(windows)]
-    let _enabled = ansi_term::enable_ansi_support();
-
+    let _enabled = ansi_term::enable_ansi_support(); // enable ansi on windows, note: check if this is still valid
+                                                     // Bool Checks
     if args.list {
         cppm::list_projects()
     }
@@ -134,6 +135,7 @@ fn main() {
         cppm::remove(remove);
     }
 
+    // Command impls
     match args.command {
         Some(Command::Open {
             name,
@@ -179,7 +181,7 @@ fn main() {
             Cppm::init_existing(name, repo);
             println!("{}", "Project initialized successfully".bright_green());
         }
-        // warning: check
+        
         Some(Command::Init { c, clangd }) => {
             if c {
                 Cppm::initialize("c").ok();
