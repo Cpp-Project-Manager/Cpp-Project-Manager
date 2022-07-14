@@ -19,15 +19,11 @@ use crate::build::run;
 use serde_json::Value;
 use std::str;
 
+/// Struct used to serialize configfile.
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
     name: String,
     location: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct LocalConfig {
-    pub project: HashMap<String, String>,
 }
 
 /// writes project location to config file
@@ -82,18 +78,21 @@ pub fn list_projects() {
     }
 }
 
+/// Main struct
 pub struct Cppm {
     project_name: String,
     editor: String,
 }
 
 impl Cppm {
+    /// cppm init
     fn init() -> Cppm {
         Cppm {
             project_name: String::new(),
             editor: String::new(),
         }
     }
+    /// spawns a new project and writes its location to config file
     // note: possibly integrate git_init
     pub fn spawn(_project_name: String, editor: String, init_type: &str) {
         if Path::new(&_project_name).exists() {
@@ -201,7 +200,8 @@ impl Cppm {
         }
     }
 
-    /// note: add aliases for known editors
+    /// reads config file and opens a project based on the name provided
+    // note: add aliases for known editors
     pub fn open(_project_name: String, editor: Option<String>, flags: Vec<String>) {
         if !Path::new(&configfile()).exists() {
             println!("{}", "You have not created any projects yet!".red());
@@ -271,6 +271,7 @@ impl Cppm {
         }
     }
 
+    /// removes the build directory
     pub fn clean() {
         if !Path::new("build").exists() {
             println!("{}", "Project has not been built!".red());
@@ -280,6 +281,7 @@ impl Cppm {
         }
     }
 
+    /// watchhes a file and compiles if it is changed 
     pub fn watch(file: String) {
         let mut original_contents = fs::read_to_string(&file)
             .expect("That file either doesn't exist or cannot be accessed!");
@@ -318,6 +320,7 @@ impl Cppm {
         )
     }
 
+    /// initialize the cwd to the github repo provided
     pub fn init_existing(name: String, mut repo: String) {
         // TODO: Add nice error messages
         repo = format!("https://github.com/{name}/{repo}.git");
@@ -407,6 +410,7 @@ impl Cppm {
             Ok(())
         }
     }
+    /// Cppm.toml boilerplate
     // note: implement libs
     pub fn cppm_toml(loc: &str) {
         let __loc__ = std::path::Path::new(loc)
@@ -442,12 +446,14 @@ standard = "17"
     }
 }
 
+// returns a tuple of src and include files
 fn path(s: Cppm) -> (String, String) {
     let main: String = format!("{}/src/main.cpp", s.project_name);
     let header: String = format!("{0}/include/{0}.hpp", s.project_name);
     (main, header)
 }
 
+/// removes a project who's location is in configfile
 // note: find a way to implement removing from the config file
 pub fn remove(project_name: String) {
     let toml_config: HashMap<String, Vec<Config>> =
@@ -468,11 +474,13 @@ pub fn remove(project_name: String) {
     process::exit(0);
 }
 
+/// main file? what is this for? note: switch to closure
 fn c_path(s: Cppm) -> String {
     let main: String = format!("{}/src/main.cpp", s.project_name);
     main
 }
 
+/// Defaults file serializer
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
     editor: String,
@@ -487,6 +495,7 @@ impl Def {
     }
 }
 
+/// returns defaults file location
 pub fn defaults_file() -> String {
     let defaultsdir = dirs::home_dir()
         .unwrap()
@@ -498,6 +507,7 @@ pub fn defaults_file() -> String {
     format!("{}/.cppm/defaults.toml", defaultsdir)
 }
 
+/// constructs defaults file and its contents
 use std::io::{stdin, stdout};
 pub fn defaults() {
     let mut config: Def = Def::new();
@@ -554,6 +564,7 @@ pub fn defaults() {
     println!("Location: {}", defaults_file());
 }
 
+/// show the location of configfile
 // warning: file dosent spawn properly
 pub fn toml() {
     println!("location: {}", configfile());
@@ -569,6 +580,7 @@ pub fn toml() {
     // check on linux, dosent work on wsl
 }
 
+/// git initialization
 pub fn git_init() {
     Command::new("git")
         .arg("init")
@@ -576,6 +588,7 @@ pub fn git_init() {
         .spawn()
         .expect("Couldn't start git.");
 }
+/// check if git exists
 pub fn git_exists() -> bool {
     builder::subprocess("git", "--version").is_ok()
 }
