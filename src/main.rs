@@ -71,7 +71,12 @@ enum Command {
         clangd: bool,
     },
     /// Initialize a new cppm project to an existing git repo
-    GitInit { name: String, repo: String },
+    GitInit {
+        /// Github Username
+        name: String,
+        /// Repository to initialize to
+        repo: String 
+    },
     /// Initialize a cppm project in current directory
     Init {
         /// Generate C files instead of C++ files
@@ -181,7 +186,7 @@ fn main() {
             Cppm::init_existing(name, repo);
             println!("{}", "Project initialized successfully".bright_green());
         }
-        
+
         Some(Command::Init { c, clangd }) => {
             if c {
                 Cppm::initialize("c").ok();
