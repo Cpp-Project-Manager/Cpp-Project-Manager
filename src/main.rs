@@ -117,9 +117,8 @@ enum Command {
 fn main() {
     setup_panic!(); // set up human panic
     let args = Args::parse();
-    #[cfg(windows)]
-    let _enabled = ansi_term::enable_ansi_support(); // enable ansi on windows, note: check if this is still valid
-                                                     // Bool Checks
+    
+    // Bool Checks
     if args.list {
         cppm::list_projects()
     }

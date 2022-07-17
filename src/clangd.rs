@@ -1,9 +1,8 @@
 #![allow(unused_imports)]
 use colored::Colorize;
-use fsio::file;
 use serde::{Deserialize, Serialize};
 use std::process::{Command, Stdio};
-use std::{collections::HashMap, fs::read_to_string, path::Path};
+use std::{collections::HashMap, fs, fs::read_to_string, fs::File, path::Path};
 
 /// Creates .clangd, .clang-format and .clang-tidy files and appends content from templates.rs
 pub fn create() {
@@ -14,21 +13,20 @@ pub fn create() {
 
     // Checks if the files exist and if they dont, creates them.
     if !Path::new(CLANGD).exists() {
-        file::ensure_exists(CLANGD).expect("could not create .clangd");
+        File::create(CLANGD).expect("could not create .clangd");
     }
     if !Path::new(CLANG_FORMAT).exists() {
-        file::ensure_exists(CLANG_FORMAT).expect("could not create .clang-format");
+        File::create(CLANG_FORMAT).expect("could not create .clang-format");
     }
     if !Path::new(CLANG_TIDY).exists() {
-        file::ensure_exists(CLANG_TIDY).expect("could not create .clang-tidy");
+        File::create(CLANG_TIDY).expect("could not create .clang-tidy");
     }
 
     // Appends content to the files
-    file::write_file(CLANGD, crate::templates::CLANGD.as_bytes())
-        .expect("Could not write to .clangd.");
-    file::write_file(CLANG_FORMAT, crate::templates::CLANG_FORMAT.as_bytes())
+    fs::write(CLANGD, crate::templates::CLANGD.as_bytes()).expect("Could not write to .clangd.");
+    fs::write(CLANG_FORMAT, crate::templates::CLANG_FORMAT.as_bytes())
         .expect("Could not write to .clang-format.");
-    file::write_file(CLANG_TIDY, crate::templates::CLANG_TIDY.as_bytes())
+    fs::write(CLANG_TIDY, crate::templates::CLANG_TIDY.as_bytes())
         .expect("Could not write to .clang-tidy.");
 }
 
