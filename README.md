@@ -52,28 +52,6 @@ After that you are free to start using cppm.
 
 #### For usage instructions run `cppm --help` or refer to the [wiki](https://github.com/Cpp-Project-Manager/Cpp-Project-Manager/wiki).
 
-### Road Map
-- [x] Generating C/C++ files
-- [x] Commands for opening and removing projects
-- [x] Support for g++ and clang++
-- [x] Active build/run system 
-- * [ ] C build/run support
-- * [ ] C/C++ Smart Object file compilation
-- [ ] External lib support
-- [ ] Code formatting command
-- [ ] Linter Integration
-- [ ] Package management
-* - [ ] Caching
-* - [ ] Frontend
-* - - [ ] Versioning
-* - - [ ] Documentation
-* - - [ ] User Interface
-* - [ ] Backend
-* - - [ ] User system
-* - - [ ] Git integration
-* - * - [ ] Custom ignore
-* - [ ] Automated package compilation
-
 ## License
 [MIT](https://github.com/Cpp-Project-Manager/Cpp-Project-Manager/blob/main/LICENSE)
 
