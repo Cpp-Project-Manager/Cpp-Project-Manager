@@ -11,7 +11,7 @@ keywords = ["cli", "terminal", "tui"]
 license = "MIT"
 name = "cppm"
 readme = "README.md"
-repository = "https://github.com/Maou-Shimazu/Cpp-Project-Manager"
+repository = "https://github.com/Cpp-Project-Manager/Cpp-Project-Manager"
 version = "3.0.5"
 
 [dependencies]

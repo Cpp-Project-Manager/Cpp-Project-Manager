@@ -23,7 +23,7 @@ pub fn create() {
     }
 
     // Appends content to the files
-    fs::write(CLANGD, crate::templates::CLANGD.as_bytes()).expect("Could not write to .clangd.");
+    fs::write(CLANGD, crate::templates::clangd().as_bytes()).expect("Could not write to .clangd.");
     fs::write(CLANG_FORMAT, crate::templates::CLANG_FORMAT.as_bytes())
         .expect("Could not write to .clang-format.");
     fs::write(CLANG_TIDY, crate::templates::CLANG_TIDY.as_bytes())
@@ -31,7 +31,6 @@ pub fn create() {
 }
 
 /// Iterates through the project directory and returns a vector of all the c/cpp files in the project.
-/// note: add checks for hxx, cxx
 fn files() -> Vec<String> {
     let files: Vec<String> = glob::glob("**/*.cpp")
         .expect("couldnt glob cpp")
