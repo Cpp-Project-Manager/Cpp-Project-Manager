@@ -1,28 +1,26 @@
 [package]
-name = "cppm"
-version = "3.0.4"
-edition = "2021"
 authors = ["Maou Shimazu <maoushimazu@protonmail.com>", "BrandonDoesDev <brandon.powell.dev@gmail.com>", "Ruby Star <perhaps-you-know@what-is.ml>"]
 description = "A C++ Project Manager"
-readme = "README.md"
-repository = "https://github.com/Maou-Shimazu/Cpp-Project-Manager"
-license = "MIT"
-keywords = ["cli", "terminal", "tui"]
+edition = "2021"
 exclude = [
-    "test/*",
-    ".vscode/*",
-    ".idea/*",
+  "test/*",
+  ".vscode/*",
+  ".idea/*",
 ]
+keywords = ["cli", "terminal", "tui"]
+license = "MIT"
+name = "cppm"
+readme = "README.md"
+repository = "https://github.com/Cpp-Project-Manager/Cpp-Project-Manager"
+version = "3.0.5"
 
 [dependencies]
+clap = {version = "3.1.18", features = ["derive"]}
 colored = "2"
 dirs = "4.0.0"
-fsio = "0.3.0" #note: get rid of fsio using std functions
-serde = { version = "1.0.137", features = ["derive"] }
-toml = "0.5.9"
-ansi_term = "0.12.1"
-clap = { version = "3.1.18", features = ["derive"] }
 glob = "0.3.0"
-minreq = { version = "2.6.0", features = ["https"] }
-serde_json = "1"
 human-panic = "1.0.3"
+minreq = {version = "2.6.0", features = ["https"]}
+serde = {version = "1.0.137", features = ["derive"]}
+serde_json = "1"
+toml = "0.5.9"

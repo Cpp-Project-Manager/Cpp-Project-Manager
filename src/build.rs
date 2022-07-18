@@ -66,7 +66,7 @@ pub struct Def {
 pub fn build(release: bool, run_type: bool) {
     let start = Instant::now();
     if !Path::new("Cppm.toml").exists() {
-        println!("Cppm project isnt in current directory!");
+        println!("{}", "Cppm project isnt in current directory!".red());
         exit(0);
     }
     if !Path::new(&defaults_file()).exists() {
@@ -112,7 +112,7 @@ pub fn build(release: bool, run_type: bool) {
     std::env::set_var("PKGNAME", cppm.project["name"].clone());
     let compiler: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
 
-    let includes: Vec<&str> = cppm.project["include"].split(',').collect();
+    let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
     let mut libraries: Vec<&str> = Vec::new(); // note: someone please test that the libraries link properly.
     if cppm.project.contains_key("libs") {
         libraries = cppm.project["libs"].split(", ").collect();
@@ -148,13 +148,22 @@ pub fn build(release: bool, run_type: bool) {
             .arg(include(includes.clone()))
             .arg(library(libraries.clone()))
             .arg("-O3")
-            .args(flags)
+            .args(flags.clone())
             .arg("-D") // note: look into a better way to impliment the quotes, test on linux. note: plug these in a constant array.
-            .arg(format!("VERSION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["version"]))
+            .arg(format!(
+                "VERSION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"",
+                cppm.project["version"]
+            ))
             .arg("-D")
-            .arg(format!("NAME=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["name"]))
+            .arg(format!(
+                "NAME=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"",
+                cppm.project["name"]
+            ))
             .arg("-D")
-            .arg(format!("EDITION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["edition"]))
+            .arg(format!(
+                "EDITION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"",
+                cppm.project["edition"]
+            ))
             .stderr(Stdio::piped())
             .stdout(Stdio::piped())
             .output()
@@ -169,13 +178,22 @@ pub fn build(release: bool, run_type: bool) {
             .arg(src.clone())
             .arg(include(includes.clone()))
             .arg(library(libraries.clone()))
-            .args(flags)
+            .args(flags.clone())
             .arg("-D") // note: look into a better way to impliment the quotes, test on linux.
-            .arg(format!("VERSION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["version"]))
+            .arg(format!(
+                "VERSION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"",
+                cppm.project["version"]
+            ))
             .arg("-D")
-            .arg(format!("NAME=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["name"]))
+            .arg(format!(
+                "NAME=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"",
+                cppm.project["name"]
+            ))
             .arg("-D")
-            .arg(format!("EDITION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"", cppm.project["edition"]))
+            .arg(format!(
+                "EDITION=\"\"\"\"\"\"\"{}\"\"\"\"\"\"\"",
+                cppm.project["edition"]
+            ))
             .stderr(Stdio::piped())
             .stdout(Stdio::piped())
             .output()
@@ -197,6 +215,29 @@ pub fn build(release: bool, run_type: bool) {
             start.elapsed()
         );
     }
+    #[cfg(windows)]
+    let cc = fs::canonicalize(cppm.project["src"].clone())
+        .unwrap()
+        .as_os_str()
+        .to_str()
+        .unwrap()
+        .trim()[4..]
+        .to_string();
+    #[cfg(unix)]
+    let cc = fs::canonicalize(cppm.project["src"].clone())
+        .unwrap()
+        .as_os_str()
+        .to_str()
+        .unwrap()
+        .to_string();
+    crate::templates::compile_commands(
+        canc.clone(),
+        cc,
+        compiler.compilers["cpp"].clone(),
+        cppm.project["name"].clone(),
+        include(includes.clone()),
+        flags.clone().join(" "),
+    );
 }
 /// #### Run function.
 /// Handles building and piping extra arguments to the executable.

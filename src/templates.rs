@@ -1,8 +1,46 @@
 #![allow(dead_code)]
-/// clangd file template 
-pub static CLANGD: &str = r#"
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+struct CCJson {
+    directory: String,
+    file: String,
+    command: String,
+}
+
+pub fn compile_commands(
+    dir: String,
+    src: String,
+    compiler: String,
+    name: String,
+    include: String,
+    flags: String,
+) {
+    let json: CCJson = CCJson {
+        directory: dir,
+        file: src.clone(),
+        command: format!("{compiler} {src} -o build/{name} {include} {flags}"),
+    };
+    if !std::path::Path::new("build/compile_commands.json").exists() {
+        std::fs::File::create("build/compile_commands.json")
+            .expect("could not create compile_commands.json");
+    }
+
+    std::fs::write(
+        "build/compile_commands.json",
+        serde_json::to_string_pretty(&json).unwrap().as_bytes(),
+    )
+    .expect("could not write to compile_commands.json");
+}
+/// clangd file template
+pub fn clangd() -> String {
+    let cppm: crate::build::LocalConfig =
+        toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
+    let cd: String = format!(
+"
 CompileFlags:                   
-  Add: [-xc++, -Wall, -std=c++11, -fdiagnostics-color=always, -Wpedantic, -Werror, -Wshadow, -Wformat=2, -Wconversion, -Wunused-parameter]
+  Add: [-xc++, -Wall, -D, NAME=\"{}\", -D, VERSION=\"{}\", -D, EDITION=\"{}\",  -std=c++17, -fdiagnostics-color=always, -Wpedantic, -Werror, -Wshadow, -Wformat=2, -Wconversion, -Wunused-parameter]
 
 Diagnostics:
   UnusedIncludes: None #Possible values: None, Strict
@@ -17,7 +55,10 @@ InlayHints:
   Enabled: No
   ParameterNames: No
   DeducedTypes: No
-"#;
+", cppm.project["name"], cppm.project["version"], cppm.project["edition"]
+);
+    cd
+}
 
 /// clang format file template
 pub static CLANG_FORMAT: &str = r#"

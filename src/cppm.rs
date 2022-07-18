@@ -10,7 +10,6 @@ use std::{
 };
 
 use colored::Colorize;
-use fsio::file;
 use serde::{Deserialize, Serialize};
 
 use crate::build::run;
@@ -28,17 +27,19 @@ struct Config {
 
 /// writes project location to config file
 pub fn write(project_name: &str, location: &str) {
-    file::ensure_exists(&configfile()).ok();
+    File::create(&configfile()).expect("couldnt create config file");
 
     let config: Config = Config {
         name: project_name.to_string(),
         location: location.replace('/', "\\"),
     };
-    file::append_file(
-        &configfile(),
-        format!("\n[[config]]\n{}", toml::to_string_pretty(&config).unwrap()).as_bytes(),
-    )
-    .expect("config not written to.");
+    fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(&configfile())
+        .unwrap()
+        .write_all(format!("\n[[config]]\n{}", toml::to_string_pretty(&config).unwrap()).as_bytes())
+        .expect("couldnt write to config file");
 }
 
 /// gets the name of the current directory
@@ -281,7 +282,7 @@ impl Cppm {
         }
     }
 
-    /// watchhes a file and compiles if it is changed 
+    /// watchhes a file and compiles if it is changed
     pub fn watch(file: String) {
         let mut original_contents = fs::read_to_string(&file)
             .expect("That file either doesn't exist or cannot be accessed!");
@@ -439,9 +440,8 @@ standard = "17"
 /build
 "#;
 
-        file::write_file(&format!("{}/Cppm.toml", loc), cc.as_bytes())
-            .expect("Unable to write to file.");
-        file::write_file(&format!("{}/.gitignore", loc), git.as_bytes())
+        fs::write(&format!("{}/Cppm.toml", loc), cc.as_bytes()).expect("Unable to write to file.");
+        fs::write(&format!("{}/.gitignore", loc), git.as_bytes())
             .expect("Unable to write to file.");
     }
 }
@@ -511,7 +511,7 @@ pub fn defaults_file() -> String {
 use std::io::{stdin, stdout};
 pub fn defaults() {
     let mut config: Def = Def::new();
-    file::ensure_exists(&defaults_file()).ok();
+    fs::File::create(&defaults_file()).expect("Could not create defaults file.");
 
     print!("Default editor [ENTER `null` FOR NO DEFAULT EDITOR]: ");
     stdout().flush().ok();
@@ -555,7 +555,7 @@ pub fn defaults() {
         Err(e) => println!("{}", e),
     }
 
-    file::write_file(
+    fs::write(
         &defaults_file(),
         toml::to_string(&config).unwrap().as_bytes(),
     )
