@@ -91,14 +91,18 @@ pub fn clint(src: Option<String>) {
         );
         return;
     }
+    let cppm: crate::build::LocalConfig =
+        toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
+    let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
     let mut cmd = Command::new("clang-tidy")
-        .arg(src.unwrap_or_else(|| "src/main.cpp".to_string()))
         .arg("--quiet")
         .arg("--use-color")
+        .arg(src.unwrap_or_else(|| "src/main.cpp".to_string()))
+        .arg("--")
+        .arg(format!("-I{}", includes.join("-I ")))
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .spawn()
         .expect("Could not run clang-tidy.");
-
     cmd.wait().expect("Could not wait for clang-tidy.");
 }
