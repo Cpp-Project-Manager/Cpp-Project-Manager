@@ -63,7 +63,7 @@ pub struct Def {
 /// - Reads available compilers.
 // note: add `flags_all = bool`, `flags = ""`
 // note: optimize for smart object building headerfiles in the future
-pub fn build(release: bool, run_type: bool) {
+pub fn build(release: bool, run_type: bool, i: bool) {
     let start = Instant::now();
     if !Path::new("Cppm.toml").exists() {
         println!("{}", "Cppm project isnt in current directory!".red());
@@ -215,6 +215,12 @@ pub fn build(release: bool, run_type: bool) {
             start.elapsed()
         );
     }
+    if i {
+        #[cfg(windows)]
+        install(format!("{}.exe", cppm.project["name"]));
+        #[cfg(unix)]
+        install(format!("{}", cppm.project["name"]));
+    }
     #[cfg(windows)]
     let cc = fs::canonicalize(cppm.project["src"].clone())
         .unwrap()
@@ -255,7 +261,7 @@ pub fn run(release: bool, run_type: bool, extra_args: Vec<String>) {
         exit(0);
     }
     let cppm: LocalConfig = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
-    build(release, run_type);
+    build(release, run_type, false);
     let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
 
     #[cfg(windows)]
@@ -300,4 +306,22 @@ fn defaults_file() -> String {
         .replace('"', "")
         .replace('\\', "/");
     format!("{}/.cppm/defaults.toml", defaultsdir)
+}
+
+pub fn install(exe: String) {
+    let exe_dir = dirs::home_dir()
+        .unwrap()
+        .into_os_string()
+        .into_string()
+        .unwrap()
+        .replace('"', "")
+        .replace('\\', "/");
+    if !Path::new(&format!("{}/.cppm/bin/{}", exe_dir, exe)).exists() {
+        fs::File::create(&format!("{}/.cppm/bin/{}", exe_dir, exe)).unwrap();
+    }
+    fs::copy(
+        format!("build/{}", exe.clone()),
+        format!("{}/.cppm/bin/{}", exe_dir, exe),
+    )
+    .expect("could not move file");
 }

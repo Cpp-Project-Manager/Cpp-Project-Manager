@@ -66,7 +66,7 @@ pub fn format() {
         .arg("--files")
         .args(files())
         .arg("-i")
-        .arg(".")
+        .args(files())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
@@ -76,7 +76,7 @@ pub fn format() {
     println!(
         "    {}`{}`{}",
         "Formatted ".bright_blue(),
-        files().len(),
+        files().len(),  
         " files."
     );
 }

@@ -89,8 +89,13 @@ enum Command {
     },
     /// Build your project to build directory.
     Build {
+        // Build your project in release mode
         #[clap(long)]
         release: bool,
+
+        // Install your project to the system
+        #[clap(long)]
+        install: bool,
     },
     /// Clean current build
     Clean,
@@ -199,8 +204,8 @@ fn main() {
                 clangd::create();
             }
         }
-        Some(Command::Build { release }) => {
-            build::build(release, args.quiet);
+        Some(Command::Build { release, install }) => {
+            build::build(release, args.quiet, install)
         }
         Some(Command::Clean) => {
             Cppm::clean();
