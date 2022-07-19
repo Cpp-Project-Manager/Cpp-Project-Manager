@@ -37,10 +37,11 @@ pub fn compile_commands(
 pub fn clangd() -> String {
     let cppm: crate::build::LocalConfig =
         toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
+    let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
     let cd: String = format!(
 "
 CompileFlags:                   
-  Add: [-xc++, -Wall, -D, NAME=\"{}\", -D, VERSION=\"{}\", -D, EDITION=\"{}\",  -std=c++17, -fdiagnostics-color=always, -Wpedantic, -Werror, -Wshadow, -Wformat=2, -Wconversion, -Wunused-parameter]
+  Add: [-xc++, -Wall, -D, NAME=\"{}\", -D, VERSION=\"{}\", -D, EDITION=\"{}\",  -std=c++17, -fdiagnostics-color=always, -Wpedantic, -Werror, -Wshadow, -Wformat=2, -Wconversion, -Wunused-parameter, -I../{}]
 
 Diagnostics:
   UnusedIncludes: None #Possible values: None, Strict
@@ -55,8 +56,8 @@ InlayHints:
   Enabled: No
   ParameterNames: No
   DeducedTypes: No
-", cppm.project["name"], cppm.project["version"], cppm.project["edition"]
-);
+", cppm.project["name"], cppm.project["version"], cppm.project["edition"], includes.join("-I../ ")
+    );
     cd
 }
 
