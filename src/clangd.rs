@@ -76,13 +76,13 @@ pub fn format() {
     println!(
         "    {}`{}`{}",
         "Formatted ".bright_blue(),
-        files().len(),  
+        files().len(),
         " files."
     );
 }
 
 /// Calls clang tidy and lints the file specified or main.cpp and its included headers.
-pub fn clint(src: Option<String>) {
+pub fn clint(src: Option<String>, c: bool) {
     if crate::cppm::builder::subprocess("clang-tidy", "--version").is_err() {
         println!(
             "   {}",
@@ -94,10 +94,17 @@ pub fn clint(src: Option<String>) {
     let cppm: crate::build::LocalConfig =
         toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
     let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
+    let source: String;
+    if c {
+        source = src.unwrap_or("src/main.c".to_string());
+    } else {
+        source = src.unwrap_or("src/main.cpp".to_string());
+    }
+
     let mut cmd = Command::new("clang-tidy")
         .arg("--quiet")
         .arg("--use-color")
-        .arg(src.unwrap_or_else(|| "src/main.cpp".to_string()))
+        .arg(source)
         .arg("--")
         .arg(format!("-I{}", includes.join("-I ")))
         .stdout(Stdio::inherit())
