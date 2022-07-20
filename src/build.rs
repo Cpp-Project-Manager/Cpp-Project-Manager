@@ -25,23 +25,26 @@ pub struct LocalConfig {
 
 /// Generates an include command based on all the folders passed into the argument.\
 /// Used in [build](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/src/build.rs#L56)
-fn include(folders: Vec<&str>) -> String {
-    let mut return_string: Vec<&str> = Vec::new();
-    for i in folders {
-        return_string.push(i);
-    }
-    format!("-I{}", return_string.join(" -I"))
-}
+// fn include(folders: Vec<&str>) -> Vec<&str> {
+//     let mut return_string: Vec<&str> = Vec::new();
+//     for i in folders {
+//         return_string.push(i);
+//     }
+//     let join = format!("-I{}", return_string.join(" -I"));
+//     let join = join.split(" ").collect();
+//     return join;
+// }
 
 /// Links libraries specified.\
 /// Used in [build](https://github.com/Maou-Shimazu/Cpp-Project-Manager/blob/main/src/build.rs#L56)
-fn library(libs: Vec<&str>) -> String {
-    let mut return_string: Vec<&str> = Vec::new();
-    for i in libs {
-        return_string.push(i);
-    }
-    format!("-L{}", return_string.join(" -L"))
-}
+// fn library(libs: Vec<&str>) -> Vec<&str> {
+//     let mut return_string: Vec<&str> = Vec::new();
+//     for i in libs {
+//         return_string.push(i);
+//     }
+//     let join = format!("-L{}", return_string.join(" -L"));
+//     join.split(" ").collect()
+// }
 
 /// ### Struct used to serialze defaults file
 /// Usage:
@@ -113,12 +116,18 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     let compilers: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
 
     let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
+    let includes: String = format!("-I{}", includes.join(" -I"));
+    let includes: Vec<&str> = includes.split(" ").collect();
+
     let mut libraries: Vec<&str> = Vec::new(); // note: someone please test that the libraries link properly.
     if cppm.project.contains_key("libs") {
         libraries = cppm.project["libs"].split(", ").collect();
     } else {
         libraries = vec![""];
     }
+    let l = format!("-L{}", libraries.join(" -L"));
+    libraries = l.split(" ").collect();
+
     let mut flags: Vec<&str> = vec![
         "-fdiagnostics-color=always",
         "-Wall",
@@ -157,8 +166,8 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
             .arg(src.clone())
-            .arg(include(includes.clone()))
-            .arg(library(libraries.clone()))
+            .args(includes.clone())
+            .args(libraries.clone())
             .arg("-O3")
             .args(flags.clone())
             .arg("-D") // note: look into a better way to impliment the quotes, test on linux. note: plug these in a constant array.
@@ -188,8 +197,8 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
             .arg(src.clone())
-            .arg(include(includes.clone()))
-            .arg(library(libraries.clone()))
+            .args(includes.clone())
+            .args(libraries.clone())
             .args(flags.clone())
             .arg("-D") // note: look into a better way to impliment the quotes, test on linux.
             .arg(format!(
@@ -248,18 +257,19 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
         .to_str()
         .unwrap()
         .to_string();
+
     crate::templates::compile_commands(
         canc.clone(),
         cc,
         compiler.clone().to_string(),
         cppm.project["name"].clone(),
-        include(includes.clone()),
+        includes.clone(),
         flags.clone().join(" "),
     );
 }
 /// #### Run function.
 /// Handles building and piping extra arguments to the executable.
-pub fn run(release: bool, run_type: bool, c: bool, extra_args: Vec<String>) { 
+pub fn run(release: bool, run_type: bool, c: bool, extra_args: Vec<String>) {
     if !Path::new("Cppm.toml").exists() {
         println!("Cppm project isnt in current directory!");
         exit(0);
@@ -273,7 +283,7 @@ pub fn run(release: bool, run_type: bool, c: bool, extra_args: Vec<String>) {
         exit(0);
     }
     let cppm: LocalConfig = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
-    
+
     build(release, run_type, false, c);
 
     #[cfg(windows)]
