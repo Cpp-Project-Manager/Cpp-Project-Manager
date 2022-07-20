@@ -125,7 +125,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     } else {
         libraries = vec![""];
     }
-    let l = format!("-L{}", libraries.join(" -L"));
+    let l = format!("-l{}", libraries.join(" -l"));
     libraries = l.split(" ").collect();
 
     let mut flags: Vec<&str> = vec![
