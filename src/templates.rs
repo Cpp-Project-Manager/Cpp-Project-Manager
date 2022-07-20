@@ -14,13 +14,14 @@ pub fn compile_commands(
     src: String,
     compiler: String,
     name: String,
-    include: String,
+    include: Vec<&str>,
     flags: String,
 ) {
+    let incl = include.join(" ");
     let json: CCJson = CCJson {
         directory: dir,
         file: src.clone(),
-        command: format!("{compiler} {src} -o build/{name} {include} {flags}"),
+        command: format!("{compiler} {src} -o build/{name} {incl} {flags}"),
     };
     if !std::path::Path::new("build/compile_commands.json").exists() {
         std::fs::File::create("build/compile_commands.json")
