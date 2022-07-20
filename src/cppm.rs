@@ -108,6 +108,8 @@ impl Cppm {
             s.editor = editor;
             fs::create_dir_all(s.project_name.clone()).expect("Folder creation failed.");
             fs::create_dir_all(format!("{}/src", s.project_name)).expect("Folder creation failed.");
+            fs::create_dir_all(format!("{}/include", s.project_name))
+                .expect("Folder creation failed.");
 
             if !s.editor.contains("null") {
                 let mut child = if cfg!(target_os = "windows") {
@@ -130,17 +132,29 @@ impl Cppm {
                 };
                 child.wait().expect("Failed to wait on process.");
             }
-            let main = c_path(s);
+            // switch to closure
+            let files = |s: Cppm| -> (String, String) {
+                let main: String = format!("{}/src/main.c", s.project_name);
+                let header: String = format!("{0}/include/{0}.h", s.project_name);
+                (main, header)
+            };
+            let (main, header) = files(s);
             let main_path = Path::new(main.as_str());
+            let header_path = Path::new(header.as_str());
 
             File::create(&main_path)
                 .expect("File creation failed.")
                 .write_all(crate::templates::CBOILER.as_bytes())
                 .expect("Failed to write to main file.");
+            File::create(&header_path)
+                .expect("Unable to create file or file already exists.")
+                .write_all(crate::templates::header_boiler_c("main").as_bytes())
+                .expect("Unable to write to file.");
 
             Cppm::cppm_toml(
                 &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
                     .replace('\\', "/"),
+                init_type == "c",
             );
             write(
                 pn.as_str(),
@@ -193,6 +207,7 @@ impl Cppm {
             Cppm::cppm_toml(
                 &format!("{}/{}", std::env::current_dir().unwrap().display(), pn)
                     .replace('\\', "/"),
+                init_type == "c",
             );
             write(
                 pn.as_str(),
@@ -294,7 +309,7 @@ impl Cppm {
             if contents != original_contents && !contents.is_empty() {
                 // `contents != ""` is a fix for a bug with VSC - it does not impair normal usage
                 original_contents = contents;
-                run(false, true, vec![]);
+                run(false, true, false, vec![]);
             }
         }
     }
@@ -388,7 +403,10 @@ impl Cppm {
                 dir_name().as_str(),
                 std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
-            Cppm::cppm_toml(std::env::current_dir()?.as_os_str().to_str().unwrap());
+            Cppm::cppm_toml(
+                std::env::current_dir()?.as_os_str().to_str().unwrap(),
+                init_type == "c",
+            );
             Ok(())
         } else {
             fs::create_dir_all("src").expect("Folder creation failed or folder already exists.");
@@ -407,13 +425,16 @@ impl Cppm {
                 dir_name().as_str(),
                 std::env::current_dir()?.as_os_str().to_str().unwrap(),
             );
-            Cppm::cppm_toml(std::env::current_dir()?.as_os_str().to_str().unwrap());
+            Cppm::cppm_toml(
+                std::env::current_dir()?.as_os_str().to_str().unwrap(),
+                init_type == "c",
+            );
             Ok(())
         }
     }
     /// Cppm.toml boilerplate
     // note: implement libs
-    pub fn cppm_toml(loc: &str) {
+    pub fn cppm_toml(loc: &str, c: bool) {
         let __loc__ = std::path::Path::new(loc)
             .file_name()
             .unwrap()
@@ -421,19 +442,26 @@ impl Cppm {
             .unwrap()
             .to_string();
 
-        let cc = format!(
-            r#"[project]
-name = "{}"
-version = "1.0.0"
-edition = "2022"
-include = "include"
-src = "src/main.cpp"
-standard = "17"
-"#,
-            __loc__
-        );
+        let mut cc: crate::build::LocalConfig = crate::build::LocalConfig {
+            project: HashMap::from([
+                ("name".to_string(), __loc__),
+                ("version".to_string(), "1.0.0".to_string()),
+                ("edition".to_string(), "2022".to_string()),
+                ("include".to_string(), "include".to_string()),
+                ("src".to_string(), "src/main.cpp".to_string()),
+                ("standard".to_string(), "17".to_string()),
+            ]),
+        };
+        if c {
+            cc.project
+                .insert("src".to_string(), "src/main.c".to_string());
+        }
 
-        fs::write(&format!("{}/Cppm.toml", loc), cc.as_bytes()).expect("Unable to write to file.");
+        fs::write(
+            &format!("{}/Cppm.toml", loc),
+            toml::to_string(&cc).unwrap().as_bytes(),
+        )
+        .expect("Unable to write to file.");
     }
 }
 
@@ -463,12 +491,6 @@ pub fn remove(project_name: String) {
     );
     fs::remove_dir_all(project_location).expect("Failed to remove project.");
     process::exit(0);
-}
-
-/// main file? what is this for? note: switch to closure
-fn c_path(s: Cppm) -> String {
-    let main: String = format!("{}/src/main.cpp", s.project_name);
-    main
 }
 
 /// Defaults file serializer
@@ -585,8 +607,18 @@ pub fn git_init() {
 *.o
 /build
         "#;
-        fs::write(&format!("{}/.gitignore", std::env::current_dir().unwrap().as_os_str().to_str().unwrap()), git.as_bytes())
-            .expect("Unable to write to file.");
+    fs::write(
+        &format!(
+            "{}/.gitignore",
+            std::env::current_dir()
+                .unwrap()
+                .as_os_str()
+                .to_str()
+                .unwrap()
+        ),
+        git.as_bytes(),
+    )
+    .expect("Unable to write to file.");
 }
 /// check if git exists
 pub fn git_exists() -> bool {

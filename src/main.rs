@@ -75,7 +75,7 @@ enum Command {
         /// Github Username
         name: String,
         /// Repository to initialize to
-        repo: String 
+        repo: String,
     },
     /// Initialize a cppm project in current directory
     Init {
@@ -89,8 +89,17 @@ enum Command {
     },
     /// Build your project to build directory.
     Build {
+        // Build your project in release mode
         #[clap(long)]
         release: bool,
+
+        /// Build the project in c mode
+        #[clap(long)]
+        c: bool,
+
+        // Install your project to the system
+        #[clap(long)]
+        install: bool,
     },
     /// Clean current build
     Clean,
@@ -98,6 +107,10 @@ enum Command {
     Run {
         #[clap(long)]
         release: bool,
+
+        /// Build the project in c mode
+        #[clap(long)]
+        c: bool,
 
         #[clap(allow_hyphen_values = true)]
         extra_args: Vec<String>,
@@ -111,13 +124,17 @@ enum Command {
     Clint {
         /// Default is src/main.cpp
         source: Option<String>,
+
+        /// Lint C files
+        #[clap(long)]
+        c: bool,
     },
 }
 
 fn main() {
     setup_panic!(); // set up human panic
     let args = Args::parse();
-    
+
     // Bool Checks
     if args.list {
         cppm::list_projects()
@@ -188,7 +205,7 @@ fn main() {
 
         Some(Command::Init { c, clangd }) => {
             if c {
-                Cppm::initialize("c").ok();
+                Cppm::initialize("c").ok(); // warning: change this to a bool cuz this is dumb
             } else {
                 Cppm::initialize("cpp").ok();
             }
@@ -199,9 +216,11 @@ fn main() {
                 clangd::create();
             }
         }
-        Some(Command::Build { release }) => {
-            build::build(release, args.quiet);
-        }
+        Some(Command::Build {
+            release,
+            install,
+            c,
+        }) => build::build(release, args.quiet, install, c),
         Some(Command::Clean) => {
             Cppm::clean();
         }
@@ -212,14 +231,15 @@ fn main() {
         Some(Command::Run {
             release,
             extra_args,
+            c,
         }) => {
-            build::run(release, args.quiet, extra_args);
+            build::run(release, args.quiet, c, extra_args);
         }
         Some(Command::Format) => {
             clangd::format();
         }
-        Some(Command::Clint { source }) => {
-            clangd::clint(source);
+        Some(Command::Clint { source, c }) => {
+            clangd::clint(source, c);
         }
         None => (),
     }

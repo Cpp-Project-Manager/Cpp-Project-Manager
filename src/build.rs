@@ -63,7 +63,7 @@ pub struct Def {
 /// - Reads available compilers.
 // note: add `flags_all = bool`, `flags = ""`
 // note: optimize for smart object building headerfiles in the future
-pub fn build(release: bool, run_type: bool) {
+pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     let start = Instant::now();
     if !Path::new("Cppm.toml").exists() {
         println!("{}", "Cppm project isnt in current directory!".red());
@@ -110,7 +110,7 @@ pub fn build(release: bool, run_type: bool) {
     // Setting Env Vars. note: Only available when running with cppm.
     std::env::set_var("VERSION", cppm.project["version"].clone());
     std::env::set_var("PKGNAME", cppm.project["name"].clone());
-    let compiler: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
+    let compilers: Def = toml::from_str(&read_to_string(&cppm::defaults_file()).unwrap()).unwrap();
 
     let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
     let mut libraries: Vec<&str> = Vec::new(); // note: someone please test that the libraries link properly.
@@ -134,13 +134,25 @@ pub fn build(release: bool, run_type: bool) {
     }
     let src = cppm.project["src"].clone();
     let mut standard = cppm.project["standard"].clone();
-    standard = format!("-std=c++{standard}");
+    standard = if c {
+        format!("-std=c{standard}")
+    } else {
+        format!("-std=c++{standard}")
+    };
     fs::create_dir_all("build").ok();
 
     let out: Output;
 
+    let compiler: String = if c {
+        compilers.compilers["c"].clone()
+    } else {
+        compilers.compilers["cpp"].clone()
+    };
+
+    // println!("{}", compilers.compilers["c"].clone());
+
     if release {
-        out = Command::new(&compiler.compilers["cpp"])
+        out = Command::new(&compiler)
             .arg(standard.clone())
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
@@ -171,7 +183,7 @@ pub fn build(release: bool, run_type: bool) {
         target = "optimized".to_string();
         build_t = "release".to_string();
     } else {
-        out = Command::new(&compiler.compilers["cpp"])
+        out = Command::new(&compiler)
             .arg(standard.clone())
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
@@ -215,6 +227,12 @@ pub fn build(release: bool, run_type: bool) {
             start.elapsed()
         );
     }
+    if i {
+        #[cfg(windows)]
+        install(format!("{}.exe", cppm.project["name"]));
+        #[cfg(unix)]
+        install(format!("{}", cppm.project["name"]));
+    }
     #[cfg(windows)]
     let cc = fs::canonicalize(cppm.project["src"].clone())
         .unwrap()
@@ -233,7 +251,7 @@ pub fn build(release: bool, run_type: bool) {
     crate::templates::compile_commands(
         canc.clone(),
         cc,
-        compiler.compilers["cpp"].clone(),
+        compiler.clone().to_string(),
         cppm.project["name"].clone(),
         include(includes.clone()),
         flags.clone().join(" "),
@@ -241,7 +259,7 @@ pub fn build(release: bool, run_type: bool) {
 }
 /// #### Run function.
 /// Handles building and piping extra arguments to the executable.
-pub fn run(release: bool, run_type: bool, extra_args: Vec<String>) {
+pub fn run(release: bool, run_type: bool, c: bool, extra_args: Vec<String>) { 
     if !Path::new("Cppm.toml").exists() {
         println!("Cppm project isnt in current directory!");
         exit(0);
@@ -255,13 +273,13 @@ pub fn run(release: bool, run_type: bool, extra_args: Vec<String>) {
         exit(0);
     }
     let cppm: LocalConfig = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
-    build(release, run_type);
-    let l: LocalConfig = toml::from_str(&std::fs::read_to_string("Cppm.toml").unwrap()).unwrap();
+    
+    build(release, run_type, false, c);
 
     #[cfg(windows)]
-    let name = format!("build/{}.exe", l.project["name"]);
+    let name = format!("build/{}.exe", cppm.project["name"]);
     #[cfg(unix)]
-    let name = format!("build/{}", l.project["name"]);
+    let name = format!("build/{}", cppm.project["name"]);
     #[cfg(windows)]
     let canc: String = std::fs::canonicalize(name)
         .unwrap()
@@ -300,4 +318,22 @@ fn defaults_file() -> String {
         .replace('"', "")
         .replace('\\', "/");
     format!("{}/.cppm/defaults.toml", defaultsdir)
+}
+
+pub fn install(exe: String) {
+    let exe_dir = dirs::home_dir()
+        .unwrap()
+        .into_os_string()
+        .into_string()
+        .unwrap()
+        .replace('"', "")
+        .replace('\\', "/");
+    if !Path::new(&format!("{}/.cppm/bin/{}", exe_dir, exe)).exists() {
+        fs::File::create(&format!("{}/.cppm/bin/{}", exe_dir, exe)).unwrap();
+    }
+    fs::copy(
+        format!("build/{}", exe.clone()),
+        format!("{}/.cppm/bin/{}", exe_dir, exe),
+    )
+    .expect("could not move file");
 }
