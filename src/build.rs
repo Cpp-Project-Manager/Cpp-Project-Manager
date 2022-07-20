@@ -128,6 +128,13 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     let l = format!("-l{}", libraries.join(" -l"));
     libraries = l.split(" ").collect();
 
+    let mut extra: Vec<&str> = Vec::new();
+    if cppm.project.contains_key("extra") {
+        extra = cppm.project["extra"].split(", ").collect();
+    } else {
+        extra = vec![""];
+    }
+
     let mut flags: Vec<&str> = vec![
         "-fdiagnostics-color=always",
         "-Wall",
@@ -141,7 +148,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     if let Some(flag_string) = cppm.project.get("flags").filter(|f| !f.is_empty()) {
         flags = flag_string.split(", ").collect();
     }
-    let src: Vec<&str> = cppm.project["src"].split(", ").collect();
+    let src = cppm.project["src"].clone();
 
     let mut standard = cppm.project["standard"].clone();
     standard = if c {
@@ -166,7 +173,8 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             .arg(standard.clone())
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
-            .args(src.clone())
+            .arg(src.clone())
+            .args(extra.clone())
             .args(includes.clone())
             .args(libraries.clone())
             .arg("-O3")
@@ -197,7 +205,8 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             .arg(standard.clone())
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
-            .args(src.clone())
+            .arg(src.clone())
+            .args(extra.clone())
             .args(includes.clone())
             .args(libraries.clone())
             .args(flags.clone())
