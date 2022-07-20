@@ -141,7 +141,8 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     if let Some(flag_string) = cppm.project.get("flags").filter(|f| !f.is_empty()) {
         flags = flag_string.split(", ").collect();
     }
-    let src = cppm.project["src"].clone();
+    let src: Vec<&str> = cppm.project["src"].split(", ").collect();
+
     let mut standard = cppm.project["standard"].clone();
     standard = if c {
         format!("-std=c{standard}")
@@ -165,7 +166,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             .arg(standard.clone())
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
-            .arg(src.clone())
+            .args(src.clone())
             .args(includes.clone())
             .args(libraries.clone())
             .arg("-O3")
@@ -196,7 +197,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             .arg(standard.clone())
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
-            .arg(src.clone())
+            .args(src.clone())
             .args(includes.clone())
             .args(libraries.clone())
             .args(flags.clone())
