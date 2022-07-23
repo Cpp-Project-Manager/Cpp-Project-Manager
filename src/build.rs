@@ -10,8 +10,13 @@ use std::{
     path::Path,
     process::*,
     str,
-    time::Instant,
+    time::{Duration, Instant},
 };
+
+use console::{Style, Term};
+use indicatif::{ProgressBar, ProgressStyle};
+use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
 
 /// ### Struct used to serialze Cppm.toml
 /// Usage:
@@ -80,6 +85,17 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
         );
         exit(0);
     }
+    let pb = ProgressBar::new(10 as u64);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template(if Term::stdout().size().1 > 80 {
+                "{prefix:>12.cyan.bold} [{bar:57}] {pos}/{len} {wide_msg}"
+            } else {
+                "{prefix:>12.cyan.bold} [{bar:57}] {pos}/{len}"
+            })
+            .progress_chars("=> "),
+    );
+    pb.set_prefix("Building");
     let mut target = String::new();
     let mut build_t = String::new();
 
@@ -100,13 +116,33 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
         .to_str()
         .unwrap()
         .to_owned();
-    println!(
-        "   {} {} v{} ({})",
-        "Compiling".bright_blue().bold(),
+    // println!(
+    //     "   {} {} v{} ({})",
+    //     "Compiling".bright_blue().bold(),
+    //     l.project["name"],
+    //     l.project["version"],
+    //     canc
+    // );
+    
+    pb.set_message(l.project["name"].clone());
+    let line = format!(
+        "{:>12} {} {} {}",
+        "Compiling".bright_blue(),
         l.project["name"],
         l.project["version"],
         canc
     );
+    pb.println(line);
+
+    pb.inc(1);
+    pb.finish_and_clear();
+    // progress.set_title(&format!(
+    //     "   {} {} v{} ({})",
+    //     "Compiling".bright_blue().bold(),
+    //     l.project["name"],
+    //     l.project["version"],
+    //     canc
+    // ));
 
     let cppm: LocalConfig = toml::from_str(&read_to_string("Cppm.toml").unwrap()).unwrap();
 
@@ -125,7 +161,12 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     } else {
         libraries = vec![""];
     }
-    let l = format!("-l{}", libraries.join(" -l"));
+
+    let l: String = if libraries.is_empty() {
+        format!("-l{}", libraries.join(" -l"))
+    } else {
+        "".to_string()
+    };
     libraries = l.split(" ").collect();
 
     let mut extra: Vec<&str> = Vec::new();
@@ -134,7 +175,6 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     } else {
         extra = vec![""];
     }
-
     let mut flags: Vec<&str> = vec![
         "-fdiagnostics-color=always",
         "-Wall",
@@ -169,6 +209,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     // println!("{}", compilers.compilers["c"].clone());
 
     if release {
+        // use variables to make a better implimentation of this
         out = Command::new(&compiler)
             .arg(standard.clone())
             .arg("-o")
@@ -245,7 +286,13 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             "Finished".bright_blue().bold(),
             start.elapsed()
         );
+        // progress.println(&format!(
+        //     "    {} {build_t} [{target}] target(s) in {:?}",
+        //     "Finished".bright_blue().bold(),
+        //     start.elapsed()
+        // ));
     }
+
     if i {
         #[cfg(windows)]
         install(format!("{}.exe", cppm.project["name"]));
