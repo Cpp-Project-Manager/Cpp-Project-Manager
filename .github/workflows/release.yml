@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release-amd64:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - build: linux-amd64
+            os: ubuntu-latest
+            cross: false
+
+          - build: macos-amd64
+            os: macos-latest
+            cross: false
+
+          - build: windows-amd64
+            os: windows-latest
+            cross: false
+
+          - build: linux-aarch64
+            os: ubuntu-latest
+            cross: true
+            linker-package: gcc-aarch64-linux-gnu
+            linker: aarch64-linux-gnu-gcc
+            target: aarch64-unknown-linux-gnu
+
+          - build: macos-aarch64
+            os: macos-latest
+            cross: true
+            target: aarch64-apple-darwin
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Extract version from tag
+        id: version
+        uses: damienaicheh/extract-version-from-tag-action@v1.0.0
+
+      - name: Install cross compiler
+        if: matrix.os == 'ubuntu-latest' && matrix.cross
+        run: |
+          sudo apt update
+          sudo apt install ${{ matrix.linker-package }}
+          mkdir -p .cargo
+          echo [target.${{ matrix.target }}] > .cargo/config.toml
+          echo linker = '"'${{ matrix.linker }}'"' >> .cargo/config.toml
+
+      - name: Install cross-compiling toolchain
+        if: matrix.cross
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build
+        if: "!matrix.cross"
+        run: cargo build --release
+
+      - name: Build (linux cross)
+        if: matrix.os == 'ubuntu-latest' && matrix.cross
+        run: cargo build --release --target ${{ matrix.target }}
+        env:
+          CC: ${{ matrix.linker }}
+
+      - name: Build (mac cross)
+        if: matrix.os == 'macos-latest' && matrix.cross
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Archive executable
+        if: matrix.os != 'windows-latest' && !matrix.cross
+        working-directory: ./target/release
+        run: tar czvf ../../../cppm-${{ matrix.build }}.tar.gz cppm
+
+      - name: Archive executable (cross)
+        if: matrix.os != 'windows-latest' && matrix.cross
+        working-directory: ./target/${{ matrix.target }}/release
+        run: tar czvf ../../../cppm-${{ matrix.build }}.tar.gz cppm
+
+      - name: Archive executable (windows)
+        if: matrix.os == 'windows-latest'
+        working-directory: ./target/release
+        run: Compress-Archive -LiteralPath cppm.exe -DestinationPath ../../cppm-windows-amd64.zip
+        
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: cppm-*
+          draft: true
+          prerelease: ${{ env.PRE_RELEASE != '' }}
+        
