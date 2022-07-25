@@ -10,98 +10,85 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false
       matrix:
-        include:
-          - build: linux-amd64
-            os: ubuntu-latest
-            cross: false
-
-          - build: macos-amd64
-            os: macos-latest
-            cross: false
-
-          - build: windows-amd64
-            os: windows-latest
-            cross: false
-
-          - build: linux-aarch64
-            os: ubuntu-latest
-            cross: true
-            linker-package: gcc-aarch64-linux-gnu
-            linker: aarch64-linux-gnu-gcc
-            target: aarch64-unknown-linux-gnu
-
-          - build: macos-aarch64
-            os: macos-latest
-            cross: true
-            target: aarch64-apple-darwin
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
 
-      # - name: Extract version from tag
-      #   id: version
-      #   uses: damienaicheh/extract-version-from-tag-action@v1.0.0
-
-      - name: Install cross compiler
-        if: matrix.os == 'ubuntu-latest' && matrix.cross
-        run: |
-          sudo apt update
-          sudo apt install ${{ matrix.linker-package }}
-          mkdir -p .cargo
-          echo [target.${{ matrix.target }}] > .cargo/config.toml
-          echo linker = '"'${{ matrix.linker }}'"' >> .cargo/config.toml
-
-      - name: Install stable rust toolchain (not cross)
-        if: "!matrix.cross"
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           default: true
           override: true
-
-      - name: Install stable rust toolchain (cross)
-        if: matrix.cross
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          default: true
-          override: true
-          target: ${{ matrix.target }}
 
       - name: Build
-        if: "!matrix.cross"
-        run: cargo build --release
+        run: cargo build --release --bins
 
-      - name: Build (linux cross)
-        if: matrix.os == 'ubuntu-latest' && matrix.cross
-        run: cargo build --release --target ${{ matrix.target }}
-        env:
-          CC: ${{ matrix.linker }}
+      - name: Rename executable (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: mv target/release/cppm target/release/cppm-linux-amd64
 
-      - name: Build (mac cross)
-        if: matrix.os == 'macos-latest' && matrix.cross
-        run: cargo build --release --target ${{ matrix.target }}
+      - name: Rename executable (mac)
+        if: matrix.os == 'macos-latest'
+        run: mv target/release/cppm target/release/cppm-macos-amd64
 
-      - name: Archive executable
-        if: matrix.os != 'windows-latest' && !matrix.cross
-        working-directory: ./target/release
-        run: tar czvf ../../../cppm-${{ matrix.build }}.tar.gz cppm
-
-      - name: Archive executable (cross)
-        if: matrix.os != 'windows-latest' && matrix.cross
-        working-directory: ./target/${{ matrix.target }}/release
-        run: tar czvf ../../../cppm-${{ matrix.build }}.tar.gz cppm
-
-      - name: Archive executable (windows)
+      - name: Rename executable (windows)
         if: matrix.os == 'windows-latest'
-        working-directory: ./target/release
-        run: Compress-Archive -LiteralPath cppm.exe -DestinationPath ../../cppm-windows-amd64.zip
+        run: Rename-Item .\target\release\cppm.exe cppm-windows-amd64.exe
 
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          files: cppm-*
+          files: target/release/cppm*64?(.exe)
           draft: true
-          # prerelease: ${{ env.PRE_RELEASE != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-aarch64:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false # for testing only, remove when finished
+      matrix:
+        include:
+          - name: linux-aarch64
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+
+          - name: macos-aarch64
+            os: macos-latest
+            target: aarch64-apple-darwin
+
+          - name: windows-aarch64
+            os: windows-latest
+            target: aarch64-pc-windows-msvc
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          default: true
+          override: true
+
+      - name: Build
+        run: cargo build --release --bins --target ${{ matrix.target }}
+
+      - name: Rename executable (*nix)
+        if: matrix.os != 'windows-latest'
+        run: mv target/${{ matrix.target }}/release/cppm target/${{ matrix.target }}/release/cppm-${{ matrix.name }}
+
+      - name: Rename executable (windows)
+        if: matrix.os == 'windows-latest'
+        run: Rename-Item .\target\${{ matrix.target }}\release\cppm.exe cppm-${{ matrix.name }}.exe
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/${{ matrix.target }}/release/cppm*64?(.exe)
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
