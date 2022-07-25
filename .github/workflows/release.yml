@@ -74,7 +74,7 @@ jobs:
           sudo apt install ${{ matrix.linker-package }}
           mkdir -p .cargo
           echo [targret.${{ matrix.target }}] > .cargo/config
-          echo linker '"'${{ matrix.linker }}'"' >> /cargo/config
+          echo linker '"'${{ matrix.linker }}'"' >> cargo/config
 
       - uses: actions-rs/toolchain@v1
         with:
