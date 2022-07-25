@@ -35,6 +35,9 @@ jobs:
 
       - name: Rename executable (windows)
         run: Rename-Item .\target\release\cppm.exe cppm-windows-amd64.exe
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
         with:
           files: target/release/cppm*64?(.exe)
           draft: true
