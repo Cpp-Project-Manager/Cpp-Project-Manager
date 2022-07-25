@@ -33,12 +33,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: mv target/release/cppm target/release/cppm-macos-amd64
 
-      - name: Rename executable (windows)
-        if: matrix.os == 'windows-latest'
-        run: Rename-Item .\target\release\cppm.exe cppm-windows-amd64.exe
-
-      - name: Create release
-        uses: softprops/action-gh-release@v1
+      - name: Rename executable (windows)true
         with:
           files: target/release/cppm*64?(.exe)
           draft: true
@@ -54,18 +49,28 @@ jobs:
         include:
           - name: linux-aarch64
             os: ubuntu-latest
+            linker-package: gcc-aarch64-linux-gnu
+            linker: aarch64-linux-gnu-gcc
             target: aarch64-unknown-linux-gnu
 
           - name: macos-aarch64
             os: macos-latest
             target: aarch64-apple-darwin
 
-          - name: windows-aarch64
-            os: windows-latest
-            target: aarch64-pc-windows-msvc
+          # - name: windows-aarch64
+          #   os: windows-latest
+          #   target: aarch64-pc-windows-msvc
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install linker (linux)
+        run: |
+          sudo apt update
+          sudo apt install ${{ matrix.linker-package }}
+          mkdir -p .cargo
+          echo [targret.${{ matrix.target }}] > .cargo/config
+          echo linker '"'${{ matrix.linker }}'"' >> /cargo/config
 
       - uses: actions-rs/toolchain@v1
         with:
