@@ -52,9 +52,22 @@ jobs:
           echo [target.${{ matrix.target }}] > .cargo/config.toml
           echo linker = '"'${{ matrix.linker }}'"' >> .cargo/config.toml
 
-      - name: Install cross-compiling toolchain
+      - name: Install stable rust toolchain (not cross)
+        if: "!matrix.cross"
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+
+      - name: Install stable rust toolchain (cross)
         if: matrix.cross
-        run: rustup target add ${{ matrix.target }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+          target: ${{ matrix.target }}
 
       - name: Build
         if: "!matrix.cross"
