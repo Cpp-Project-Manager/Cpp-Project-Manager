@@ -33,7 +33,8 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: mv target/release/cppm target/release/cppm-macos-amd64
 
-      - name: Rename executable (windows)true
+      - name: Rename executable (windows)
+        run: Rename-Item .\target\release\cppm.exe cppm-windows-amd64.exe
         with:
           files: target/release/cppm*64?(.exe)
           draft: true
