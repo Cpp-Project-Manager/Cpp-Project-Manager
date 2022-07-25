@@ -39,9 +39,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Extract version from tag
-        id: version
-        uses: damienaicheh/extract-version-from-tag-action@v1.0.0
+      # - name: Extract version from tag
+      #   id: version
+      #   uses: damienaicheh/extract-version-from-tag-action@v1.0.0
 
       - name: Install cross compiler
         if: matrix.os == 'ubuntu-latest' && matrix.cross
@@ -84,11 +84,10 @@ jobs:
         if: matrix.os == 'windows-latest'
         working-directory: ./target/release
         run: Compress-Archive -LiteralPath cppm.exe -DestinationPath ../../cppm-windows-amd64.zip
-        
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
           files: cppm-*
           draft: true
-          prerelease: ${{ env.PRE_RELEASE != '' }}
-        
+          # prerelease: ${{ env.PRE_RELEASE != '' }}
