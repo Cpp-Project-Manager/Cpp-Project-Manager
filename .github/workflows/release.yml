@@ -49,34 +49,14 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false # for testing only, remove when finished
       matrix:
         include:
-          - name: linux-aarch64
-            os: ubuntu-latest
-            linker-package: gcc-aarch64-linux-gnu
-            linker: aarch64-linux-gnu-gcc
-            target: aarch64-unknown-linux-gnu
-
           - name: macos-aarch64
             os: macos-latest
             target: aarch64-apple-darwin
 
-          # - name: windows-aarch64
-          #   os: windows-latest
-          #   target: aarch64-pc-windows-msvc
-
     steps:
       - uses: actions/checkout@v3
-
-      - name: Install linker (linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt update
-          sudo apt install ${{ matrix.linker-package }}
-          mkdir -p .cargo
-          echo [targret.${{ matrix.target }}] > .cargo/config
-          echo linker = '"'${{ matrix.linker }}'"' >> .cargo/config
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -85,21 +65,11 @@ jobs:
           default: true
           override: true
 
-      - name: Build (linux)
-        run: cargo build --release --bins --target ${{ matrix.target }}
-        env:
-          CC: ${{ matrix.linker }}
-
-      - name: Build (other)
+      - name: Build
         run: cargo build --release --bins --target ${{ matrix.target }}
 
-      - name: Rename executable (*nix)
-        if: matrix.os != 'windows-latest'
+      - name: Rename executable
         run: mv target/${{ matrix.target }}/release/cppm target/${{ matrix.target }}/release/cppm-${{ matrix.name }}
-
-      # - name: Rename executable (windows)
-      #   if: matrix.os == 'windows-latest'
-      #   run: Rename-Item .\target\${{ matrix.target }}\release\cppm.exe cppm-${{ matrix.name }}.exe
 
       - name: Create release
         uses: softprops/action-gh-release@v1
