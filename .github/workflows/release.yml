@@ -16,6 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Extract version from tag
+        id: version
+        uses: damienaicheh/extract-version-from-tag-action@v1.0.0
+
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -42,6 +46,7 @@ jobs:
         with:
           files: target/release/cppm*64?(.exe)
           draft: true
+          prerelease: ${{ env.PRE_RELEASE != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -57,6 +62,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Extract version from tag
+        id: version
+        uses: damienaicheh/extract-version-from-tag-action@v1.0.0
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -76,5 +85,6 @@ jobs:
         with:
           files: target/${{ matrix.target }}/release/cppm*64?(.exe)
           draft: true
+          prerelease: ${{ env.PRE_RELEASE != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
