@@ -85,16 +85,21 @@ jobs:
           default: true
           override: true
 
-      - name: Build
+      - name: Build (linux)
+        run: cargo build --release --bins --target ${{ matrix.target }}
+        env:
+          CC: ${{ matrix.linker }}
+
+      - name: Build (other)
         run: cargo build --release --bins --target ${{ matrix.target }}
 
       - name: Rename executable (*nix)
         if: matrix.os != 'windows-latest'
         run: mv target/${{ matrix.target }}/release/cppm target/${{ matrix.target }}/release/cppm-${{ matrix.name }}
 
-      - name: Rename executable (windows)
-        if: matrix.os == 'windows-latest'
-        run: Rename-Item .\target\${{ matrix.target }}\release\cppm.exe cppm-${{ matrix.name }}.exe
+      # - name: Rename executable (windows)
+      #   if: matrix.os == 'windows-latest'
+      #   run: Rename-Item .\target\${{ matrix.target }}\release\cppm.exe cppm-${{ matrix.name }}.exe
 
       - name: Create release
         uses: softprops/action-gh-release@v1
