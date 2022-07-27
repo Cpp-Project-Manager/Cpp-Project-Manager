@@ -174,7 +174,7 @@ impl Cppm {
 
             if !s.editor.contains("null") {
                 let mut child = if cfg!(target_os = "windows") {
-                    Command::new("powershell")
+                    Command::new("powershell") // NOTE: this was implemented as spawning a shell in the event of trying to spawn terminal editors, if there is no solution in the future then spawn the editor and pass the project location as an arg.
                         .arg(&format!("{} {}", s.editor, pn))
                         .spawn()
                         .expect("Failed to open editor.")
@@ -342,56 +342,27 @@ impl Cppm {
     pub fn init_existing(name: String, mut repo: String) {
         // TODO: Add nice error messages
         repo = format!("https://github.com/{name}/{repo}.git");
-        let local = Repository::init(".").expect("Could not initialize repository.");
-        let mut index = local.index().unwrap();
-        index.add_all(["."].iter(), git2::IndexAddOption::DEFAULT, None).unwrap();
-        index.write().unwrap();
-        let tree_id = local.index().unwrap().write_tree().unwrap();
-        let sig = local.signature().unwrap();
-        let mut parents = Vec::new();
-
-        if let Some(parent) = local.head().ok().map(|h| h.target().unwrap()) {
-            parents.push(local.find_commit(parent).unwrap());
-        }
-
-        let parents = parents.iter().collect::<Vec<_>>();
-        // Command::new("git")
-        //     .arg("add")
-        //     .arg("-A")
-        //     .output()
-        //     .expect("An error occurred while trying to commit changes to Git - Make sure you have Git installed and try again");
-        local
-            .commit(
-                Some("HEAD"),
-                &sig,
-                &sig,
-                "Inital Commit",
-                &local.find_tree(tree_id).unwrap(),
-                &parents,
-            )
-            .expect("could not commit changes");
-        // Command::new("git")
-        //     .arg("commit")
-        //     .arg("-m")
-        //     .arg("Initial commit")
-        //     .output()
-        //     .expect("An error occured while trying to set the branch to main - Make sure you have Git installed and try again");
-        let obj = local
-            .head()
-            .unwrap()
-            .resolve()
-            .unwrap()
-            .peel(ObjectType::Commit)
-            .unwrap();
-        local
-            .branch("main", &obj.into_commit().unwrap(), false)
-            .expect("Could not set branch to main");
-        // Command::new("git")
-        //     .arg("branch")
-        //     .arg("-M")
-        //     .arg("main")
-        //     .output()
-        //     .expect("An error occured while trying to set the branch to main - Make sure you have Git installed and try again");
+        Command::new("git")
+            .arg("init")
+            .output()
+            .expect("An error initializing Git - Make sure you have Git installed and try again!");
+        Command::new("git")
+            .arg("add")
+            .arg("-A")
+            .output()
+            .expect("An error occurred while trying to commit changes to Git - Make sure you have Git installed and try again");
+        Command::new("git")
+            .arg("commit")
+            .arg("-m")
+            .arg("Initial commit")
+            .output()
+            .expect("An error occured while trying to set the branch to main - Make sure you have Git installed and try again");
+        Command::new("git")
+            .arg("branch")
+            .arg("-M")
+            .arg("main")
+            .output()
+            .expect("An error occured while trying to set the branch to main - Make sure you have Git installed and try again");
         Command::new("git")
             .arg("remote")
             .arg("add")
@@ -399,14 +370,13 @@ impl Cppm {
             .arg(repo)
             .output()
             .expect("An error occurred while trying to connect to the remote repository - Make sure the repository exists and try again");
-        
-        // Command::new("git")
-        //     .arg("push")
-        //     .arg("-u")
-        //     .arg("origin")
-        //     .arg("main")
-        //     .output()
-        //     .expect("An error occurred while trying to push changes to the repository - Make sure the repository exists and try again");
+        Command::new("git")
+            .arg("push")
+            .arg("-u")
+            .arg("origin")
+            .arg("main")
+            .output()
+            .expect("An error occurred while trying to push changes to the repository - Make sure the repository exists and try again");
     }
 
     /// Initializes a project in the current directory.
