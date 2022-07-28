@@ -18,8 +18,6 @@ use crate::build::run;
 use serde_json::Value;
 use std::str;
 
-use git2::{ObjectType, Repository};
-
 /// Struct used to serialize configfile.
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -453,6 +451,7 @@ impl Cppm {
                 ("src".to_string(), "src/main.cpp".to_string()),
                 ("standard".to_string(), "17".to_string()),
             ]),
+            dependencies: HashMap::new(),
         };
         if c {
             cc.project

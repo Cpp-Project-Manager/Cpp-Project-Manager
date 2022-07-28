@@ -2,6 +2,7 @@ mod build;
 mod clangd;
 mod cppm;
 mod templates;
+mod dependencies;
 use clap::{Parser, Subcommand};
 use colored::Colorize;
 use cppm::*;

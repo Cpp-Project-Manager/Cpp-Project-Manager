@@ -21,6 +21,7 @@ use std::{
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalConfig {
     pub project: HashMap<String, String>,
+    pub dependencies: HashMap<String, String>
 }
 
 /// Generates an include command based on all the folders passed into the argument.\
@@ -119,6 +120,8 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
     let includes: String = format!("-I{}", includes.join(" -I"));
     let includes: Vec<&str> = includes.split(" ").collect();
+    let includes: Vec<String> = crate::dependencies::read_deps(includes);
+    let includes: Vec<&str> = includes.iter().map(|f| f.as_str()).collect();
 
     let mut libraries: Vec<&str> = Vec::new(); // note: someone please test that the libraries link properly.
     if cppm.project.contains_key("libs") {
