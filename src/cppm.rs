@@ -172,7 +172,7 @@ impl Cppm {
 
             if !s.editor.contains("null") {
                 let mut child = if cfg!(target_os = "windows") {
-                    Command::new("powershell")
+                    Command::new("powershell") // NOTE: this was implemented as spawning a shell in the event of trying to spawn terminal editors, if there is no solution in the future then spawn the editor and pass the project location as an arg.
                         .arg(&format!("{} {}", s.editor, pn))
                         .spawn()
                         .expect("Failed to open editor.")
@@ -451,6 +451,7 @@ impl Cppm {
                 ("src".to_string(), "src/main.cpp".to_string()),
                 ("standard".to_string(), "17".to_string()),
             ]),
+            dependencies: HashMap::new(),
         };
         if c {
             cc.project

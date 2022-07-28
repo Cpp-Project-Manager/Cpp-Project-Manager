@@ -21,6 +21,7 @@ use std::{
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LocalConfig {
     pub project: HashMap<String, String>,
+    pub dependencies: HashMap<String, String>
 }
 
 /// Generates an include command based on all the folders passed into the argument.\
@@ -80,6 +81,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
         );
         exit(0);
     }
+    
     let mut target = String::new();
     let mut build_t = String::new();
 
@@ -118,6 +120,8 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     let includes: Vec<&str> = cppm.project["include"].split(", ").collect();
     let includes: String = format!("-I{}", includes.join(" -I"));
     let includes: Vec<&str> = includes.split(" ").collect();
+    let includes: Vec<String> = crate::dependencies::read_deps(includes);
+    let includes: Vec<&str> = includes.iter().map(|f| f.as_str()).collect();
 
     let mut libraries: Vec<&str> = Vec::new(); // note: someone please test that the libraries link properly.
     if cppm.project.contains_key("libs") {
@@ -125,9 +129,20 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     } else {
         libraries = vec![""];
     }
-    let l = format!("-L{}", libraries.join(" -L"));
+
+    let l: String = if libraries.is_empty() {
+        format!("-l{}", libraries.join(" -l"))
+    } else {
+        "".to_string()
+    };
     libraries = l.split(" ").collect();
 
+    let mut extra: Vec<&str> = Vec::new();
+    if cppm.project.contains_key("extra") {
+        extra = cppm.project["extra"].split(", ").collect();
+    } else {
+        extra = vec![""];
+    }
     let mut flags: Vec<&str> = vec![
         "-fdiagnostics-color=always",
         "-Wall",
@@ -142,6 +157,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
         flags = flag_string.split(", ").collect();
     }
     let src = cppm.project["src"].clone();
+
     let mut standard = cppm.project["standard"].clone();
     standard = if c {
         format!("-std=c{standard}")
@@ -161,11 +177,13 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
     // println!("{}", compilers.compilers["c"].clone());
 
     if release {
+        // use variables to make a better implimentation of this
         out = Command::new(&compiler)
             .arg(standard.clone())
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
             .arg(src.clone())
+            .args(extra.clone())
             .args(includes.clone())
             .args(libraries.clone())
             .arg("-O3")
@@ -197,6 +215,7 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             .arg("-o")
             .arg(format!("build/{}", cppm.project["name"]))
             .arg(src.clone())
+            .args(extra.clone())
             .args(includes.clone())
             .args(libraries.clone())
             .args(flags.clone())
@@ -235,7 +254,13 @@ pub fn build(release: bool, run_type: bool, i: bool, c: bool) {
             "Finished".bright_blue().bold(),
             start.elapsed()
         );
+        // progress.println(&format!(
+        //     "    {} {build_t} [{target}] target(s) in {:?}",
+        //     "Finished".bright_blue().bold(),
+        //     start.elapsed()
+        // ));
     }
+
     if i {
         #[cfg(windows)]
         install(format!("{}.exe", cppm.project["name"]));
