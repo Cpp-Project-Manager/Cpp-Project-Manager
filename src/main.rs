@@ -243,5 +243,6 @@ fn main() {
             clangd::clint(source, c);
         }
         None => (),
+        //fuck maou
     }
 }
